@@ -62,19 +62,25 @@
 	<h1>Instructions</h1>
 	<p>This week's thought questions involves taking part in a quick experiment! You're going to pretend to be a monkey for a moment and take part in a classic motion detection experiment which we will learn about in lecture. Please make sure to save your results and bring them to section on Friday!</p>
 	<p>This experiment is quite simple. On each trial you'll be shown a patch of dots that are moving randomly. Press the <b>up</b> key to start the trial: a small percentage of the dots will then begin moving right or left. As soon as you detect which direction the coherent dots are going, press the corresponding key, <b>left</b> or <b>right</b>. Follow the directions in the thought question--you'll need to do the experiment more than once. Refresh the page after each run through. We recommend practicing the task once to make sure you understand and then starting over to collect data.</p>
+	<a class="button" id="toggle" onclick="toggleCoherence();">High coherence</a><br><br>
 </div>
 
 <div id="block2">
 <!-- game block -->
-	<canvas id="canvas"></canvas>
-
-	<progress id="prog" max="1" value="0"></progress>
+	<div style="text-align:center;">
+	<canvas id="canvas" style="cursor:none" width=400 height=400></canvas>
+	<br>
+	<progress color="red" id="prog" max="1" value="0"></progress>
+	</div>
 
 </div>
 
 <div id="block3">
-	<output id="rt"></output>
-	<output id="pc"></output>
+	<p>Write down this information, you will need it for the thought question and in section this week!</p>
+	<output id="rti"></output><br>
+	<output id="pci"></output><br><!-- 
+	<output id="rtc"></output><br>
+	<output id="pcc"></output><br> -->
 </div>
 
 <div id="endblock">
@@ -99,7 +105,7 @@
 	</body>
 		<!-- Local Assets -->
 			<script src="dots.js"></script>
-			<script src="shared_code.js"></script>
+			<script src="../assets/js/shared_code.js"></script>
 			<script src="psych50_ddm_demo.js"></script>
 			<!-- <link rel="stylesheet" href="psych50_ddm.css" /> -->
 
