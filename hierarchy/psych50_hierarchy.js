@@ -42,8 +42,22 @@ var tick;
 var isDone;
 
 ////////////////////
-///// BLOCK 3 //////
+///// BLOCK 5 //////
 ////////////////////
+
+$("#textarea5").keydown(function(event) {textarea5(event)});
+
+function textarea5(e) {
+  var key = e.which;
+  if (key===13) {
+    e.preventDefault();
+    if (document.getElementById('textarea5').value.indexOf('rgc') !== -1) {
+      // $("#end9").show();
+      sectionComplete();
+    }
+  }
+}
+
 
 var done3 = false;
 
@@ -77,8 +91,8 @@ function launch3() {
 
 function end3() {
   done3 = true;
+  $("#textarea5").show();
   $("#endblock3").show();
-  sectionComplete();
 }
 
 function checkDone3() {
@@ -111,6 +125,19 @@ function drawStimulus3() {
 ////////////////////
 ///// BLOCK 7 //////
 ////////////////////
+
+$("#textarea7").keydown(function(event) {textarea7(event)});
+
+function textarea7(e) {
+  var key = e.which;
+  if (key===13) {
+    e.preventDefault();
+    if (document.getElementById('textarea7').value.indexOf('simplecells') !== -1) {
+      // $("#end9").show();
+      sectionComplete();
+    }
+  }
+}
 
 var done7 = false;
 
@@ -152,7 +179,7 @@ function launch7() {
 function end7() {
   done7 = true;
   $("#endblock7").show();
-  sectionComplete();
+  $("#textarea7").show();
 }
 
 function checkDone7() {
@@ -250,9 +277,6 @@ function drawPlot8() {
 
 $("#textarea9").keydown(function(event) {textarea9(event)});
 
-function changePosition(nPos) {
-
-}
 function textarea9(e) {
   var key = e.which;
   if (key===13) {
@@ -676,6 +700,18 @@ function drawBlock() {
 ///// HELPERS //////
 ////////////////////
 
+$("#document").keydown(function(event) {clearLists(event);})
+document.addEventListener("keydown",clearLists,false);
+
+function clearLists(e) {
+  var key = e.which;
+  if (key==32) {
+    clickListPos = [];
+    clickListNeg = [];
+    correctCount = 0;
+  }
+}
+
 
 function drawCross(x,y,cross,color) {
   ctx_vis.beginPath();
@@ -811,6 +847,7 @@ function run(i) {
         launch3();
         $("#continue").hide();
         $("#endblock3").hide();
+        $("#textarea5").hide();
       }
       break;
     case 7:
@@ -818,6 +855,7 @@ function run(i) {
         launch7();
         $("#continue").hide();
         $("#endblock7").hide();
+        $("#textarea7").hide();
       }
       break;
     case 8:

@@ -90,19 +90,21 @@
 <div id="block3">
 	<h2>Introduction</h2>
 	<p>A neuron in the visual cortex is like a small computer (or computational unit). Each neuron gets inputs from other neurons and if you go back far enough you eventually get to the retina, where the original inputs are photons of light. For any given neuron in visual cortex you can stick an electrode in and listen to that neuron's activation. This is making an <b>observation</b> about a neuron. Now, you can show different visuals to a neuron and by keeping track of what activates or inactivates the neuron you can get a sense of what that neuron cares about. With enough observations you can then start thinking about your model to answer the question: what is this particular neuron doing? Understanding this question will be our goal today.</p>
-	<p>Our first foray into neurons is going to happen right at the retina. In the retina there are retinal ganglion cells which receive more or less direct inputs from the photoreceptors. That is: the neuron's input is the presence or absence of photons in the immediate surrounding region. As you'll soon see retinal ganglion cells perform a simple computation. The responses of these cells to light were first studied by Stephen Kuffler in 1953. Kuffler did two things: (1) He explored what area of the retina each retinal ganglion cell responded to, which we call the <b>receptive field</b>, and (2) he explored what kinds of stimuli the retinal ganglion cells are responsive to, which we call sensitivity to a <b>feature</b>.</p>
+	<p>Our first foray into neurons is going to happen right at the retina. In the retina there are retinal ganglion cells which receive more or less direct inputs from the photoreceptors. That is: the neuron's input is the presence or absence of photons in the immediate surrounding region. As you'll soon see retinal ganglion cells perform a simple computation. The responses of these cells to light were first studied by <a href="pdfs/Kuffler1953.pdf" target="_blank">Stephen Kuffler in 1953</a>. Kuffler did two things: (1) He explored what area of the retina each retinal ganglion cell responded to, which we call the <b>receptive field</b>, and (2) he explored what kinds of stimuli the retinal ganglion cells are responsive to, which we call sensitivity to a <b>feature</b>.</p>
 	<p>Now we're going to go back in time to 1953 and recreate Kuffler's classic experiment in your browser.</p> 
 </div>
 
 <div id="block4">
 	<h2>Tools to study neurons</h2>
 	<p>Before actually studying the retina we want to quickly orient you to the toolkit we're going to give you. You'll see a panel like the one below. Your job will be to adjust the stimulus and move it around to find the areas of the retinal field that activate or inhibit this particular neuron. When you find these, you can mark them (by clicking). A green cross indicates that you believe a region activates the neuron, a red minus indicates you believe it inhibits the neuron. When you have done a good enough job mapping the receptive (mapping both activated and inhibited regions), the tutorial will allow you to continue.</p>
+	<p><b>This is just an image!</b></p>
 	<img width=550 src="images/toolkit.png"/>
 </div>
 
 <div id="block5">
 	<h2>1953: Retinal ganglion cells</h2>
-	<p>You've placed an electrode in the retina of an anesthetized cat and you're now showing pinpricks of light. Remember: your goal is to find and <b>map</b> the receptive field: it has areas that are <b>excitatory</b> or activated by light and areas that are <b>inhibitory</b>. Click to mark a region as excitatory, shift+click to mark it as inhibitory. When you're successful the tutorial will display the true receptive field for you and allow you to continue</p>
+	<p>You've placed an electrode in the retina of an anesthetized cat and you're now showing pinpricks of light. Remember: your goal is to find and <b>map</b> the receptive field: it has areas that are <b>excitatory</b> or activated by light and areas that are <b>inhibitory</b>. This may be more difficult than you expect!</p>
+	<p>Click to mark a region as excitatory, shift+click to mark it as inhibitory, press space to erase everything. When you're successful the tutorial will display the true receptive field for you and allow you to continue.</p>
 	<div style="text-align:center;">
 		<div class="4u" style="text-align:center">
 			<input type="range" min="1" max="5" value="2" step="1" oninput="changeSize(this.value);"/>
@@ -115,6 +117,7 @@
 	<canvas style="cursor:none" width=400 height=400 id="visual1"></canvas>
  	<div id="endblock3"><p>Congratulations! You've mapped your first receptive field. You can now see the areas that were excitatory and inhibitory. We call this particular kind of neuron a center-surround neuron, because it has a center that is excited by light, but a surrounding region that is inhibited by light.</p>
  	<p>Before going on we want you to do two things: First, try using a very large radius stimulus (20px+), what do you notice happens to the response of the neuron if you overlap both the excitatory and inhibitory regions? Why is this happening? Second, what do you expect the purpose of a neuron like this to be? By this we mean: what <b>feature</b> do you think this kind of a neuron detects? You should know that there are both center-surround neurons that have an excitatory center and inhibitory surround and the reverse.</p></div>
+ 	<textarea rows=1 id="textarea5" onkeypress="textarea5(event);" placeholder="(see TA when finished)"></textarea><br>
 </div>
 
 <div id="block6">
@@ -128,7 +131,8 @@
 
 <div id="block7"> 
 	<h2>1963: Simple cells</h2>
-	<p>About five years after Kuffler mapped cells in the retina two researchers at Johns Hopkins, Torsten Wiesel and David Hubel began setting up their own cat lab, now attempting to record from cells in the early visual cortex. The story of how they discovered what kinds of features activate V1 cells is <a href="https://youtu.be/IOHayh06LJ4?t=13">here on YouTube</a> and is quite surprising: it was a complete accident. If you want to skip the video the answer turns out to be <b>oriented bars</b>. But the real question is: what kind of a receptive field do you need to detect oriented bars? For figuring out the answer (among many other contributions) Hubel and Wiesel received the 1981 Nobel Prize. Now you get the opportunity to repeat their classic experiment below (same game as before!):</p>
+	<p>About five years after Kuffler mapped cells in the retina two researchers at Johns Hopkins, Torsten Wiesel and David Hubel began setting up their own cat lab, now attempting to record from cells in the early visual cortex. The story of how they discovered what kinds of features activate V1 cells is <a href="https://youtu.be/IOHayh06LJ4?t=13" target="_blank">here on YouTube</a> and is quite surprising: it was a complete accident. If you want to skip the video the answer turns out to be <b>oriented bars</b>. But the real question is: what kind of a receptive field do you need to detect oriented bars? For figuring out the answer (among many other contributions) Hubel and Wiesel received the 1981 Nobel Prize. Now you get the opportunity to repeat their classic experiment below (same game as before!):</p>
+	<p>Click to mark a region as excitatory, shift+click to mark it as inhibitory, press space to erase everything. When you're successful the tutorial will display the true receptive field for you and allow you to continue. Make sure you try rotating the bar before you start drawing.</p>
 	<div style="text-align:center;">
 		<div class="4u" style="text-align:center">
 			<input type="range" min="4" max="16" value="12" step="2" oninput="changeSize(this.value);"/>
@@ -147,6 +151,7 @@
 	</div>
 	<canvas style="cursor:none" width=400 height=400 id="visual7"></canvas>
  	<div id="endblock7"><p>Nice work! We've now revealed to you the true receptive field. You can keep trying different stimuli now to help you understand why this particular setup is responsible for generating the pattern of responses you observed. While you do this think about the next question in our tutorial: we know that V1 simple cells get inputs from retinal ganglion cells, can you imagine how you might sum up the output of multiple retinal ganglion cells to get a receptive field like the one above?</p></div>
+ 	<textarea rows=1 id="textarea7" onkeypress="textarea7(event);" placeholder="(see TA when finished)"></textarea><br>
 </div>
 
 <div id="block8"> 
@@ -224,7 +229,8 @@
 	<canvas width=24 height=24 style="width:240px; height:240px;" id="conv_canvas"></canvas>
 	<p></p>
 	<p>This particular network happens to have an error rate near 1%, although the way you draw letters here is a bit unnatural compared to the training data (real drawings). With a bit of persistence you should find that it's easy to trick this network: what features do you find cause it to be confused? Keep in mind that this network was trained with a very specific set of data--one of the big goals in this research area is to figure out how to train a deep neural network on one type of data and have it generalize to another without every seeing it.</p>
-	<p>On other tasks such as classifying object categories (dogs, cats, cars, buildings, etc) similar networks now achieve better than human performance. Research in this area has now turned to understanding why these networks do so well. The short answer turns out to be that as they repeat simple operations over and over, similar to actual neurons, the "features" that they represent become increasingly invariant and complex. Like in the human brain this allows these deep neural networks to see all sorts of categories by building up the complexity over time. </p>
+	<p>On other tasks such as classifying object categories (dogs, cats, cars, buildings, etc) similar networks now achieve better than human performance. For example, check out <a href="https://quickdraw.withgoogle.com/" target="_blank">this deep net</a> that google has trained to recognize a small set of hand-drawn objets.  Research in this area has now turned to understanding why these networks do so well. The short answer turns out to be that as they repeat simple operations over and over, similar to actual neurons, the "features" that they represent become increasingly invariant and complex. Like in the human brain this allows these deep neural networks to see all sorts of categories by building up the complexity over time. </p>
+	<p>If you are interested, this convolutional neural network code is adapted from <a href="http://cs.stanford.edu/people/karpathy/convnetjs/" target="_blank">Andrej Karpathy's ConvNetJS</a>.
 	<!-- Credit to twitter.com/teenybiscuit -->
 	<!-- <img width=400 id="mix" onclick="new_mix()"/> -->
 </div> 
@@ -264,7 +270,7 @@
 			<!-- <link rel="stylesheet" href="psych50.css" /> -->
 		<!-- Scripts -->
 			<script src="convnetjs/images/cifar10_labels.js"></script>
-			<script src="shared_code.js"></script>
+			<script src="../assets/js/shared_code.js"></script>
 			<script src="psych50_hierarchy.js"></script>
 
 			<script>launch();</script>
