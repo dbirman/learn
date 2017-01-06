@@ -48,6 +48,7 @@ function next() {
 		document.getElementById("block"+curBlock).style.display="";
 	} else {		
 		document.getElementById("endblock").style.display="";
+		$("#continue").hide();
 	}
 	run(curBlock);
 	
