@@ -700,7 +700,6 @@ function drawBlock() {
 ///// HELPERS //////
 ////////////////////
 
-$("#document").keydown(function(event) {clearLists(event);})
 document.addEventListener("keydown",clearLists,false);
 
 function clearLists(e) {
