@@ -183,7 +183,7 @@ function end7() {
 }
 
 function checkDone7() {
-  if (!done7 && correctCount>15 && clickListPos.length>3 && clickListNeg.length>3) {end7(); sectionComplete();}
+  if (!done7 && correctCount>15 && clickListPos.length>3 && clickListNeg.length>3) {end7();}
 }
 
 // Visual variables
