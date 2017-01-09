@@ -3,76 +3,145 @@
 ////////// BLOCK 2 /////////////
 ////////////////////////////////
 
-// Cannonball variables
-var y0 = 0,
-	vy = 10,
-	ay = -1;
+////////////////////////////////
+////////// INPUTS! /////////////
+////////////////////////////////
 
-// Equations
-var time = divide(range(0,50),10);
-var data = quadratic(time,0,49,-9.8);
+// this is the worst fucking code I've written anywhere in this
+// entire project.
 
-$("#textarea1").keydown(function(event) {textarea1(event)});
+// sorry next person
 
-function textarea1(e) {
+var low = {};
+var high = {};
+
+function input2lcc(e,val) {
 	var key = e.which;
 	if (key===13) {
 		e.preventDefault();
-		eval(document.getElementById('textarea1').value);
-		drawPlot1();
-		checkLS();
+		num = parseInt(val);
+		if (num>100) {
+			alert('Value was too large! Should be between 0-100');
+			return
+		}
+		else if (num<0) {
+			alert('Number was too small! Should be between 0-100');
+			return
+		}
+		low.correct = num
+		document.getElementById("lcc").innerHTML = "Low coherence % correct = " + low.correct + "%";
+		
+	}
+}
+function input2hcc(e,val) {
+	var key = e.which;
+	if (key===13) {
+		e.preventDefault();
+		num = parseInt(val);
+		if (num>100) {
+			alert('Value was too large! Should be between 0-100');
+			return
+		}
+		else if (num<0) {
+			alert('Number was too small! Should be between 0-100');
+			return
+		}
+		high.correct = num;
+		document.getElementById("hcc").innerHTML = "High coherence % correct = " + high.correct + "%";
+
+	}
+}
+function input2lcrt(e,val) {
+	var key = e.which;
+	if (key===13) {
+		e.preventDefault();
+		num = parseInt(val);
+		if (num>5000) {
+			alert('Value was too large! Should be between 100-5000');
+			return
+		}
+		else if (num<100) {
+			alert('Number was too small! Should be between 100-5000');
+			return
+		}
+		low.RT = num;
+		document.getElementById("lcrt").innerHTML = "Low coherence reaction time = " + low.RT + " ms";
+
+	}
+}
+function input2hcrt(e,val) {
+	var key = e.which;
+	if (key===13) {
+		e.preventDefault();
+		num = parseInt(val);
+		if (num>5000) {
+			alert('Value was too large! Should be between 100-5000');
+			return
+		}
+		else if (num<100) {
+			alert('Number was too small! Should be between 100-5000');
+			return
+		}
+		high.RT = num;
+		document.getElementById("hcrt").innerHTML = "High coherence reaction time = " + low.RT + " ms";
+
 	}
 }
 
-function checkLS() {
-	// We're going to check the least squares difference between our model
-	// and the data, and when it gets below some threshold
-	// we will allow students to continue
-	ym = quadratic(time,y0,vy,ay);
-	yd = data;
-	LS = sum(pow(subtract(yd,ym),2));
-	if (LS<5 && !done2) {
-		alert('Good fit! You can continue with the tutorial now.');
-		document.getElementById("continue").style.display="";
-		document.getElementById("leastsquares_hidden1").style.display="";
-		document.getElementById("leastsquares_visible1").style.display="none";
-		done2 = true;
+function allEntered() {
+	if (low.correct && high.correct && low.RT && high.RT) {
+		$("#ina").hide();
+		$("#inb").hide();
+		$("#inc").hide();
+		$("#ind").hide();
+		return true;
+	}
+	return false
+}
+
+// block 2 steps through the DDM
+var cur2 = 0;
+var max2 = 7;
+function init2() {
+	for (var i=1;i<=max2;i++) {
+		$("#b2_p"+i).hide();
+	}
+	$("#b2_always").hide();
+}
+
+function step2() {
+	if (cur2==0) {
+		if (!allEntered()) {alert('Enter all the information.'); return;}
+	}
+	if (cur2<max2) {
+		console.log('next');
+		$("#b2_p"+cur2).hide();
+		cur2++;
+		$("#b2_p"+cur2).show();
+	}
+	else {
+		$("#step2").hide();
+		$("#continue").show();
+	}
+	switch (cur2) {
+		case 1:
+			$("#bd_always").show();
+			drawDots2();
+			break;
 	}
 }
 
-function quadratic(t,y0,vy,ay) {
-	// x = add(add(x0,multiply(vx,t)),multiply(ax,pow(t,2)));
-	y = max(0,add(add(y0,multiply(vy,t)),multiply(ay,pow(t,2))));
-	return y
+var dots2 = initDots(400,100,100,1,0,0.5);
+var tick2;
+
+function drawDots2() {
+	
+
+	tick2 = window.requestAnimationFrame(drawDots2);
 }
 
-function drawPlot1() {
-	traceM = {
-		x: time,
-		y: quadratic(time,y0,vy,ay),
-		mode:'line',
-		line:{color:'black'},
-		type:'scatter',
-		name:'Model'
-	}
-	traceD = {
-		x: time,
-		y: data,
-		mode:'markers',
-		marker: {color:'red'},
-		type:'scatter',
-		color:'red',
-		name:'Data'
-	}
-	var layout1 = layout;
-	layout1.title = 'Cannonball height over time';
-	layout1.xaxis.title = 'Time (s)';
-	layout1.xaxis.range = [0,5];
-	layout1.yaxis.title = 'Height (m)';
-	layout1.yaxis.range = [0, 65];
-	layout1.width = 600;
-	layout1.height = 400;
-	Plotly.newPlot('plot1',[traceM, traceD],layout1);
+function flip2() {
+
 }
 
 ////////////////////////////////
@@ -758,11 +827,10 @@ function run(i) {
 	// Runs each time a block starts incase that block has to do startup
 	switch(i) {
 		case 2:
-			if (!done2) {
-				// least squares fitting: hide continue and leastsquares answer panels
-				document.getElementById("continue").style.display="none";
-				document.getElementById("leastsquares_hidden1").style.display="none";		
-			}
+			init2();
+			cur2 = 0;
+			$("#step2").show();
+			$("#continue").hide();
 			break;
 		case 3:
 			drawMotionPatches();
@@ -822,9 +890,8 @@ function launch_local() {
 	// katex.render("y(t)=y_{0}+v_{y}t+\\frac{1}{2}at^{2}",document.getElementById("katex2"),{displayMode:true});	
 	katex.render("A(t)=\\sum_{i=0}^{t} left(i)-right(i)",document.getElementById("katex3"),{displayMode:true});	
 	katex.render("Response(coherence) = f(coherence) + \\epsilon",document.getElementById("katex4"),{displayMode:true});	
-	drawPlot1();
+	// drawPlot1();
 	drawPlot2();
-	document.getElementById("bonus1").style.display="none";
 	document.getElementById("end6").style.display="none";
 	document.getElementById("end7").style.display="none";
 	$.ajax({ url: "roitmanshadlen2002.csv", success: function(file_content) {

@@ -76,11 +76,26 @@
 </div>
 
 <div id="block2">
-	<p>For your thought question this week you played a simple game involving picking whether a patch of motion was moving to the right or to the left. Today you are going to create a computational model for this behavior and then write that model down as a set of mathematical formula. The first step to approaching this problem is to think about how we imagine that humans solve the behavior you performed. In the thought question we asked you about your subjective experience during the task--a good initial source of insight. Your experience probably differed slightly, but a general verbal model might sound something like this: "To compute whether motion appeared to the left or right an observer tracks many dots simultaneously and keeps track of whether they are consistent in their motion--after accumulating evidence until they feel confident, the observer then makes a choice."</p>
-	<p>The first thing we're going to do is actually fit this verbal model, in a qualitative (non-formal and non-ideal) way. Please get out the data from your results on the demo and enter them below. You only need the data from the first run through the task (when you didn't try to maximize speed or accuracy).</p>
+	<div id="b2_p0"><p>For your thought question this week you played a simple game involving picking whether a patch of motion was moving to the right or to the left. Today you are going to create a computational model for this behavior and then write that model down as a set of mathematical formula. The first step to approaching this problem is to think about how we imagine that humans solve the behavior you performed. In the thought question we asked you about your subjective experience during the task--a good initial source of insight. Your experience probably differed slightly, but a general verbal model might sound something like this: "To compute whether motion appeared to the left or right an observer tracks many dots simultaneously and keeps track of whether they are consistent in their motion--after accumulating evidence until they feel confident, the observer then makes a choice."</p>
+	<p>The first thing we're going to do is actually fit this verbal model, in a qualitative (non-formal and non-ideal) way. Please get out the data from your results on the demo and enter them below. You only need the data from the first run through the task (when you didn't try to maximize speed or accuracy). If you forgot the numbers please <a href="https://dbirman.github.io/learn/ddm/psych50_ddm_demo.html" target="_blank">repeat the task</a> once for low and once for high coherence.</p>
+	<p>Press enter in each box to submit your data and continue.</p>
+	</div>
 	<!-- STUFF TO ENTER DATA -->
-	<input type="number" oninput="input2();"></input>
+	<span id="lcc">Low coherence % correct = </span>
+	<textarea id="ina" rows=1 width=200 type="number" onkeypress="input2lcc(event,this.value);" placeholder="Enter as a number, e.g. 100."></textarea>
+	<br>
+	<span id="hcc">High coherence % correct = </span>
+	<textarea id="inb" rows=1 width=200 type="number" onkeypress="input2hcc(event,this.value);" placeholder="Enter as a number, e.g. 100."></textarea>
+	<br>
+	<span id="lcrt">Low coherence reaction time = </span>
+	<textarea id="inc" rows=1 width=200 type="number" onkeypress="input2lcrt(event,this.value);" placeholder="Enter as a number in milliseconds, e.g. 1000."></textarea>
+	<br>
+	<span id="hcrt">High coherence reaction time = </span>
+	<textarea id="ind" rows=1 width=200 type="number" onkeypress="input2hcrt(event,this.value);" placeholder="Enter as a number in milliseconds, e.g. 1000."></textarea>
+	<br>
+	<br>
 	<div id="b2_p1">
+		<p>Our verbal model is: <i>To compute whether motion appeared to the left or right an observer tracks many dots simultaneously and keeps track of whether they are consistent in their motion--after accumulating evidence until they feel confident, the observer then makes a choice.</i></p>
 		<p>We're now going to transform the verbal model into a computational one that we can simulate. The first thing we're going to do is think about the first part of the verbal model "an observer tracks many dots simultaneously and keeps track of whether they are consistent in their motion". What we're going to do is output onto the graph below the observer's belief about the direction of the dots. This happens over two thousand milliseconds, and at each time step (one millisecond passing), we'll add a <b>1</b> if the observer sees rightward motion, and subtract <b>-1</b> if they see leftward motion. You can click the motion patch to change its direction.</p>
 		<p>You can see that depending on whether the motion is to the left or right the graph very quickly shoots off in that direction. This is what we call the <b>diffusion rate</b> of the model, but you should think of it as the amount of <b>evidence</b>, after X milliseconds have passed, in favor of either direction.</p>
 	</div>
@@ -98,13 +113,21 @@
 		<p>We call the amount of noise the <b>drift rate</b> of the model.</p>
 	</div>
 	<div id="b2_p6">
-		<p>All right--here's where things get interesting. Change the input data (percent correct and reaction time) to the data from the <b>speed</p> condition, where you ignored your accuracy entirely. Tweak the parameters until you get a good fit to your data.</p>
+		<p>All right--here's where things get interesting. Change the input data (percent correct and reaction time) to the data from the <b>speed</b> condition, where you ignored your accuracy entirely. Tweak the parameters until you get a good fit to your data.</p>
 		<p>Here comes the interesting question: change your input data to what you got form your <b>accuracy</b> condition. BUT: try now to fit this new data while only changing <b>one parameter</b>! Can you do this? Which parameter works well for your data? We'll come back later to why changes in parameters like this are important, but the short version is that <i>if</i> these parameters can be linked to parts of the brain then we might be able to interpret the changes in the model as literal changes in the brain. More on this later!</p>
 	</div>
 	<div id="b2_p7">
 		<p>Nice work. We've translated the verbal model (from above) into a computational one composed of the <b>diffusion rate</b>, the <b>drift rate</b>, and a <b>boundary</b>. So in a sense you might say that one possible computational solution to this task involves a process like drift diffusion. In the next sections we're going to do two things: show that the drift diffusion model really does make sense for the brain and have you write the actual code to test this hypothesis. If you have any questions about how the model works this is a good time to check with your neighbor or the TA.</p>
 	</div>
-	<button class="button" id="continue2" onclick="continue2();">Next</button>
+	<br><br>
+	<div id="b2_always" style="text-align:center;">
+	<!-- This is stuff that always is on the screen once they
+	have filled out all of their information -->
+		<canvas width=100 height=100 id="canvas_b2" onclick="flip2();"></canvas>
+		<div id="plot1"></div>
+	</div>
+	<br><br>
+	<button class="button" id="step2" onclick="step2();">Next</button>
 </div>
 
 <div id="block3">
