@@ -13,8 +13,9 @@
 // sorry next person
 
 var low = {};
-var high = {};
-
+var high = {}; 
+ low.rt = 0; high.rt = 0;
+ low.correct =0; high.correct=0;
 function input2lcc(e,val) {
 	var key = e.which;
 	if (key===13) {
