@@ -53,6 +53,7 @@ function draw() {
 			case 37: // left
 				if (state) {
 					state = false;
+					$("#waiting").show();
 					// cdots = (cdots+1)%3;
 					calcVals(directions[trial]>0);
 					trial++;
@@ -61,6 +62,7 @@ function draw() {
 			case 39: // right
 				if (state) {
 					state = false;
+					$("#waiting").show();
 					// cdots = (cdots+1)%3;
 					calcVals(directions[trial]==0);
 					trial++;
@@ -69,6 +71,7 @@ function draw() {
 			case 38: // up
 				if (!state) {
 					state = true;
+					$("#waiting").hide();
 					// cdots = (cdots+1)%3;
 					tstart = now();
 				}
