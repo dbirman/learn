@@ -14,8 +14,9 @@
 
 var low = {};
 var high = {}; 
- low.rt = 0; high.rt = 0;
- low.correct =0; high.correct=0;
+low.rt = 0; high.rt = 0;
+low.correct =0; high.correct=0;
+
 function input2lcc(e,val) {
 	var key = e.which;
 	if (key===13) {
@@ -131,7 +132,7 @@ function step2() {
 		$("#step2").hide();
 		$("#b2_p"+max2).hide();
 		$("#dataentry").hide();
-		$("#continue").show();
+		next();
 	}
 	switch (cur2) {
 		case 1:
