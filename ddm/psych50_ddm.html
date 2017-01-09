@@ -141,9 +141,8 @@
 	<p>You should now be familiar with the basics of the drift diffusion model. But remember the model on its own isn't that exciting. The reason we're excited about this and we want you to learn about it is because we think that in some specific tasks the brain operates in a similar way to a drift diffusion model.</p>
 	<p>The particular task you've been doing has been extensively used by lab of Professor Bill Newsome here at Stanford: macaques were shown moving dots on a screen, and they had to decide whether the dots were predominantly moving to the left or to the right. The task was made harder or easier by changing the proportion of dots that were moving in concert. This is exactly the same task that you've been working with so far.</p>
 	<div width="100%" height="150px" style="position:relative; text-align:center">
-		<div >25%: Very Difficult<br><canvas width=100 height=100 id="canvas_mot25"></canvas></div>
-		<div >50%: Medium Difficult<br><canvas width=100 height=100 id="canvas_mot50"></canvas></div>
-		<div >75%: Easy<br><canvas width=100 height=100 id="canvas_mot75"></canvas></div>
+		<div >15%: Low Coherence, Difficult<br><canvas width=100 height=100 id="canvas_mot25"></canvas></div>
+		<div >65%: High Coherence, Easy<br><canvas width=100 height=100 id="canvas_mot50"></canvas></div>
 	</div><br>
 	<p>You now know that by <b>fitting</b> the DDM you can create a model of decision-making as a process where evidence is noisily accumulated in favor of one of two alternatives ("left" or "right"). What does it mean to accumulate evidence in the brain? Well, what Bill Newsome and others suggest is that there might be a decider neuron that is counting the "votes" cast by other, motion-detecting neurons. They've argued that these decider neurons continue to count votes until they hit a threshold and then they fire. This sounds just like your our model of course! What we're going to do now is set up a drift diffusion model (you'll be writing the code) and then we'll use it to test this hypothesis: does neural data really look like a drift diffusion model?</p>
 	<p>One thing to keep in mind as we go forward is that we will be distinguishing <b>single neurons</b> and <b>populations</b>. A single neuron, as you learned before, may see a feature--but it will have a lot of <b>noise</b> (for example: imagine a neuron whose receptive field is just on the border of the motion "patch" depending on exactly where your eyes are that neuron might respond a lot or not at all). A population of neurons gets around this problem by pooling together many neurons: in a sense it becomes <b>invariant</b> to different sources of noise.</p>
@@ -178,7 +177,7 @@
 
 <div id="block5">
 	<h2>Problem #2: Simulating a single decision</h2>
-	<p>At this point it's good to point out the parallels between what we're doing here and what we did before. At the beginning you took your <b>behavioral</b> data, percent correct and reaction time, and you tweaked the parameters of the model to fit the data. In the background what happened was that we actually simulated the model: starting at <b>0</b> evidence, we added the diffusion rate plus a bit of random noise at each millisecond. We checked at each step to see whether the model had "ended" at that point, and if it did then we wrote down the current time (the reaciton time) and which boundary we hit (the decision). To get a percent correct for example we would simulate one hundred runs. In the next sections you're going to be writing the actual code that does this simulation process--but we'll keep in mind that these are literally neurons we're trying to simulate, not just an abstract concept. So now the <b>parameters</b> will have actual meanings.
+	<p>At this point it's good to point out the parallels between what we're doing here and what we did before. At the beginning you took your <b>behavioral</b> data, percent correct and reaction time, and you tweaked the parameters of the model to fit the data. In the background what happened was that we actually simulated the model: starting at <b>0</b> evidence, we added the diffusion rate plus a bit of random noise at each millisecond. We checked at each step to see whether the model had "ended" at that point, and if it did then we wrote down the current time (the reaction time) and which boundary we hit (the decision). To get a percent correct for example we would simulate one hundred runs. In the next sections you're going to be writing the actual code that does this simulation process--but we'll keep in mind that these are literally neurons we're trying to simulate, not just an abstract concept. So now the <b>parameters</b> will have actual meanings.
 	<p>To build up the model we're going to imagine that our macaque brain is looking at a motion patch for a few hundred milliseconds (just like your brain did). This means that the populations of <span style="color:#5DADE2">left</span> and <span style="color:#CD6155">right</span> preferring neurons will each be activated to some extent at every moment in time. Their current firing rate will be our <b>diffusion rate</b>.</p>
 	<p>To visualize what we mean we're going to show you the same motion display as before. Again, you can control the coherence and the direction of the motion. But now we're going to add a new plot below which will have: the firing rate of the <span style="color:#5DADE2">left</span> population, <span style="color:#CD6155">right</span> population, and the accumulated evidence in black.</p>
 	<p>What do we mean by "accumulated evidence"? Well, intuitively, the evidence at any given moment for left is the firing rate of the left population <b>minus</b> the firing rate of the right population. All we do is sum that up over time, as in this equation:</p>
@@ -194,16 +193,16 @@
 	<div width=600 id="plot2"></div><br><br>
 	<p>There are a few things to note here.
 	<ul>
+		<li>First, the black line should look familiar--this is what we were plotting earlier on with your data. The <b>evidence</b> so far.</li>
 		<li>Even when you put in the same coherence and direction twice, you get slightly different results. This is due to the <b>noise</b></li>
 		<li>At a glance, the left and right population responses don't give you much information at all. It's only by summing them up that you can tell what direction the patch is going.</li>
-		<li>You could imagine now adding boundaries like before</li>
 	</ul>
-	<p>At this point it should be quite intuitive that the drift diffusion model fits in well with neural activity: all we've done is said that the diffusion rate is really the firing rate of neurons. In the next section you're going to write some code to implement the model yourself, and then we'll use it to construct <b>simulations</b>.
+	<p>At this point it should be quite intuitive that the drift diffusion model fits in well with neural activity. The <b>diffusion rate</b> is literally the firing rate of neurons. The <b>drift rate</b> is just the amount of noise in the neural population. The <b>boundary</b> is some kind of internal gate that blocks the accumulating neurons from firing without enough evidence. In the next section you're going to write some code to implement this model, and then we'll use it to construct <b>simulations</b>, but before we get there we're going to check in with everybody again--let the TA know you're done.
 </div>
 
 <div id="block6">
 	<h2>Problem #2: Simulating a single decision</h2>
-	<p>It's now your turn to write some code! The first thing we're going to do is generate neural population responses based on a motion patch. We're going to give you two numbers: the coherence of the patch (what % of dots are moving together), and the direction. Your job is going to be to complete two <b>functions</b> that will tell us what the neural population response looks like based on what the neurons are seeing (the coherence and direction). Remember that neurons have some response, but they also have noise. We've written a function <b>randn()</b> that we will use to get random numbers pulled from a normal distribution. Try out randn() here: just press <b>enter</b>, you'll see the output of this function below.
+	<p>It's now your turn to write some code! The first thing we're going to do is generate neural population responses based on a motion patch. We're going to give you two numbers: the coherence of the patch (what % of dots are moving together), and the direction. Your job is going to be to complete two <b>functions</b> that will tell us what the neural population response looks like based on what the neurons are seeing (the coherence and direction). Remember that neurons have some response, but they also have noise. We've written a function <b>randn()</b> that we will use to get random numbers pulled from a normal distribution. Try out randn() here: just press <b>enter</b>, you'll see the output of this function below.</p>
 	<textarea rows=1 id="textarea6" onkeypress="textarea6(event);">
 out = randn();</textarea>
 	<textarea color="red" rows=1 onkeypress="event.preventDefault();" id="output6">Output will appear here</textarea>
@@ -333,34 +332,12 @@ threshold = 20; //How large of a response necessary to stop a trial and declare 
 	<div style="text-align:center;width:500px;margin:auto"><img width=400 src="images/RoitmanShadlen2002.jpg"/><br><span style="font-size:12px">Roitman, J. D., & Shadlen, M. N. (2002).</span></div>
 	<br>
 	<p>Like before we're going to let you define how the drift rate, diffusion rate, and threshold, might vary as a function of the motion coherence on each trial. As output we'll show you the data from this graph compared to the average output of 56 trials of your drift diffusion model. Your goal, just like in the cannonball example, is to minimize the difference between the model output and the data. At the end we'll look at the model parameters that you produced and discuss how you would <b>interpret</b> these.</p>
-	<textarea rows=25 id="textarea9" onkeypress="textarea9(event);">
-// The three functions below control how your DDM model responds to any particular
-// motion coherence. Right now the model is set to just generate flat responses, but
-// based on what you learned from this tutorial you should be able to generate the
-// correct fits to the Roitman Shadlen data. Good luck! You don't need to use the
-// parameters (coherence/dir) if you don't think they're necessary for a particular
-// function. Coherence is a real value from 0 to 1, dir is either -1 or 1.
-
-// Function needs to return a number to be used as the diffusion rate
-rs_diffusion = function(coherence,dir) {
-	// MODIFY THE NEXT LINE
-	return dir*coherence*1/5;
-}
-
-// Function returns a value corresponding to the noise on one tick
-// (you should use the randn() function, but you might need to scale it)
-rs_drift = function(coherence,dir) {
-	// MODIFY THE NEXT LINE
-	return randn()/5;
-}
-
-// Function needs to return two numbers [#1,#2], the upper and lower boundaries
-// note: the lower threshold may need to be different! (i.e. not -upper)
-rs_threshold = function(coherence,dir) {
-	// MODIFY THE NEXT LINE
-	return [60,25];
-}
-</textarea>
+	<textarea rows=5 id="textarea9" onkeypress="textarea9(event);">
+diffusion_rate = 1; //A number, positive or negative, defining how much is added
+// to the model on each step (equivalent to the Left-Right evidence for motion)
+drift_rate = 5; //How much noise is added on each step
+upper_threshold = 40; //How large of a response necessary to stop a trial and declare it
+lower_threshold = 20;</textarea>
 	<div width=600 height=600 id="plot9"></div>
 	<p>As you try out different approaches think about how well your model fits to the entirety of the data here. Are you able to recover both the variability in the correct trials and incorrect trials? Where does your model fit worst? Is the poor fit in those areas an indication that we've oversimplified the situation and that the model is failing to capture some variability in the data?
 </div>

@@ -159,7 +159,6 @@ function step2() {
 			$("#b2_drift").show();
 			elapsed();
 			drawDots2();
-			run_2();
 			break;
 		case 5:
 			$("#b2_always").hide();
@@ -327,6 +326,9 @@ function run_4(e) {
 	if (el4<1000) {return}
 	el4=0;
 	// Simulate it? Really?
+	var high_rt = 0;
+	var low_rt = 0;
+
 	var high_pc = 0;
 	var low_pc = 0;
 	var reps = 50;
@@ -336,16 +338,19 @@ function run_4(e) {
 		hcv = 0; lcv = 0;
 		for (var j=0; j<1000;j++) {
 			hcv = hcv + .65 * diff2 + randn() * drift2;
-			if (hcv >= 100) {high_pc++; break};
+			if (hcv >= 100) {high_pc++; high_rt+=j; break};
 		}
 		for (var j=0; j<1000;j++) {
 			lcv = lcv + .15 * diff2 + randn() * drift2;
-			if (lcv >= 100) {low_pc++; break};
+			if (lcv >= 100) {low_pc++; low_rt+=j; break};
 		}
 	}
 
 	high_pc = high_pc / reps;
 	low_pc = low_pc / reps;
+
+	high_rt = high_rt / reps;
+	low_rt = low_rt / reps;
 
 	$("#hcc").html("High coherence % correct = " +
 		high.correct + "% " + "<span style=\"color:#CD6155\">model = " +
@@ -354,6 +359,13 @@ function run_4(e) {
 	$("#lcc").html("Low coherence % correct = " +
 		low.correct + "% " + "<span style=\"color:#CD6155\">model = " +
 		Math.round(low_pc*100) + "%</span>");
+
+	$("#hcrt").html("High coherence reaction time = " + 
+		high.RT + " ms " + "<span style=\"color:#CD6155\">model = " + 
+		Math.round(high_rt) + " ms</span>");
+	$("#lcrt").html("Low coherence reaction time = " + 
+		low.RT + " ms "  + "<span style=\"color:#CD6155\">model = " + 
+		Math.round(low_rt) + " ms</span>");
 }
 
 ////////////////////////////////
@@ -364,30 +376,31 @@ var canvas_25 = document.getElementById("canvas_mot25");
 var ctx_25 = canvas_25.getContext("2d");
 var canvas_50 = document.getElementById("canvas_mot50");
 var ctx_50 = canvas_50.getContext("2d");
-var canvas_75 = document.getElementById("canvas_mot75");
-var ctx_75 = canvas_75.getContext("2d");
+// var canvas_75 = document.getElementById("canvas_mot75");
+// var ctx_75 = canvas_75.getContext("2d");
 
-var dots25 = initDots(400,100,100,0.25,0,0.5,1);
-var dots50 = initDots(400,100,100,0.50,0,0.5,1);
-var dots75 = initDots(400,100,100,0.75,0,0.5,1);
+var dots25 = initDots(100,100,100,0.15,0,0.075,1);
+var dots50 = initDots(100,100,100,0.65,0,0.075,1);
+// var dots75 = initDots(100,100,100,0.75,0,0.075,1);
 var tick3;
 
 function drawMotionPatches() {
+	var el = elapsed();
 	ctx_25.clearRect(0,0,canvas_25.width,canvas_25.height);
 	ctx_50.clearRect(0,0,canvas_50.width,canvas_50.height);
-	ctx_75.clearRect(0,0,canvas_75.width,canvas_75.height);
-	dots25 = updateDots(dots25,0.25);
-	dots50 = updateDots(dots50,0.50);
-	dots75 = updateDots(dots75,0.75);
+	// ctx_75.clearRect(0,0,canvas_75.width,canvas_75.height);
+	dots25 = updateDots(dots25,0.15,0,el);
+	dots50 = updateDots(dots50,0.65,0,el);
+	// dots75 = updateDots(dots75,0.75,0,el);
 	clipCtx(ctx_25,canvas_25);
-	clipCtx(ctx_50,canvas_75);
-	clipCtx(ctx_75,canvas_75);
+	clipCtx(ctx_50,canvas_50);
+	// clipCtx(ctx_75,canvas_75);
 	drawDots(dots25,ctx_25);
 	drawDots(dots50,ctx_50);
-	drawDots(dots75,ctx_75);
+	// drawDots(dots75,ctx_75);
 	ctx_25.restore();
 	ctx_50.restore();
-	ctx_75.restore();
+	// ctx_75.restore();
 	tick3 = window.requestAnimationFrame(drawMotionPatches);
 }
 
@@ -402,7 +415,7 @@ var ctx_output1 = output1.getContext("2d");
 var tick4;
 
 var time4 = 0;
-var dots4 = initDots(400,100,100,0,0,0.5,1);
+var dots4 = initDots(400,100,100,0,0,0.075,1);
 
 var outL = zeros(200);
 var outR = zeros(200);
@@ -430,15 +443,31 @@ function continue4() {
 				$("#4population").hide(); $("#4population_div").hide();
 				$("#4lr").show(); $("#4lr_div").show();
 				$("#continue4").hide();
-				$("#continue").show();
+				// $("#continue").show();
 				break;
 		}
 	}
 }
+
+// Code for continuing after break
+var keys4 = [77,65,78,89,78,69,85,82,79,78,83];
+var sofar4 = 0;
+function end4(event) {
+	if (event.which==keys4[sofar4]) {
+		sofar4++;
+		console.log('got');
+	} else {
+		sofar4=0;
+	}
+	if (sofar4==keys4.length) {$("#continue").show();}
+}
+
+
 function flip4() {dir4 += Math.PI;dir4f *= -1;}
 function updateCoherence4(ncoh) {coherence4 = ncoh; document.getElementById("coherence4").innerHTML=Math.round(ncoh*100)+"%";}
 
 function drawMotionDemo() {
+	var el = elapsed();
 	ctx_patch1.clearRect(0,0,canvas_patch1.width,canvas_patch1.height);
 	ctx_output1.clearRect(0,0,output1.width,output1.height);
 
@@ -446,7 +475,7 @@ function drawMotionDemo() {
 	time4 += 0.01; // we'll use a sine wave to compute the coherence
 	var noise = 0.2; // use to generate DDM 
 	// update
-	dots4 = updateDots(dots4,Math.abs(coherence4),dir4);
+	dots4 = updateDots(dots4,Math.abs(coherence4),dir4,el);
 	// draw dots
 	clipCtx(ctx_patch1,canvas_patch1);
 	drawDots(dots4,ctx_patch1)
@@ -532,7 +561,7 @@ var ctx_sample = canvas_sample.getContext("2d");
 
 var tick5;
 
-var dots5 = initDots(400,100,100,0,0,0.5,1);
+var dots5 = initDots(400,100,100,0,0,0.075,1);
 var coherence5 = 0.75;
 var dir5 = 0;
 
@@ -541,7 +570,8 @@ function updateCoherence5(ncoh) {coherence5 = ncoh; document.getElementById("coh
 
 
 function drawMotionSample() {
-	dots5 = updateDots(dots5,coherence5);
+	var el = elapsed();
+	dots5 = updateDots(dots5,coherence5,dots5.dir,el);
 	// draw
 	ctx_sample.clearRect(0,0,canvas_sample.width,canvas_sample.height);
 	clipCtx(ctx_sample,canvas_sample);
@@ -698,13 +728,14 @@ var ctx_sample2 = canvas_sample2.getContext("2d");
 
 var tick7;
 
-var dots7 = initDots(400,100,100,0,0,0.5,1);
+var dots7 = initDots(400,100,100,0,0,0.075,1);
 var coherence7 = 0.75;
 var dir7 = 1;
 
 
 function drawMotionSample7() {
-	dots7 = updateDots(dots7,coherence7)
+	var el = elapsed();
+	dots7 = updateDots(dots7,coherence7,dots7.dir,el)
 	// draw
 	ctx_sample2.clearRect(0,0,canvas_sample.width,canvas_sample.height);
 	clipCtx(ctx_sample2,canvas_sample2);
@@ -902,6 +933,21 @@ function textarea9(e) {
 	}
 }
 
+function rs_diffusion(coherence,dir) {
+	return dir*coherence*diffusion_rate;
+}
+
+function rs_drift(coherence,dir) {
+	return randn()*drift_rate;
+}
+
+var upper_threshold = 40,
+	lower_threshold = 20;
+
+function rs_threshold(coherence,dir) {
+	return [upper_threshold,lower_threshold];
+}
+
 function addSimulation(data) {
 	var reps = 56; // tied to roitman shadlen data
 	// Uses the user defined functions:
@@ -964,7 +1010,7 @@ function addSimulation(data) {
 	return data;
 }
 
-var simCompiled = false;
+var simCompiled = true;
 
 function drawPlot9(rs_data) {
 	if (simCompiled) {
@@ -1046,15 +1092,19 @@ function run(i) {
 			$("body").keydown(function(event) {continue2(event)});
 			break;
 		case 3:
+			elapsed();
 			drawMotionPatches();
 			break;
 		case 4:
+			elapsed();
 			drawMotionDemo();
 			$("#4lr_div").hide();$("#4population_div").hide();
 			$("#4lr").hide(); $("#4population").hide();
 			$("#continue").hide();
+			$("body").keydown(function(event) {end4(event)});
 			break;
 		case 5:
+			elapsed();
 			drawMotionSample();
 			break;
 		case 6:
@@ -1063,6 +1113,7 @@ function run(i) {
 			}
 			break;
 		case 7:
+			elapsed();
 			drawMotionSample7();
 			if (!done7) {
 				document.getElementById("continue").style.display="none";
