@@ -83,7 +83,7 @@ function input2hcrt(e,val) {
 			return
 		}
 		high.RT = num;
-		document.getElementById("hcrt").innerHTML = "High coherence reaction time = " + low.RT + " ms";
+		document.getElementById("hcrt").innerHTML = "High coherence reaction time = " + high.RT + " ms";
 
 	}
 }
@@ -101,7 +101,7 @@ function allEntered() {
 
 // block 2 steps through the DDM
 var cur2 = 0;
-var max2 = 7;
+var max2 = 5;
 function init2() {
 	for (var i=1;i<=max2;i++) {
 		$("#b2_p"+i).hide();
@@ -110,38 +110,250 @@ function init2() {
 }
 
 function step2() {
+	$("body").scrollTop(0);
+	stop2();
+	
+	// HIDE PARAMETERS
+	$("#b2_diff").hide();
+	$("#b2_drift").hide();
+
 	if (cur2==0) {
 		if (!allEntered()) {alert('Enter all the information.'); return;}
 	}
 	if (cur2<max2) {
 		console.log('next');
 		$("#b2_p"+cur2).hide();
-		cur2++;
+		cur2+=1;
 		$("#b2_p"+cur2).show();
 	}
 	else {
 		$("#step2").hide();
+		$("#b2_p"+max2).hide();
+		$("#dataentry").hide();
 		$("#continue").show();
 	}
 	switch (cur2) {
 		case 1:
-			$("#bd_always").show();
+			$("#b2_always").show();
+			elapsed();
 			drawDots2();
 			break;
+		case 2:
+			$("#b2_always").show();
+			$("#b2_diff").show();
+			elapsed();
+			drawDots2();
+			run_2();
+			break;
+		case 3:
+			$("#b2_always").show();
+			$("#b2_diff").show();
+			elapsed();
+			drawDots2();
+			run_2();
+			plot_bounds = true;
+			break;
+		case 4:
+			$("#b2_always").show();
+			$("#b2_diff").show();
+			$("#b2_drift").show();
+			elapsed();
+			drawDots2();
+			run_2();
+			break;
+		case 5:
+			$("#b2_always").hide();
+			$("#step2").hide();
+			break;
+		default:
+			$("#b2_always").hide();
 	}
 }
 
-var dots2 = initDots(400,100,100,1,0,0.5);
+var canvas2 = document.getElementById("canvas_b2");
+var ctx2 = canvas2.getContext("2d");
+var coherence2 = 0.65;
+var dots2 = initDots(100,100,100,coherence2,0,0.075,1);
 var tick2;
 
+var plot_bounds = false;
+
+function stop2() {
+	window.cancelAnimationFrame(tick2);
+}
 function drawDots2() {
-	
+	var el = elapsed();
+	dots2 = updateDots(dots2,coherence2,dots2.dir,el);
+	// draw
+	ctx2.clearRect(0,0,canvas2.width,canvas2.height);
+	clipCtx(ctx2,canvas2);
+	drawDots(dots2,ctx2);
+	ctx2.restore();
+
+	plot2a_always();
+	switch (cur2) {
+		case 1:
+			upd_1(); break;
+		case 2:
+			upd_2(); break;
+		case 3:
+			upd_2(); break;
+		case 4:
+			upd_4();
+			run_4(el);
+			break;
+	}
 
 	tick2 = window.requestAnimationFrame(drawDots2);
 }
 
-function flip2() {
+// Code for continuing after break
+var keys = [68,82,73,70,84];
+var sofar = 0;
+function continue2(event) {
+	if (event.which==keys[sofar]) {
+		sofar++;
+	} else {
+		sofar=0;
+	}
+	if (sofar==5) {$("#step2").show();}
+}
 
+function flip2() {dots2.dir = dots2.dir>0?0:Math.PI; drawPlot2();}
+// function updateCoherence2(ncoh) {coherence2 = ncoh; document.getElementById("coherence2").innerHTML=Math.round(ncoh*100)+"%";}
+var option = 1;
+function toggleCoherence() {
+	coherence2 = (coherence2+0.5) % 1;
+	option = (option+1)%2;
+	if (option==1) {
+		document.getElementById("toggle").innerHTML = "High coherence";
+	} else {
+		document.getElementById("toggle").innerHTML = "Low coherence";
+	}
+}
+var diff2 = 1;
+function updateDiffusion2(diff) {cvals = [0]; diff2 = Number(diff); $("#diffusion2").html("Diffusion rate = " + diff2); run_2();}
+var drift2 = 1;
+function updateDrift2(drift) {cvals = [0]; drift2 = Number(drift); $("#drift2").html("Drift rate = " + drift2);};
+var canvas2a = document.getElementById("canvas_b2_a");
+var ctx2a = canvas2a.getContext("2d");
+
+function plot2a_always() {
+	ctx2a.clearRect(0,0,canvas2a.width,canvas2a.height);
+	// plot the axis
+	ctx2a.strokeStyle = "#ffffff";
+	ctx2a.beginPath();
+	ctx2a.moveTo(0,0);
+	ctx2a.lineTo(0,200);
+	ctx2a.stroke();
+	ctx2a.beginPath();
+	ctx2a.moveTo(0,100);
+	ctx2a.lineTo(400,100);
+	ctx2a.stroke();
+	ctx2a.fillStyle = "#ffffff";
+	ctx2a.font = "18px Arial";
+	ctx2a.fillText("Time (ms)",300,118);
+	ctx2a.fillText("Evidence for right",5,15);
+	ctx2a.fillText("Evidence for left",5,195);
+
+	ctx2a.strokeStyle = "#CD6155";
+	ctx2a.beginPath(); ctx2a.moveTo(0,100-cvals[0]);
+	for (var i=1;i<cvals.length;i++) {
+		ctx2a.lineTo(i,100-cvals[i]);
+	}
+	ctx2a.stroke();
+
+	// reset if far past zero or 100
+	if (cvals[cvals.length-1] > 130 || cvals[cvals.length-1]<-130) {cvals=[0];}
+
+	if (counter_2<400) {
+		counter_2++;
+	} else {
+		cvals = [0]; counter_2=0;
+	}
+
+	if (plot_bounds) {
+		ctx2a.strokeStyle = "#ffffff";
+		ctx2a.beginPath();
+		ctx2a.moveTo(0,0);
+		ctx2a.lineTo(400,0);
+		ctx2a.stroke();
+		ctx2a.beginPath();
+		ctx2a.moveTo(0,199);
+		ctx2a.lineTo(400,199);
+		ctx2a.stroke();
+	}
+}
+
+var counter_2 = 0,
+	cvals = [0];
+
+function upd_1() {
+	// Draw motion evidence accumulated over time
+	// just go out to 2000 ms, then die off
+	var f = (dots2.dir>0) ? -1 : 1;
+	cvals.push(cvals[cvals.length-1]+coherence2*f);
+}
+
+function upd_2() {
+	var f = (dots2.dir>0) ? -1*diff2: 1*diff2;
+	cvals.push(cvals[cvals.length-1]+coherence2*f);
+}
+
+function upd_4() {
+	var f = (dots2.dir>0) ? -1*diff2: 1*diff2;
+	cvals.push(cvals[cvals.length-1]+coherence2*f+randn()*drift2);
+}
+
+function run_2() {
+	// Run the actual model, to generate model estimates for
+	// this parameter set
+	// average reaction time under the assumption of boundary = 100
+	var high_rt = 100 / (.65*diff2);
+	var low_rt = 100 / (.15*diff2);
+
+	$("#hcrt").html("High coherence reaction time = " + 
+		high.RT + " ms " + "<span style=\"color:#CD6155\">model = " + 
+		Math.round(high_rt) + " ms</span>");
+	$("#lcrt").html("Low coherence reaction time = " + 
+		low.RT + " ms "  + "<span style=\"color:#CD6155\">model = " + 
+		Math.round(low_rt) + " ms</span>");
+}
+
+var el4 = 0;
+
+function run_4(e) {
+	el4+=e;
+	if (el4<1000) {return}
+	el4=0;
+	// Simulate it? Really?
+	var high_pc = 0;
+	var low_pc = 0;
+	var reps = 50;
+
+	var hcv, lcv;
+	for (var i=0; i<reps;i++) {
+		hcv = 0; lcv = 0;
+		for (var j=0; j<1000;j++) {
+			hcv = hcv + .65 * diff2 + randn() * drift2;
+			if (hcv >= 100) {high_pc++; break};
+		}
+		for (var j=0; j<1000;j++) {
+			lcv = lcv + .15 * diff2 + randn() * drift2;
+			if (lcv >= 100) {low_pc++; break};
+		}
+	}
+
+	high_pc = high_pc / reps;
+	low_pc = low_pc / reps;
+
+	$("#hcc").html("High coherence % correct = " +
+		high.correct + "% " + "<span style=\"color:#CD6155\">model = " +
+		Math.round(high_pc*100) + "%</span>");		
+
+	$("#lcc").html("Low coherence % correct = " +
+		low.correct + "% " + "<span style=\"color:#CD6155\">model = " +
+		Math.round(low_pc*100) + "%</span>");
 }
 
 ////////////////////////////////
@@ -155,9 +367,9 @@ var ctx_50 = canvas_50.getContext("2d");
 var canvas_75 = document.getElementById("canvas_mot75");
 var ctx_75 = canvas_75.getContext("2d");
 
-var dots25 = initDots(400,100,100,0.25,0);
-var dots50 = initDots(400,100,100,0.50,0);
-var dots75 = initDots(400,100,100,0.75,0);
+var dots25 = initDots(400,100,100,0.25,0,0.5,1);
+var dots50 = initDots(400,100,100,0.50,0,0.5,1);
+var dots75 = initDots(400,100,100,0.75,0,0.5,1);
 var tick3;
 
 function drawMotionPatches() {
@@ -190,7 +402,7 @@ var ctx_output1 = output1.getContext("2d");
 var tick4;
 
 var time4 = 0;
-var dots4 = initDots(400,100,100,0,0);
+var dots4 = initDots(400,100,100,0,0,0.5,1);
 
 var outL = zeros(200);
 var outR = zeros(200);
@@ -320,7 +532,7 @@ var ctx_sample = canvas_sample.getContext("2d");
 
 var tick5;
 
-var dots5 = initDots(400,100,100,0,0);
+var dots5 = initDots(400,100,100,0,0,0.5,1);
 var coherence5 = 0.75;
 var dir5 = 0;
 
@@ -329,7 +541,7 @@ function updateCoherence5(ncoh) {coherence5 = ncoh; document.getElementById("coh
 
 
 function drawMotionSample() {
-	dots5 = updateDots(dots5,coherence5)
+	dots5 = updateDots(dots5,coherence5);
 	// draw
 	ctx_sample.clearRect(0,0,canvas_sample.width,canvas_sample.height);
 	clipCtx(ctx_sample,canvas_sample);
@@ -486,7 +698,7 @@ var ctx_sample2 = canvas_sample2.getContext("2d");
 
 var tick7;
 
-var dots7 = initDots(400,100,100,0,0);
+var dots7 = initDots(400,100,100,0,0,0.5,1);
 var coherence7 = 0.75;
 var dir7 = 1;
 
@@ -831,6 +1043,7 @@ function run(i) {
 			cur2 = 0;
 			$("#step2").show();
 			$("#continue").hide();
+			$("body").keydown(function(event) {continue2(event)});
 			break;
 		case 3:
 			drawMotionPatches();

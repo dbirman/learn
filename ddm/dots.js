@@ -1,6 +1,9 @@
 // A dots drawing package for changing motion coherence
 
 function initDots(n,maxx,maxy,coherent,dir,spd,sz) {
+	if (arguments.length < 7) {
+		throw new Error('Not enough arguments for initDots()');
+	}
 	var dots = {};
 	dots.n = n;
 	dots.minx = 0;

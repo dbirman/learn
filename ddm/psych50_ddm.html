@@ -81,6 +81,7 @@
 	<p>Press enter in each box to submit your data and continue.</p>
 	</div>
 	<!-- STUFF TO ENTER DATA -->
+	<div id="dataentry">
 	<span id="lcc">Low coherence % correct = </span>
 	<textarea id="ina" rows=1 width=200 type="number" onkeypress="input2lcc(event,this.value);" placeholder="Enter as a number, e.g. 100."></textarea>
 	<br>
@@ -92,39 +93,44 @@
 	<br>
 	<span id="hcrt">High coherence reaction time = </span>
 	<textarea id="ind" rows=1 width=200 type="number" onkeypress="input2hcrt(event,this.value);" placeholder="Enter as a number in milliseconds, e.g. 1000."></textarea>
+	</div>
 	<br>
 	<br>
 	<div id="b2_p1">
 		<p>Our verbal model is: <i>To compute whether motion appeared to the left or right an observer tracks many dots simultaneously and keeps track of whether they are consistent in their motion--after accumulating evidence until they feel confident, the observer then makes a choice.</i></p>
 		<p>We're now going to transform the verbal model into a computational one that we can simulate. The first thing we're going to do is think about the first part of the verbal model "an observer tracks many dots simultaneously and keeps track of whether they are consistent in their motion". What we're going to do is output onto the graph below the observer's belief about the direction of the dots. This happens over two thousand milliseconds, and at each time step (one millisecond passing), we'll add a <b>1</b> if the observer sees rightward motion, and subtract <b>-1</b> if they see leftward motion. You can click the motion patch to change its direction.</p>
-		<p>You can see that depending on whether the motion is to the left or right the graph very quickly shoots off in that direction. This is what we call the <b>diffusion rate</b> of the model, but you should think of it as the amount of <b>evidence</b>, after X milliseconds have passed, in favor of either direction.</p>
+		<p>You can see that depending on whether the motion is to the left or right (click the motion to switch) the graph very quickly shoots off in that direction. This is what we call the <b>diffusion rate</b> of the model, but you should think of it as the amount of <b>evidence</b>, after X milliseconds have passed, in favor of either direction. Note also that at low coherence the evidence builds up more slowly.</p>
 	</div>
 	<div id="b2_p2">
-		<p>We have a good start so far but there's one problem: it's easier to see the motion when the percentage of dots moving together is higher. To take this into account lets add that instead of just adding a one on each millisecond we'll instead at the percentage of dots moving together, so when all the dots move together (100% coherent motion) we add a one, and for totally random motion we add a zero. But that's also not quite good enough: should we add "one evidence" each millisecond or some other value? At this point it's hard to know what the right thing to do is because we haven't tried comparing our model to the real data. But in preparation for that we'll add a <b>paramater</b> that is multiplied with the motion coherence before it gets added. All this does is scale the model up or down, but you'll see how this is important later. We've added two sliding scales to change the motion coherence and this new parameter, and you'll see the outputs below.</p>
+		<p>A question you might have right now is, how much evidence should we be adding on each millisecond? On the last panel we literally added the current coherence value--so far perfectly coherent motion we would have added one and for incoherent motion zero. What's the right value to use?</p>
+		<p>The answer is that it depends: the reason we're building up this model is that we want to be able to interpret our data. So intuitively the value we use should be <b>fit</b> to the data. Let's do that now. Below there is a slider that controls the <b>diffusion rate</b> parameter. This parameter is a multiplier: it basically scales the rate that our evidence will grow based on the current coherence.</p>
+		<p>What we want you to do is change the parameter value until it <b>fits well to your data</b>. You'll see this up top--we're showing you your data which you entered earlier. And in <span style="color:#CD6155">red</span> we're showing you the model. Adjust the parameter until it fits reasonably well. Are you able to fit both the low and high coherence conditions? If not, do you know why? Make a note about whether this fit well or not--we'll discuss it as a group in a moment.
 	</div>
 	<div id="b2_p3">
-		<p>The next step is to add to our model a decision point. Remember we said that the numbers on the left are the "evidence" so far. How much evidence would you need to be convinced that the motion really went left or right? We call this the <b>decision boundary</b> and we've added a slider that you can use to control this.</p>
+		<p>The next step is to add to our model a decision point. Remember we said that the numbers on the left are the <b>evidence</b> so far. How much evidence would you need to be convinced that the motion really went left or right? We call this the <b>decision boundary</b>. We've set the boundary to be +/- 100 and have added these to the plot so you can see them.</p>
 	</div>
 	<div id="b2_p4">
-		<p>It might not feel like it but the model, with its two parameters: diffusion rate and boundary, is actually already complex enough to capture some aspects of our data. You should notice now that the model <b>stops</b> now when it reaches either the upper or lower boundary--this of course because the model makes a "decision" at this point, which corresponds to a particular point in time. Above you entered the <b>average response time</b> under various difficulties (easy, medium, hard). Your goal now is to fit <b>the model</b> to <b>your data</b>, specifically the average response time in the different difficulty conditions. Remember you can still change the original scaling parameter too!</p>
+		<p>There's one last piece missing. What about the percent correct? In the real world there is <b>noise</b>. You should recall (and your data above should remind you) that especially at harder difficulties you occasionally made mistakes. These mistakes happen for a variety of reasons: distractions, brief moments where due to randomness in the dots they appear to go in the wrong direction, etc. To add noise into the model we'll add a small random number to the diffusion rate at each millisecond. We call the amount of noise the <b>drift rate</b> of the model since intuitively it causes the model to drift around randomly. You can control how strong the drift rate is with the final parameter slider. You should now see that as you increase the noise the model will sometimes end up going in the wrong direction, just like you did in real life. Try adjusting this until your percent correct and incorrect data from the model are similar to your actual results. You might have to adjust the diffusion rate as well, because the drift rate and diffusion rate tradeoff to some extent.</p>
 	</div>
 	<div id="b2_p5">
-		<p>There's one last piece missing. You probably noticed that you couldn't perfectly fit your data. This is because in the real world there is <b>noise</b>. You should recall (and your data above should remind you) that especially at harder difficulties you occasionally made mistakes. These mistakes happen because when the motion is difficult to see there are occasionally moments where, just due to randomness in the dots, they really do go in the wrong direction. This causes you to think that they might be going left, even when really the dots went to the right. To add noise into the model we'll add a small random number to the diffusion rate at each millisecond. You can control how strong the noise is with a new (final) slider. You should now see that as you increase the noise the model will sometimes end up going to the wrong direction, just like you did in real life. Try adjusting this until your percent correct and incorrect data from the model are similar to your actual results. You might have to adjust the other parameters as well.</p>
-		<p>We call the amount of noise the <b>drift rate</b> of the model.</p>
-	</div>
-	<div id="b2_p6">
-		<p>All right--here's where things get interesting. Change the input data (percent correct and reaction time) to the data from the <b>speed</b> condition, where you ignored your accuracy entirely. Tweak the parameters until you get a good fit to your data.</p>
-		<p>Here comes the interesting question: change your input data to what you got form your <b>accuracy</b> condition. BUT: try now to fit this new data while only changing <b>one parameter</b>! Can you do this? Which parameter works well for your data? We'll come back later to why changes in parameters like this are important, but the short version is that <i>if</i> these parameters can be linked to parts of the brain then we might be able to interpret the changes in the model as literal changes in the brain. More on this later!</p>
-	</div>
-	<div id="b2_p7">
-		<p>Nice work. We've translated the verbal model (from above) into a computational one composed of the <b>diffusion rate</b>, the <b>drift rate</b>, and a <b>boundary</b>. So in a sense you might say that one possible computational solution to this task involves a process like drift diffusion. In the next sections we're going to do two things: show that the drift diffusion model really does make sense for the brain and have you write the actual code to test this hypothesis. If you have any questions about how the model works this is a good time to check with your neighbor or the TA.</p>
+		<p>Nice work. We've translated the verbal model (from above) into a computational one composed of the <b>diffusion rate</b>, the <b>drift rate</b>, and a <b>boundary</b>. You might have noticed that you weren't able to fit your data perfectly--that's okay! In practice model fitting like this is usually done with a lot more data than we had here.</p>
+		<p>Before we go on we're going to have a group discussion about how you might <b>interpret</b> the parameters that you chose. Please let the TA know you're finished with the first section.</p>
 	</div>
 	<br><br>
 	<div id="b2_always" style="text-align:center;">
 	<!-- This is stuff that always is on the screen once they
 	have filled out all of their information -->
-		<canvas width=100 height=100 id="canvas_b2" onclick="flip2();"></canvas>
-		<div id="plot1"></div>
+		<canvas width=100 height=100 id="canvas_b2" onclick="flip2();"></canvas><br>
+		<!-- Coherence -->
+		<a width=100 class="button" id="toggle" onclick="toggleCoherence();">High coherence</a><br><br>
+		<!-- Parameters -->
+		<div id="b2_diff"><input type="range" min="0.03" step="0.01" max="3" value="1" oninput="updateDiffusion2(this.value);"/><output id="diffusion2">Diffusion rate = 1</output></div><br>
+		<div id="b2_drift"><input type="range" min="0" step="0.1" max="10" value="1" oninput="updateDrift2(this.value);"/><output id="drift2">Drift rate = 1</output></div><br>
+<!-- 
+		<input type="range" min="0" max="100" value="25" oninput="updateCoherence2(this.value/100);"/><output id="coherence2">25%</output><br> -->
+		<!-- we have to use a canvas plot,
+		otherwise the animations fuck up (plotly is slow...) -->
+		<br><canvas width=400 height=200 id="canvas_b2_a"></canvas>
 	</div>
 	<br><br>
 	<button class="button" id="step2" onclick="step2();">Next</button>
