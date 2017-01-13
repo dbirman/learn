@@ -705,6 +705,7 @@ document.addEventListener("keydown",clearLists,false);
 function clearLists(e) {
   var key = e.which;
   if (key==32) {
+    e.preventDefault();
     clickListPos = [];
     clickListNeg = [];
     correctCount = 0;
