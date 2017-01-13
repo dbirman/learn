@@ -165,11 +165,11 @@
 	<br>
 	<div id="bonus1"><br>
 		<h2>Bonus content: Simple cell model</h2>
-		<p>When we built up the receptive field on this page we didn't actually connect retinal ganglion cells together to generate a simple cell. It's simpler in practice to make a model of the simple cells directly. The model that has been suggested (I believe by Marcelja and Daugman) is a "Gaussian windowed sinusoid". We'll break this down with some plots below so that you can better understand what this looks like </p>
+		<p>When we built up the receptive field on this page we didn't actually connect retinal ganglion cells together to generate a simple cell. It's simpler in practice to make a model of the simple cells directly. One model that has been suggested (I believe by Marcelja and Daugman) is a "Gaussian windowed sinusoid". We'll break this down with some plots below so that you can better understand what this looks like. </p>
 		<h2>The mexican hat function</h2>
 		<p>Simple cells tend to have excitatory and inhibitory regions that are cyclical, as in they repeat across the receptive field. These also tend to fall along one axis. This should sound a bit like a sinusoidal function. But as you discovered, the receptive fields are quite small and "fall off" quite quickly. This is usually modeled using a gaussian probability density function. Combining this creates a "mexican hat" function, which arguably looks somewhat like its namesake. Take a look below at the two functions (sinusoid and gaussian) and their combination.</p>
 		<div id="plot1"></div><br>
-		<p>As we explained before this a <b>computational model</b> of the receptive field properties. It doesn't perfectly match the truth, but it captures enough of the characteristics of simple cells that it becomes quite useful for calculations.</p><br>
+		<p>As we explained before this a <b>computational model</b> of the receptive field properties. It doesn't perfectly match the truth, but it captures enough of the characteristics of simple cells that it becomes quite useful for calculations. (As an aside this function is sometimes <a href="https://en.wikipedia.org/wiki/Mexican_hat_wavelet">calculated differently</a>. The exact choice of function depends on the goals of a researcher, the version here includes a parameter corresponding to the peak response position which can be help for interpretation.) </p><br>
 	</div><br>	
 
 </div>
