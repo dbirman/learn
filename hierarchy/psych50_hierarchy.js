@@ -45,18 +45,18 @@ var isDone;
 ///// BLOCK 5 //////
 ////////////////////
 
-$("#textarea5").keydown(function(event) {textarea5(event)});
+// $("#textarea5").keydown(function(event) {textarea5(event)});
 
-function textarea5(e) {
-  var key = e.which;
-  if (key===13) {
-    e.preventDefault();
-    if (document.getElementById('textarea5').value.indexOf('rgc') !== -1) {
-      // $("#end9").show();
-      sectionComplete();
-    }
-  }
-}
+// function textarea5(e) {
+//   var key = e.which;
+//   if (key===13) {
+//     e.preventDefault();
+//     if (document.getElementById('textarea5').value.indexOf('rgc') !== -1) {
+//       // $("#end9").show();
+//       sectionComplete();
+//     }
+//   }
+// }
 
 
 var done3 = false;
@@ -91,8 +91,10 @@ function launch3() {
 
 function end3() {
   done3 = true;
-  $("#textarea5").show();
+  // $("#textarea5").show();
   $("#endblock3").show();
+  sectionComplete();
+  console.log('Wtf?');
 }
 
 function checkDone3() {
@@ -126,18 +128,18 @@ function drawStimulus3() {
 ///// BLOCK 7 //////
 ////////////////////
 
-$("#textarea7").keydown(function(event) {textarea7(event)});
+// $("#textarea7").keydown(function(event) {textarea7(event)});
 
-function textarea7(e) {
-  var key = e.which;
-  if (key===13) {
-    e.preventDefault();
-    if (document.getElementById('textarea7').value.indexOf('simplecells') !== -1) {
-      // $("#end9").show();
-      sectionComplete();
-    }
-  }
-}
+// function textarea7(e) {
+//   var key = e.which;
+//   if (key===13) {
+//     e.preventDefault();
+//     if (document.getElementById('textarea7').value.indexOf('simplecells') !== -1) {
+//       // $("#end9").show();
+//       sectionComplete();
+//     }
+//   }
+// }
 
 var done7 = false;
 
@@ -179,7 +181,8 @@ function launch7() {
 function end7() {
   done7 = true;
   $("#endblock7").show();
-  $("#textarea7").show();
+  // $("#textarea7").show();
+  sectionComplete();
 }
 
 function checkDone7() {
@@ -847,7 +850,7 @@ function run(i) {
         launch3();
         $("#continue").hide();
         $("#endblock3").hide();
-        $("#textarea5").hide();
+        // $("#textarea5").hide();
       }
       break;
     case 7:
@@ -855,7 +858,7 @@ function run(i) {
         launch7();
         $("#continue").hide();
         $("#endblock7").hide();
-        $("#textarea7").hide();
+        // $("#textarea7").hide();
       }
       break;
     case 8:
@@ -910,6 +913,7 @@ function sectionComplete() {
   // completeSound.play();
   // mark that this section is complete (so it doesn't restart if we come back)
   $("#continue").show();
+  console.log('here');
 }
 
 function rotatePoint(x,y,xo,yo,angle) {
