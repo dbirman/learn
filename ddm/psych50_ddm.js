@@ -233,9 +233,9 @@ function toggleCoherence() {
 	}
 }
 var diff2 = 1;
-function updateDiffusion2(diff) {cvals = [0]; diff2 = Number(diff); $("#diffusion2").html("Diffusion rate = " + diff2); run_2();}
+function updateDiffusion2(diff) {cvals = [0]; diff2 = Number(diff); $("#diffusion2").html("Drift rate = " + diff2); run_2();}
 var drift2 = 1;
-function updateDrift2(drift) {cvals = [0]; drift2 = Number(drift); $("#drift2").html("Drift rate = " + drift2);};
+function updateDrift2(drift) {cvals = [0]; drift2 = Number(drift); $("#drift2").html("Noise = " + drift2);};
 var canvas2a = document.getElementById("canvas_b2_a");
 var ctx2a = canvas2a.getContext("2d");
 
