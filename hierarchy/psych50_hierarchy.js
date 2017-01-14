@@ -848,7 +848,7 @@ function run(i) {
     case 5:
       if (!done3) {
         launch3();
-        $("#continue").hide();
+        // $("#continue").hide();
         $("#endblock3").hide();
         // $("#textarea5").hide();
       }
@@ -856,7 +856,7 @@ function run(i) {
     case 7:
       if (!done7) {
         launch7();
-        $("#continue").hide();
+        // $("#continue").hide();
         $("#endblock7").hide();
         // $("#textarea7").hide();
       }
@@ -867,7 +867,7 @@ function run(i) {
       break;
     case 9:
       launch9();
-      $("#continue").hide();
+      // $("#continue").hide();
       $("#end9").hide();
       break;
     case 11:
