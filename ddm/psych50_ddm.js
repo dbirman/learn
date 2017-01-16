@@ -452,17 +452,17 @@ function continue4() {
 }
 
 // Code for continuing after break
-var keys4 = [77,65,78,89,78,69,85,82,79,78,83];
-var sofar4 = 0;
-function end4(event) {
-	if (event.which==keys4[sofar4]) {
-		sofar4++;
-		console.log('got');
-	} else {
-		sofar4=0;
-	}
-	if (sofar4==keys4.length) {$("#continue").show();}
-}
+// var keys4 = [77,65,78,89,78,69,85,82,79,78,83];
+// var sofar4 = 0;
+// function end4(event) {
+// 	if (event.which==keys4[sofar4]) {
+// 		sofar4++;
+// 		console.log('got');
+// 	} else {
+// 		sofar4=0;
+// 	}
+// 	if (sofar4==keys4.length) {$("#continue").show();}
+// }
 
 
 function flip4() {dir4 += Math.PI;dir4f *= -1;}
@@ -1102,8 +1102,8 @@ function run(i) {
 			drawMotionDemo();
 			$("#4lr_div").hide();$("#4population_div").hide();
 			$("#4lr").hide(); $("#4population").hide();
-			$("#continue").hide();
-			$("body").keydown(function(event) {end4(event)});
+			$("#continue").show();
+			// $("body").keydown(function(event) {end4(event)});
 			break;
 		case 5:
 			elapsed();
