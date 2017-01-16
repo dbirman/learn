@@ -118,6 +118,7 @@ function step2() {
 	// HIDE PARAMETERS
 	$("#b2_diff").hide();
 	$("#b2_drift").hide();
+	$("#b2_ndt").hide();
 
 	if (cur2==0) {
 		if (!allEntered()) {alert('Enter all the information.'); return;}
@@ -162,7 +163,15 @@ function step2() {
 			elapsed();
 			drawDots2();
 			break;
-		case 5:
+		case 4: 
+			$("#b2_always").show();
+			$("#b2_diff").show();
+			$("#b2_drift").show();
+			$("#b2_ndt").show();
+			elapsed();
+			drawDots2();
+			break;
+		case 6:
 			$("#b2_always").hide();
 			$("#step2").hide();
 			break;
@@ -200,6 +209,10 @@ function drawDots2() {
 		case 3:
 			upd_2(); break;
 		case 4:
+			upd_4();
+			run_4(el);
+			break;
+		case 5:
 			upd_4();
 			run_4(el);
 			break;
@@ -306,12 +319,19 @@ function upd_4() {
 	cvals.push(cvals[cvals.length-1]+coherence2*f+randn()*drift2);
 }
 
+var ndt = 250;
+
+function updatendt(val) {
+	ndt = val;
+	$("#ndt2").html("Non-decision time = " + ndt);
+}
+
 function run_2() {
 	// Run the actual model, to generate model estimates for
 	// this parameter set
 	// average reaction time under the assumption of boundary = 100
-	var high_rt = 100 / (.65*diff2);
-	var low_rt = 100 / (.15*diff2);
+	var high_rt = ndt + 100 / (.65*diff2);
+	var low_rt = ndt + 100 / (.15*diff2);
 
 	$("#hcrt").html("High coherence reaction time = " + 
 		high.RT + " ms " + "<span style=\"color:#CD6155\">model = " + 
