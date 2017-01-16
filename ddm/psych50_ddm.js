@@ -103,7 +103,7 @@ function allEntered() {
 
 // block 2 steps through the DDM
 var cur2 = 0;
-var max2 = 5;
+var max2 = 6;
 function init2() {
 	for (var i=1;i<=max2;i++) {
 		$("#b2_p"+i).hide();
@@ -163,7 +163,7 @@ function step2() {
 			elapsed();
 			drawDots2();
 			break;
-		case 4: 
+		case 5: 
 			$("#b2_always").show();
 			$("#b2_diff").show();
 			$("#b2_drift").show();
@@ -373,6 +373,10 @@ function run_4(e) {
 
 	high_rt = high_rt / reps;
 	low_rt = low_rt / reps;
+	if (cur2>=5) {
+		high_rt = high_rt + ndt;
+		low_rt = low_rt + ndt;
+	}
 
 	$("#hcc").html("High coherence % correct = " +
 		high.correct + "% " + "<span style=\"color:#CD6155\">model = " +
