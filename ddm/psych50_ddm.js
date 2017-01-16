@@ -330,8 +330,8 @@ function run_2() {
 	// Run the actual model, to generate model estimates for
 	// this parameter set
 	// average reaction time under the assumption of boundary = 100
-	var high_rt = ndt + 100 / (.65*diff2);
-	var low_rt = ndt + 100 / (.15*diff2);
+	var high_rt = 100 / (.65*diff2);
+	var low_rt = 100 / (.15*diff2);
 
 	$("#hcrt").html("High coherence reaction time = " + 
 		high.RT + " ms " + "<span style=\"color:#CD6155\">model = " + 
