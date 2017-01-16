@@ -469,7 +469,7 @@ function continue4() {
 				$("#4population").hide(); $("#4population_div").hide();
 				$("#4lr").show(); $("#4lr_div").show();
 				$("#continue4").hide();
-				// $("#continue").show();
+				$("#continue").show();
 				break;
 		}
 	}
@@ -1126,7 +1126,7 @@ function run(i) {
 			drawMotionDemo();
 			$("#4lr_div").hide();$("#4population_div").hide();
 			$("#4lr").hide(); $("#4population").hide();
-			$("#continue").show();
+			$("#continue").hide();
 			// $("body").keydown(function(event) {end4(event)});
 			break;
 		case 5:
