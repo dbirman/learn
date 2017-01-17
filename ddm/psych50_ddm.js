@@ -174,6 +174,7 @@ function step2() {
 		case 6:
 			$("#b2_always").hide();
 			$("#step2").hide();
+			$("#dataentry").hide();
 			break;
 		default:
 			$("#b2_always").hide();
@@ -246,7 +247,7 @@ function toggleCoherence() {
 	}
 }
 var diff2 = 1;
-function updateDiffusion2(diff) {cvals = [0]; diff2 = Number(diff); $("#diffusion2").html("Drift rate = " + diff2); run_2();}
+function updateDiffusion2(diff) {cvals = [0]; diff2 = Number(diff); $("#diffusion2").html("Drift rate = " + diff2); if(cur2<4) {run_2();}}
 var drift2 = 1;
 function updateDrift2(drift) {cvals = [0]; drift2 = Number(drift); $("#drift2").html("Noise = " + drift2);};
 var canvas2a = document.getElementById("canvas_b2_a");
@@ -358,11 +359,11 @@ function run_4(e) {
 	var hcv, lcv;
 	for (var i=0; i<reps;i++) {
 		hcv = 0; lcv = 0;
-		for (var j=0; j<1000;j++) {
+		for (var j=0; j<2000;j++) {
 			hcv = hcv + .65 * diff2 + randn() * drift2;
 			if (hcv >= 100) {high_pc++; high_rt+=j; break};
 		}
-		for (var j=0; j<1000;j++) {
+		for (var j=0; j<2000;j++) {
 			lcv = lcv + .15 * diff2 + randn() * drift2;
 			if (lcv >= 100) {low_pc++; low_rt+=j; break};
 		}
@@ -373,6 +374,7 @@ function run_4(e) {
 
 	high_rt = high_rt / reps;
 	low_rt = low_rt / reps;
+
 	if (cur2>=5) {
 		high_rt = high_rt + ndt;
 		low_rt = low_rt + ndt;
