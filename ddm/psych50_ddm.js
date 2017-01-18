@@ -1054,7 +1054,7 @@ function addSimulation(data) {
 	return data;
 }
 
-var simCompiled = true;
+var simCompiled = false;
 
 var drawBoth = false;
 function toggleInc() {
