@@ -1073,11 +1073,11 @@ function drawPlot9(rs_data) {
 		// simulation not compiled, return
 		return;
 	}
-	var copts = (drawBoth) ? ['incorrect','correct'] : ['correct'];
+	var copts = (drawBoth) ? ['correct','incorrect'] : ['correct'];
 	// var copts = ['incorrect','correct'];
 	var lopts = [false,true];
 	var sopts = [3,5];
-	var ltopts = ['dot','solid'];
+	var ltopts = ['solid','dot'];
 	var colors = ['#005350','#4ac80d','#ec174d','#029d59','#8f33c6','#f79c1a'];
 	// Using rs_data from roitman shadlen 2002
 	var traces = [];
