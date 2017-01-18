@@ -99,7 +99,7 @@
 		<p>There's one last piece missing. What about the trials you got wrong? In the real world there is <b>noise</b>. You should recall (and your data above should remind you) that especially at harder difficulties you occasionally made mistakes. These mistakes happen for a variety of reasons: distractions, brief moments where due to randomness in the dots they appear to go in the wrong direction, etc. To add noise into the model we'll add a small random number to the drift rate at each millisecond. We call this the amount of <b>noise</b>. You can control how strong the noise is with the next parameter slider. You should now see that as you increase the noise the model will sometimes end up hitting the wrong boundary, which we count as an incorrect trial. Try adjusting the noise until your percent correct data from the model are similar to your actual results. You might have to adjust the drift rate as well, because the noise and drift rate trade off to some extent.</p>
 	</div>
 	<div id="b2_p5">
-		<p>You may have noticed that it was quite difficult to match up your data to the model. There are a number of reasons for this. One problem is that we used a <b>linear</b> scaling of motion coherence to drift rates. Discuss with your neighbor what a more appropriate relationship might be (for reference low coherence is 15% and high is 65%, if the relationship is linear the "ease" of seeing direction should increase by a factor of four?). Another problem is that it takes your a brain a certain amount of time, regardless of the motion coherence, to respond. This is called the <b>non-decision time</b>. We've enabled one last variable for you to try out which controls this time.</p>
+		<p>You may have noticed that it was quite difficult to match up your data to the model. There are a number of reasons for this. One problem is that we used a <b>linear</b> scaling of motion coherence to drift rates. Discuss with your neighbor what a more appropriate relationship might be (for reference low coherence is 15% and high is 65%, if the relationship is linear the "ease" of seeing direction should increase by a factor of four?). Another problem is that it takes your brain a certain amount of time, regardless of the motion coherence, to respond. This is called the <b>non-decision time</b>. We've enabled one last variable for you to try out which controls this time.</p>
 	</div>
 	<div id="b2_p6">
 		<p>Nice work. We've translated the verbal model (from above) into a computational one composed of the <b>drift rate</b>, the <b>noise</b>, and a <b>boundary</b>. You might have noticed that you weren't able to fit your data perfectly--that's okay! In practice model fitting like this is usually done with a lot more data than we had here.</p>
@@ -153,7 +153,7 @@
 </div>
 
 <div id="block4">
-	<h2>Problem #1: Simulating a neural population</h2>
+	<h2>Simulating a neural population</h2>
 	<p>You've already seen in the first lab how a cell can "see" certain kinds of features, even as complex as a dog or a cat, by building up from less complex features. Here what we're going to have are two <b>populations</b> of neurons that respond to rightward or leftward motion, respectively. We're going to walk through this in steps, building up from a single neuron.</p>
 	<p>First, take a look at this patch of dots. By clicking on the patch you can change it's direction. If you click and drag the slider bar you'll see the motion coherence (% of dots moving) change. 
 	<div width="100%" height="150px" style="position:relative; text-align:center">
@@ -181,7 +181,7 @@
 </div>
 
 <div id="block5">
-	<h2>Problem #2: Simulating a single decision</h2>
+	<h2>Simulating a single decision</h2>
 	<p>At this point it's good to point out the parallels between what we're doing here and what we did before. At the beginning you took your <b>behavioral</b> data: percent correct and reaction time, and you tweaked the parameters of the model to fit the data. In the background what happened was that we actually simulated the model: starting at <b>0</b> evidence, we added the drift rate plus a bit of random noise at each millisecond. We checked at each step to see whether the model had hit a boundary yet, and if it did then we wrote down the current time (the reaction time) and which boundary we hit (the decision). To get a percent correct for example we would simulate one hundred runs.</p>
 	<p>In the next section we're going to try to extend the model, which we've used to fit behavioral data, to help understand the MT->LIP circuit. To build up the model we're going to imagine that our macaque brain is looking at a motion patch for a few hundred milliseconds (just like your brain did). This means that the populations of <span style="color:#5DADE2">left</span> and <span style="color:#CD6155">right</span> preferring neurons will each be activated to some extent at every moment in time. Their current firing rate will be our <b>drift rate</b>.</p>
 	<p>To visualize what we mean we're going to show you the same motion display as before. Again, you can control the coherence and the direction of the motion. But now we're going to add a new plot below which will have: the firing rate of the <span style="color:#5DADE2">left</span> population, <span style="color:#CD6155">right</span> population, and the accumulated evidence in black.</p>
@@ -206,10 +206,10 @@
 </div>
 
 <div id="block6">
-	<p>This slide includes bonus contet and is not required.</p>
+	<p>This slide includes bonus content and is not required.</p>
 	<a class="button" width=150 height=15 onclick="bonus1();">Bonus content (not required)</a>
 	<div id="bonus1">
-	<h2>Problem #2: Simulating a single decision</h2>
+	<h2>Simulating a single decision</h2>
 	<p>It's now your turn to write some code! The first thing we're going to do is generate neural population responses based on a motion patch. We're going to give you two numbers: the coherence of the patch (what % of dots are moving together), and the direction. Your job is going to be to complete two <b>functions</b> that will tell us what the neural population response looks like based on what the neurons are seeing (the coherence and direction). Remember that neurons have some response, but they also have noise. We've written a function <b>randn()</b> that we will use to get random numbers pulled from a normal distribution. Try out randn() here: just press <b>enter</b>, you'll see the output of this function below.</p>
 	<textarea rows=1 id="textarea6" onkeypress="textarea6(event);">
 out = randn();</textarea>
@@ -249,16 +249,19 @@ rightResponse = function(patch_coherence,patch_dir) {
 	<textarea rows=4 onkeypress="event.preventDefault();" id="output62">Output will appear here</textarea>
 	<br>
 	<div id="end6">
-	<p>Nice work! You now have two functions leftResponse() and rightResponse() that you'll be able to re-use later. Right now we're going to use them to generate samples like in the graph on the last page. We'll then write one more function to integrate these, and then we'll have our drift-diffusion model!
+	<p>Nice work! You now have two functions leftResponse() and rightResponse() that you'll be able to re-use later. Right now we're going to use them to generate samples like in the graph on the last page. We'll then write one more function to integrate these, and then we'll have our drift-diffusion model!</p>
 	<br><br>
 	<br>
+	</div>
 	</div>
 </div>
 
 <div id="block7">
-	<p>This slide includes bonus contet and is not required.</p>
+	<p>This slide includes bonus content and is not required.</p>
 	<div id="bonus2">
-	<h2>Problem #2: Simulating a single decision</h2>
+	<a class="button" width=150 height=15 onclick="bonus2();">Bonus content (not required)</a>
+
+	<h2>Simulating a single decision</h2>
 	<p>We're missing two more pieces for our drift diffusion model. The first is that we need to <b>accumulate</b> the evidence over time and the second is that we need to stop accumulating when we hit the <b>threshold</b>. You'll write that code in this next section. If you realize you made a mistake on the previous page you'll be able to go back and edit those as soon as you finish writing these functions.</p>
 	<textarea rows=32 id="textarea7" onkeypress="textarea7(event);">
 // This first function needs to accumulate the difference between the left
@@ -316,10 +319,10 @@ atThreshold = function(acc,threshold) {
 </div>
 
 <div id="block8">
-	<p>This slide includes bonus contet and is not required.</p>
+	<p>This slide includes bonus content and is not required.</p>
 	<a class="button" width=150 height=15 onclick="bonus3();">Bonus content (not required)</a>
 	<div id="bonus3">
-	<h2>Problem #3: Simulating many decisions</h2>
+	<h2>Simulating many decisions</h2>
 	<p>The drift diffusion model is most useful as a <b>simulation</b>. Given some set of parameters: a drift rate, diffusion rate, and threshold, the model will create all sorts of different scenarios for how a particular event might play out. But: on average with any given set of parameters we'll get some number of trials that come out correct some number that are incorrect and also the reaction time on each trial. You've already seen this in practice when you moved the sliders to fit the model to your own personal data. What we're showing you now is what's happening "under the hood".</p>
 	<p>The first thing we'll do in this section is model twenty-five trials and just look at the variability in results that we get. Try tweaking the evidence for left or right motion, changing the amount of noise, or changing the thresholds, you'll see the output change each time you change the parameters. Press enter in the input box to re-run the model.</p>
 	<textarea rows=5 id="textarea8" onkeypress="textarea8(event);">
@@ -336,7 +339,7 @@ boundary = 20; //How large of a response necessary to stop a trial and declare i
 </div>
 
 <div id="block9">
-	<h2>Problem #4: Fitting to data</h2>
+	<h2>Fitting to data</h2>
 	<p>In the following image we're going to show you real data recorded from 56 neurons in the macaque lateral intraparietal area (LIP). It's thought that LIP acts as an accumulator of evidence when making decision about direction of motion. The graph is set up similar to how we've shown it before--time is on the X axis but now firing rate is on the Y axis. The hypothesis is that firing rate is representing the <b>accumulated evidence</b> at any given moment in time. You're now going to hand fit a drift diffusion model to see whether the model captures the variance in the data, and if so we'll consider that evidence that the hypothesis might be correct.</p>
 	<p>The solid lines are from correct trials and dashed lines were incorrect, and each condition was averaged across left and right motion. Notice that the lines break out by motion coherence just as you might expect: stronger motion coherence causes firing rates to peak more quickly.</p>
 	<div style="text-align:center;width:500px;margin:auto"><img width=400 src="images/RoitmanShadlen2002.jpg"/><br><span style="font-size:12px">Roitman, J. D., & Shadlen, M. N. (2002).</span></div>

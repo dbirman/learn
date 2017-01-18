@@ -121,7 +121,7 @@ function step2() {
 	$("#b2_ndt").hide();
 
 	if (cur2==0) {
-		if (!allEntered()) {alert('Enter all the information.'); return;}
+		if (!allEntered()) {alert('Enter all the information: make sure you press enter in each box.'); return;}
 	}
 	if (cur2<max2) {
 		console.log('next');
@@ -711,10 +711,12 @@ function textarea62(e) {
 	}
 }
 
+var b1 = false;
 function bonus1() {
 	$("#bonus1").show();
 	$("#bonus2").show();
 	$("#continue").hide();
+	b1 = true;
 }
 function bonus3() {
 	$("#bonus3").show();
@@ -869,7 +871,7 @@ function textarea8(e) {
 			var out = runSimulation8();
 			var correct_pos = ['negative','','positive'];
 			var correct_dir = ['RIGHT','','LEFT'];
-			var posneg = diffusion_rate > 0 ? 2 : 0;
+			var posneg = drift_rate > 0 ? 2 : 0;
 			outputArea8.innerHTML = "Hit rate: " + Math.round(out.hit*100) + "%&#13;&#10;Miss rate: " + Math.round(out.miss*100) + "%&#13;&#10;No response: " + Math.round(out.NR*100) + "%&#13;&#10;Mean RT: " + Math.round(out.RT_*100)/100	 + " ticks" + "%&#13;&#10;Your diffusion rate was " + correct_pos[posneg] + " so the correct answer was always " + correct_dir[posneg];
 		} catch (error) {
 			outputArea8.innerHTML = "Your code produced an error: " + "&#13;&#10;" + error;
@@ -978,7 +980,7 @@ var upper_boundary = 40,
 	lower_boundary = 20;
 
 function rs_threshold(coherence,dir) {
-	return [upper_threshold,lower_threshold];
+	return [upper_boundary,lower_boundary];
 }
 
 function addSimulation(data) {
@@ -1113,8 +1115,9 @@ function stopMotion() {
 }
 
 function run(i) {
-	stopMotion();				
-	document.getElementById("continue").style.display="";
+	console.log('got here');
+	stopMotion();		
+	$("#continue").show();
 	// Runs each time a block starts incase that block has to do startup
 	switch(i) {
 		case 2:
@@ -1141,15 +1144,19 @@ function run(i) {
 			drawMotionSample();
 			break;
 		case 6:
-			if (!done6) {
-				$("#continue").hide();
+			if (b1) {
+				if (!done6) {
+					$("#continue").hide();
+				}
 			}
 			break;
 		case 7:
-			elapsed();
-			drawMotionSample7();
-			if (!done7) {
-				$("#continue").hide();
+			if (b1) {
+				elapsed();
+				drawMotionSample7();
+				if (!done7) {
+					$("#continue").hide();
+				}
 			}
 			break;
  }

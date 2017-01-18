@@ -42,7 +42,7 @@ function prev() {
 }
 
 function next() {
-	document.getElementById("block"+curBlock).style.display="none";
+	$("#block"+curBlock).hide();
 	curBlock++;
 	if (document.getElementById("block"+(curBlock))) {
 		document.getElementById("block"+curBlock).style.display="";
