@@ -1134,7 +1134,6 @@ function stopMotion() {
 }
 
 function run(i) {
-	console.log('got here');
 	stopMotion();		
 	$("#continue").show();
 	// Runs each time a block starts incase that block has to do startup
