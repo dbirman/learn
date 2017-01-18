@@ -1030,8 +1030,8 @@ function addSimulation(data) {
 						var deltax = Math.round(xdata[si]-xdata[si-1]);
 						sim[si][repscomplete] = sim[si-1][repscomplete] + deltax*rs_diffusion(ccoh,dir) + deltax*rs_drift(ccoh,dir);
 					}
-					if ((sim[si][repscomplete] > rs_threshold()[0]) && ci==1) {crdone = true;}
-					if ((sim[si][repscomplete] < rs_threshold()[1]) && ci==0) {crdone = true;}
+					if ((sim[si][repscomplete] > upper_boundary) && ci==1) {crdone = true;}
+					if ((sim[si][repscomplete] < lower_boundary) && ci==0) {crdone = true;}
 				}
 				if (crdone) {
 					repscomplete+=1;
