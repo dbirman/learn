@@ -1043,8 +1043,13 @@ function addSimulation(data) {
 				data[copts[ci]].m[i] = baseF*ones(xdata.length);
 			} else {
 				// The simulated succeeded, average replications
+				// If less than 5 replications made it, call it NaN
+				var alive = true;
 				for (var si=0;si<xdata.length;si++) {
-					data[copts[ci]].m[i].push(nanmean(sim[si]));	
+					var val = nanmean(sim[si]);
+					if (val > upper_boundary) {alive = false;}
+					if (val < lower_boundary) {alive = false;}
+					data[copts[ci]].m[i].push((alive) ? val : NaN);	
 				}	
 				hold = sim;
 			}
