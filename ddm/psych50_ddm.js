@@ -978,7 +978,7 @@ function textarea9(e) {
 }
 
 function rs_diffusion(coherence,dir) {
-	return dir*coherence*drift_rate;
+	return dir*Math.sqrt(coherence)*drift_rate;
 }
 
 function rs_drift(coherence,dir) {
@@ -1039,8 +1039,10 @@ function addSimulation(data) {
 				repsattempted+=1;
 			}
 			if (repscomplete<reps) {
-				// This simulation failed, return zeros
-				data[copts[ci]].m[i] = baseF*ones(xdata.length);
+				// This simulation failed, return NaN
+				for (var si=0;si<xdata.length;si++) {
+					data[copts[ci]].m[i].push(NaN);
+				}
 			} else {
 				// The simulated succeeded, average replications
 				// If less than 5 replications made it, call it NaN
