@@ -1019,7 +1019,7 @@ function addSimulation(data) {
 			sim = createArray(xdata.length,reps);
 			var repscomplete = 0;
 			var repsattempted = 0;
-			while (repscomplete<reps && repsattempted<1000) {
+			while (repscomplete<reps && repsattempted<2000) {
 				// Add a replicate
 				var crdone = false;
 				for (var si=0;si<xdata.length;si++) {			
