@@ -712,7 +712,12 @@ function textarea62(e) {
 }
 
 function bonus1() {
-	document.getElementById("bonus1").style.display="";
+	$("#bonus1").show();
+	$("#bonus2").show();
+	$("#continue").hide();
+}
+function bonus3() {
+	$("#bonus3").show();
 }
 
 ////////////////////////////////
@@ -847,9 +852,9 @@ function drawPlot7() {
 ////////////////////////////////
 ////////// BLOCK 8 /////////////
 ////////////////////////////////
-var diffusion_rate = 1;
-var drift_rate = 5;
-var threshold = 0;
+var drift_rate = 1;
+var noise = 5;
+var boundary = 0;
 
 var outputArea8 = document.getElementById("output8");
 
@@ -889,12 +894,12 @@ function runSimulation8() {
 		var done = false;
 		for (var j = 1; j < 40; j++) {
 			if (!done) {
-				data8.data[i][j] = data8.data[i][j-1] + diffusion_rate + randn()*drift_rate;
-				if (data8.data[i][j] > threshold) {
+				data8.data[i][j] = data8.data[i][j-1] + drift_rate + randn()*noise;
+				if (data8.data[i][j] > boundary) {
 					data8.hit += 1;
 					data8.RT.push(j);
 					done = true;
-				} else if (data8.data[i][j] < (-threshold)) {
+				} else if (data8.data[i][j] < (-boundary)) {
 					data8.miss += 1;
 					data8.RT.push(j);
 					done = true;
@@ -962,15 +967,15 @@ function textarea9(e) {
 }
 
 function rs_diffusion(coherence,dir) {
-	return dir*coherence*diffusion_rate;
+	return dir*coherence*drift_rate;
 }
 
 function rs_drift(coherence,dir) {
-	return randn()*drift_rate;
+	return randn()*noise;
 }
 
-var upper_threshold = 40,
-	lower_threshold = 20;
+var upper_boundary = 40,
+	lower_boundary = 20;
 
 function rs_threshold(coherence,dir) {
 	return [upper_threshold,lower_threshold];
@@ -1003,7 +1008,7 @@ function addSimulation(data) {
 			sim = createArray(xdata.length,reps);
 			var repscomplete = 0;
 			var repsattempted = 0;
-			while (repscomplete<reps && repsattempted<500) {
+			while (repscomplete<reps && repsattempted<1000) {
 				// Add a replicate
 				var crdone = false;
 				for (var si=0;si<xdata.length;si++) {			
@@ -1137,14 +1142,14 @@ function run(i) {
 			break;
 		case 6:
 			if (!done6) {
-				document.getElementById("continue").style.display="none";
+				$("#continue").hide();
 			}
 			break;
 		case 7:
 			elapsed();
 			drawMotionSample7();
 			if (!done7) {
-				document.getElementById("continue").style.display="none";
+				$("#continue").hide();
 			}
 			break;
  }
@@ -1178,6 +1183,7 @@ function read_RS_CSV(file) {
 }
 
 function launch_local() {
+	$("#bonus1").hide(); $("#bonus2").hide(); $("#bonus3").hide();
 	// katex.render("y(t)=y_{0}+v_{y}t+\\frac{1}{2}at^{2}",document.getElementById("katex1"),{displayMode:true});
 	// katex.render("y(t)=y_{0}+v_{y}t+\\frac{1}{2}at^{2}",document.getElementById("katex2"),{displayMode:true});	
 	katex.render("A(t)=\\sum_{i=0}^{t} left(i)-right(i)",document.getElementById("katex3"),{displayMode:true});	

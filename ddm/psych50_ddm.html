@@ -182,8 +182,8 @@
 
 <div id="block5">
 	<h2>Problem #2: Simulating a single decision</h2>
-	<p>At this point it's good to point out the parallels between what we're doing here and what we did before. At the beginning you took your <b>behavioral</b> data: percent correct and reaction time, and you tweaked the parameters of the model to fit the data. In the background what happened was that we actually simulated the model: starting at <b>0</b> evidence, we added the drift rate plus a bit of random noise at each millisecond. We checked at each step to see whether the model had "ended" at that point, and if it did then we wrote down the current time (the reaction time) and which boundary we hit (the decision). To get a percent correct for example we would simulate one hundred runs. In the next sections you're going to be writing the actual code that does this simulation process--but we'll keep in mind that these are literally neurons we're trying to simulate, not just an abstract concept. So now the <b>parameters</b> will have actual meanings.
-	<p>To build up the model we're going to imagine that our macaque brain is looking at a motion patch for a few hundred milliseconds (just like your brain did). This means that the populations of <span style="color:#5DADE2">left</span> and <span style="color:#CD6155">right</span> preferring neurons will each be activated to some extent at every moment in time. Their current firing rate will be our <b>diffusion rate</b>.</p>
+	<p>At this point it's good to point out the parallels between what we're doing here and what we did before. At the beginning you took your <b>behavioral</b> data: percent correct and reaction time, and you tweaked the parameters of the model to fit the data. In the background what happened was that we actually simulated the model: starting at <b>0</b> evidence, we added the drift rate plus a bit of random noise at each millisecond. We checked at each step to see whether the model had hit a boundary yet, and if it did then we wrote down the current time (the reaction time) and which boundary we hit (the decision). To get a percent correct for example we would simulate one hundred runs.</p>
+	<p>In the next section we're going to try to extend the model, which we've used to fit behavioral data, to help understand the MT->LIP circuit. To build up the model we're going to imagine that our macaque brain is looking at a motion patch for a few hundred milliseconds (just like your brain did). This means that the populations of <span style="color:#5DADE2">left</span> and <span style="color:#CD6155">right</span> preferring neurons will each be activated to some extent at every moment in time. Their current firing rate will be our <b>drift rate</b>.</p>
 	<p>To visualize what we mean we're going to show you the same motion display as before. Again, you can control the coherence and the direction of the motion. But now we're going to add a new plot below which will have: the firing rate of the <span style="color:#5DADE2">left</span> population, <span style="color:#CD6155">right</span> population, and the accumulated evidence in black.</p>
 	<p>What do we mean by "accumulated evidence"? Well, intuitively, the evidence at any given moment for left is the firing rate of the left population <b>minus</b> the firing rate of the right population. All we do is sum that up over time, as in this equation:</p>
 	<div id="katex3"></div>
@@ -202,10 +202,13 @@
 		<li>Even when you put in the same coherence and direction twice, you get slightly different results. This is due to the <b>noise</b></li>
 		<li>At a glance, the left and right population responses don't give you much information at all. It's only by summing them up that you can tell what direction the patch is going.</li>
 	</ul>
-	<p>At this point it should be quite intuitive that the drift diffusion model fits in well with neural activity. The <b>diffusion rate</b> is literally the firing rate of neurons. The <b>drift rate</b> is just the amount of noise in the neural population. The <b>boundary</b> is some kind of internal gate that blocks the accumulating neurons from firing without enough evidence. In the next section you're going to write some code to implement this model, and then we'll use it to construct <b>simulations</b>, but before we get there we're going to check in with everybody again--let the TA know you're done.
+	<p>At this point it should be quite intuitive that the drift diffusion model fits in well with neural activity. The <b>drift rate</b> is literally the firing rate of neurons in MT, summed up. The <b>noise</b> is just random firing of the neural population. The <b>boundary</b> is just the threshold where LIP neurons are firing strongly enough to activate muscle output. We're going to take this idea now and use it to fit some neural data.
 </div>
 
 <div id="block6">
+	<p>This slide includes bonus contet and is not required.</p>
+	<a class="button" width=150 height=15 onclick="bonus1();">Bonus content (not required)</a>
+	<div id="bonus1">
 	<h2>Problem #2: Simulating a single decision</h2>
 	<p>It's now your turn to write some code! The first thing we're going to do is generate neural population responses based on a motion patch. We're going to give you two numbers: the coherence of the patch (what % of dots are moving together), and the direction. Your job is going to be to complete two <b>functions</b> that will tell us what the neural population response looks like based on what the neurons are seeing (the coherence and direction). Remember that neurons have some response, but they also have noise. We've written a function <b>randn()</b> that we will use to get random numbers pulled from a normal distribution. Try out randn() here: just press <b>enter</b>, you'll see the output of this function below.</p>
 	<textarea rows=1 id="textarea6" onkeypress="textarea6(event);">
@@ -248,16 +251,13 @@ rightResponse = function(patch_coherence,patch_dir) {
 	<div id="end6">
 	<p>Nice work! You now have two functions leftResponse() and rightResponse() that you'll be able to re-use later. Right now we're going to use them to generate samples like in the graph on the last page. We'll then write one more function to integrate these, and then we'll have our drift-diffusion model!
 	<br><br>
-	<!-- <a class="button" width=150 height=15 onclick="bonus1();">Bonus content (not required)</a>
 	<br>
-	<div id="bonus1"><br>
-		<h2>Bonus content: Function shapes</h2>
-		<p>How do you think neurons actually respond to increasing motion coherence? Do you think it's linear, non-linear, exponential? Why? When you look at the output on the graph on the next page, try going back to this one and editing your functions to compare linear, exponential, and saturating non-linear functions of coherence. Which do you think is the most realistic? Is there anything in biology that would suggest one solution is more likely than the others? Discuss with your partner and the TA.</p>
-	</div> -->
 	</div>
 </div>
 
 <div id="block7">
+	<p>This slide includes bonus contet and is not required.</p>
+	<div id="bonus2">
 	<h2>Problem #2: Simulating a single decision</h2>
 	<p>We're missing two more pieces for our drift diffusion model. The first is that we need to <b>accumulate</b> the evidence over time and the second is that we need to stop accumulating when we hit the <b>threshold</b>. You'll write that code in this next section. If you realize you made a mistake on the previous page you'll be able to go back and edit those as soon as you finish writing these functions.</p>
 	<textarea rows=32 id="textarea7" onkeypress="textarea7(event);">
@@ -302,7 +302,7 @@ atThreshold = function(acc,threshold) {
 	<textarea rows=2 onkeypress="event.preventDefault();" id="output7">Output will appear here</textarea>
 	<br>
 	<div id="end7">
-		<p>Fantastic work! It's time to see your code in action! Below what we're doing is the boring part: we start at <b>0</b> and we repeat over and over checking what your leftResponse() and rightResponse() functions return given the current stimulus, then we add those up using the acumulateDDM() function, and finally we check whether we should stop using your atThreshold() function. Below we are plotting the output of <b>your code</b> based on the motion coherence and direction of this dot patch. This should look familiar, if you did everything correctly it should look more or less like the plot we showed you earlier.
+		<p>Fantastic work! It's time to see your code in action! Below what we're doing is the boring part: we start at <b>0</b> and we repeat over and over checking what your leftResponse() and rightResponse() functions return given the current stimulus, then we add those up using the acumulateDDM() function, and finally we check whether we should stop using your atThreshold() function. Below we are plotting the output of <b>your code</b> based on the motion coherence and direction of this dot patch. This should look familiar, if you did everything correctly it should look more or less like the plot we showed you earlier.</p>
 		<div width="100%" height="150px" style="position:relative; text-align:center">
 			<div>
 				<h1>Motion sample</h1><canvas width=100 height=100 id="sample2"></canvas>
@@ -310,24 +310,29 @@ atThreshold = function(acc,threshold) {
 			</div>
 		</div>
 		<div width=600 id="plot3"></div>
-		<p>You should be asking yourself: what happened to the parameters!? We completely ignored them! We'll add them back in later, right now we just want the basic idea of how the code works to you.
+		<p>You should be asking yourself: what happened to the parameters!? We completely ignored them! We'll add them back in later, right now we just want the basic idea of how the code works to you.</p>
+	</div>
 	</div>
 </div>
 
 <div id="block8">
+	<p>This slide includes bonus contet and is not required.</p>
+	<a class="button" width=150 height=15 onclick="bonus3();">Bonus content (not required)</a>
+	<div id="bonus3">
 	<h2>Problem #3: Simulating many decisions</h2>
 	<p>The drift diffusion model is most useful as a <b>simulation</b>. Given some set of parameters: a drift rate, diffusion rate, and threshold, the model will create all sorts of different scenarios for how a particular event might play out. But: on average with any given set of parameters we'll get some number of trials that come out correct some number that are incorrect and also the reaction time on each trial. You've already seen this in practice when you moved the sliders to fit the model to your own personal data. What we're showing you now is what's happening "under the hood".</p>
 	<p>The first thing we'll do in this section is model twenty-five trials and just look at the variability in results that we get. Try tweaking the evidence for left or right motion, changing the amount of noise, or changing the thresholds, you'll see the output change each time you change the parameters. Press enter in the input box to re-run the model.</p>
 	<textarea rows=5 id="textarea8" onkeypress="textarea8(event);">
-diffusion_rate = 1; //A number, positive or negative, defining how much is added
+drift_rate = 1; //A number, positive or negative, defining how much is added
 // to the model on each step (equivalent to the Left-Right evidence for motion)
-drift_rate = 5; //How much noise is added on each step
-threshold = 20; //How large of a response necessary to stop a trial and declare it
+noise = 5; //How much noise is added on each step
+boundary = 20; //How large of a response necessary to stop a trial and declare it
 //as either left or right</textarea>
 	<textarea rows=5 onkeypress="event.preventDefault();" id="output8">Output will appear here</textarea>
 	<br>
 	<div width=600 id="plot8"></div>
 	<p>What should be apparent from this simulation is that different diffusion, drift, and threshold parameters can fit all kinds of sets of data (hits, misses, RTs). What this gives us then are parameters that are <b>interpretable</b>. What does a hit rate really mean? Not necessarily that much, but what about a drift rate? It's possible that there are direct neural correlates to the drift diffusion model parameters. In other words, if we record from the brain we might find neurons that actually appear to be computing drift diffusion while we make decisions? It turns out that this is the case and is precisely what Newsome and others reported! In the last section we'll look at real recordings from macaque neurons in the lateral intraparietal area and as you'll see we will be able to model them quite well using the drift diffusion model.</p> 
+	</div>
 </div>
 
 <div id="block9">
@@ -338,11 +343,11 @@ threshold = 20; //How large of a response necessary to stop a trial and declare 
 	<br>
 	<p>Like before we're going to let you define how the drift rate, diffusion rate, and threshold, might vary as a function of the motion coherence on each trial. As output we'll show you the data from this graph compared to the average output of 56 trials of your drift diffusion model. Your goal, just like in the cannonball example, is to minimize the difference between the model output and the data. At the end we'll look at the model parameters that you produced and discuss how you would <b>interpret</b> these.</p>
 	<textarea rows=5 id="textarea9" onkeypress="textarea9(event);">
-diffusion_rate = 1; //A number, positive or negative, defining how much is added
+drift_rate = 1; //A number, positive or negative, defining how much is added
 // to the model on each step (equivalent to the Left-Right evidence for motion)
-drift_rate = 5; //How much noise is added on each step
-upper_threshold = 40; //How large of a response necessary to stop a trial and declare it
-lower_threshold = 20;</textarea>
+noise = 5; //How much noise is added on each step
+upper_boundary = 40; //How large of a response necessary to stop a trial and declare it
+lower_boundary = 20;</textarea>
 	<div width=600 height=600 id="plot9"></div>
 	<p>As you try out different approaches think about how well your model fits to the entirety of the data here. Are you able to recover both the variability in the correct trials and incorrect trials? Where does your model fit worst? Is the poor fit in those areas an indication that we've oversimplified the situation and that the model is failing to capture some variability in the data?
 </div>
