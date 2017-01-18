@@ -713,13 +713,22 @@ function textarea62(e) {
 
 var b1 = false;
 function bonus1() {
-	$("#bonus1").show();
-	$("#bonus2").show();
-	$("#continue").hide();
-	b1 = true;
+	if (!b1) {
+		$("#bonus1").show();
+		$("#bonus2").show();
+		$("#continue").hide();
+	} else {
+		$("#bonus1").hide();
+		$("#bonus2").hide();
+		$("#continue").show();
+	}
+	b1 = !b1;
 }
+var b3 = false;
 function bonus3() {
-	$("#bonus3").show();
+	if (!b3) {$("#bonus3").show();}
+	else {$("#bonus3").hide();}
+	b3 = !b3;
 }
 
 ////////////////////////////////
@@ -1047,6 +1056,12 @@ function addSimulation(data) {
 
 var simCompiled = true;
 
+var drawBoth = false;
+function toggleInc() {
+	drawBoth = !drawBoth;
+	drawPlot9(rs_data);
+}
+
 function drawPlot9(rs_data) {
 	if (simCompiled) {
 		try{
@@ -1054,15 +1069,19 @@ function drawPlot9(rs_data) {
 		} catch (error) {
 			console.log(error);
 		}
+	} else {
+		// simulation not compiled, return
+		return;
 	}
-	var copts = ['incorrect','correct'];
+	var copts = (drawBoth) ? ['incorrect','correct'] : ['correct'];
+	// var copts = ['incorrect','correct'];
 	var lopts = [false,true];
 	var sopts = [3,5];
 	var ltopts = ['dot','solid'];
 	var colors = ['#005350','#4ac80d','#ec174d','#029d59','#8f33c6','#f79c1a'];
 	// Using rs_data from roitman shadlen 2002
 	var traces = [];
-	for (var ci=0;ci<2;ci++) {
+	for (var ci=0;ci<copts.length;ci++) {
 		for (var i=0;i<6;i++) {
 			var trace = {
 				x: rs_data[copts[ci]].x[i],

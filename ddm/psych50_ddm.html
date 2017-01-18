@@ -343,16 +343,19 @@ boundary = 20; //How large of a response necessary to stop a trial and declare i
 	<p>In the following image we're going to show you real data recorded from 56 neurons in the macaque lateral intraparietal area (LIP). It's thought that LIP acts as an accumulator of evidence when making decision about direction of motion. The graph is set up similar to how we've shown it before--time is on the X axis but now firing rate is on the Y axis. The hypothesis is that firing rate is representing the <b>accumulated evidence</b> at any given moment in time. You're now going to hand fit a drift diffusion model to see whether the model captures the variance in the data, and if so we'll consider that evidence that the hypothesis might be correct.</p>
 	<p>The solid lines are from correct trials and dashed lines were incorrect, and each condition was averaged across left and right motion. Notice that the lines break out by motion coherence just as you might expect: stronger motion coherence causes firing rates to peak more quickly.</p>
 	<div style="text-align:center;width:500px;margin:auto"><img width=400 src="images/RoitmanShadlen2002.jpg"/><br><span style="font-size:12px">Roitman, J. D., & Shadlen, M. N. (2002).</span></div>
+
 	<br>
-	<p>Like before we're going to let you define how the drift rate, diffusion rate, and threshold, might vary as a function of the motion coherence on each trial. As output we'll show you the data from this graph compared to the average output of 56 trials of your drift diffusion model. Your goal, just like in the cannonball example, is to minimize the difference between the model output and the data. At the end we'll look at the model parameters that you produced and discuss how you would <b>interpret</b> these.</p>
+	<p>Like before we're going to let you define how the drift rate, diffusion rate, and threshold, might vary as a function of the motion coherence on each trial. As output we'll show you the data from this graph compared to the average output of 56 trials of your drift diffusion model. Your goal is to minimize the difference between the model output and the data. With your neighbors think about how you would <b>interpret</b> the parameters.</p>
 	<textarea rows=5 id="textarea9" onkeypress="textarea9(event);">
-drift_rate = 1; //A number, positive or negative, defining how much is added
+drift_rate = 0.5; //A number, positive or negative, defining how much is added
 // to the model on each step (equivalent to the Left-Right evidence for motion)
-noise = 5; //How much noise is added on each step
+noise = 1; //How much noise is added on each step
 upper_boundary = 40; //How large of a response necessary to stop a trial and declare it
 lower_boundary = 20;</textarea>
+
+	<a width=100 class="button" onclick="toggleInc();">Toggle incorrect</a><br><br>
 	<div width=600 height=600 id="plot9"></div>
-	<p>As you try out different approaches think about how well your model fits to the entirety of the data here. Are you able to recover both the variability in the correct trials and incorrect trials? Where does your model fit worst? Is the poor fit in those areas an indication that we've oversimplified the situation and that the model is failing to capture some variability in the data?
+	<p>As you try out different approaches think about how well your model fits to the entirety of the data here. If you ignore the incorrect trials how close to reality can you achieve? Adding in the incorrect trials, are you able to recover both the variability in the correct trials and incorrect trials? Where does your model fit worst? Is the poor fit in those areas an indication that we've oversimplified the situation and that the model is failing to capture some variability in the data?
 </div>
 <div id="endblock">
 	<h2>Tutorial complete!</h2>
