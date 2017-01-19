@@ -346,7 +346,7 @@ var el4 = 0;
 
 function run_4(e) {
 	el4+=e;
-	if (el4<1500) {return}
+	if (el4<2000) {return}
 	el4=0;
 	// Simulate it? Really?
 	var high_rt = 0;
@@ -354,7 +354,7 @@ function run_4(e) {
 
 	var high_pc = 0;
 	var low_pc = 0;
-	var reps = 100;
+	var reps = 200;
 
 	var hcv, lcv;
 	for (var i=0; i<reps;i++) {
