@@ -381,20 +381,30 @@ function run_4(e) {
 		low_rt = low_rt + Number(ndt);
 	}
 
-	$("#hcc").html("High coherence % correct = " +
-		high.correct + "% " + "<span style=\"color:#CD6155\">model = " +
-		Math.round(high_pc*100) + "%</span>");		
+	if (high_pc>0 && low_pc>0) {
+		$("#hcc").html("High coherence % correct = " +
+			high.correct + "% " + "<span style=\"color:#CD6155\">model = " +
+			Math.round(high_pc*100) + "%</span>");		
+		$("#lcc").html("Low coherence % correct = " +
+			low.correct + "% " + "<span style=\"color:#CD6155\">model = " +
+			Math.round(low_pc*100) + "%</span>");
 
-	$("#lcc").html("Low coherence % correct = " +
-		low.correct + "% " + "<span style=\"color:#CD6155\">model = " +
-		Math.round(low_pc*100) + "%</span>");
-
-	$("#hcrt").html("High coherence reaction time = " + 
-		high.RT + " ms " + "<span style=\"color:#CD6155\">model = " + 
-		Math.round(high_rt) + " ms</span>");
-	$("#lcrt").html("Low coherence reaction time = " + 
-		low.RT + " ms "  + "<span style=\"color:#CD6155\">model = " + 
-		Math.round(low_rt) + " ms</span>");
+		$("#hcrt").html("High coherence reaction time = " + 
+			high.RT + " ms " + "<span style=\"color:#CD6155\">model = " + 
+			Math.round(high_rt) + " ms</span>");
+		$("#lcrt").html("Low coherence reaction time = " + 
+			low.RT + " ms "  + "<span style=\"color:#CD6155\">model = " + 
+			Math.round(low_rt) + " ms</span>");
+	} else {
+		$("#hcc").html("High coherence % correct = " +
+			high.correct + "% " + "<span style=\"color:#CD6155\">model failed");		
+		$("#lcc").html("Low coherence % correct = " +
+			low.correct + "% " + "<span style=\"color:#CD6155\">model failed");
+		$("#hcrt").html("High coherence reaction time = " + 
+			high.RT + " ms " + "<span style=\"color:#CD6155\">model failed");
+		$("#lcrt").html("Low coherence reaction time = " + 
+			low.RT + " ms "  + "<span style=\"color:#CD6155\">model failed");	
+	}
 }
 
 ////////////////////////////////
