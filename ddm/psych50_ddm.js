@@ -345,6 +345,7 @@ function run_2() {
 var el4 = 0;
 
 function run_4(e) {
+	console.log('v1')
 	el4+=e;
 	if (el4<1500) {return}
 	el4=0;
