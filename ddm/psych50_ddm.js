@@ -376,8 +376,8 @@ function run_4(e) {
 	low_rt = low_rt / reps;
 
 	if (cur2>=5) {
-		high_rt = high_rt + ndt;
-		low_rt = low_rt + ndt;
+		high_rt = high_rt + Number(ndt);
+		low_rt = low_rt + Number(ndt);
 	}
 
 	$("#hcc").html("High coherence % correct = " +
