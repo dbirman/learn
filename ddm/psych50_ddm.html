@@ -230,7 +230,7 @@ leftResponse = function(patch_coherence,patch_dir) {
 	// The english translation is: If dir>0 is true then set out to: 1, otherwise: 0
 
 	// MODIFY THE NEXT LINE
-	out = patch_dir>0 ? patch_coherence*2 : 0;
+	out = (_) ? _ : _;
 
 	// The last thing we do is add random noise on this line:
 	out = out+randn();
@@ -240,7 +240,7 @@ leftResponse = function(patch_coherence,patch_dir) {
 
 rightResponse = function(patch_coherence,patch_dir) {
 	// MODIFY THE NEXT LINE
-	out = patch_dir<0 ? patch_coherence*2 : 0;
+	out = (_) ? _ : _;
 
 	out = out+randn();
 
@@ -274,7 +274,7 @@ rightResponse = function(patch_coherence,patch_dir) {
 // acc - the current accumulated value
 accumulateDDM = function(left,right,acc) {
 	// MODIFY THE NEXT LINE
-	var new_acc = acc+left-right;
+	var new_acc = _;
 
 	return new_acc;
 }
@@ -293,13 +293,13 @@ accumulateDDM = function(left,right,acc) {
 // if neither of these are true, simply return 0.
 atThreshold = function(acc,threshold) {
 	if (acc>threshold) {
-		return 1;
+		return _;
 	}
 	else if (acc<-threshold) {
-		return -1;
+		return _;
 	}
 	else {
-		return 0;
+		return _;
 	}
 }</textarea>
 	<textarea rows=2 onkeypress="event.preventDefault();" id="output7">Output will appear here</textarea>
@@ -352,7 +352,6 @@ drift_rate = 0.5; //A number, positive or negative, defining how much is added
 noise = 1; //How much noise is added on each step
 upper_boundary = 50; //How large of a response necessary to stop a trial and declare it
 lower_boundary = 20;</textarea>
-
 	<a width=100 class="button" onclick="toggleInc();">Toggle incorrect</a><br><br>
 	<div width=600 height=600 id="plot9"></div>
 	<p>As you try out different approaches think about how well your model fits to the entirety of the data here. If you ignore the incorrect trials how close to reality can you achieve? Adding in the incorrect trials, are you able to recover both the variability in the correct trials and incorrect trials? Where does your model fit worst? Is the poor fit in those areas an indication that we've oversimplified the situation and that the model is failing to capture some variability in the data?
