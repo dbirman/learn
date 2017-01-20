@@ -396,13 +396,13 @@ function run_4(e) {
 			Math.round(low_rt) + " ms</span>");
 	} else {
 		$("#hcc").html("High coherence % correct = " +
-			high.correct + "% " + "<span style=\"color:#CD6155\">model failed");		
+			high.correct + "% " + "<span style=\"color:#CD6155\">simulation failed");		
 		$("#lcc").html("Low coherence % correct = " +
-			low.correct + "% " + "<span style=\"color:#CD6155\">model failed");
+			low.correct + "% " + "<span style=\"color:#CD6155\">simulation failed");
 		$("#hcrt").html("High coherence reaction time = " + 
-			high.RT + " ms " + "<span style=\"color:#CD6155\">model failed");
+			high.RT + " ms " + "<span style=\"color:#CD6155\">simulation failed");
 		$("#lcrt").html("Low coherence reaction time = " + 
-			low.RT + " ms "  + "<span style=\"color:#CD6155\">model failed");	
+			low.RT + " ms "  + "<span style=\"color:#CD6155\">simulation failed");	
 	}
 }
 
