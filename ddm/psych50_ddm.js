@@ -175,6 +175,7 @@ function step2() {
 			$("#b2_always").hide();
 			$("#step2").hide();
 			$("#dataentry").hide();
+			$("#continue").show();
 			break;
 		default:
 			$("#b2_always").hide();
@@ -1038,7 +1039,7 @@ function addSimulation(data) {
 						sim[si][repscomplete] = baseF;
 					} else {
 						var deltax = Math.round(xdata[si]-xdata[si-1]);
-						sim[si][repscomplete] = sim[si-1][repscomplete] + deltax*rs_diffusion(ccoh,dir) + deltax*rs_drift(ccoh,dir);
+						sim[si][repscomplete] = sim[si-1][repscomplete] + Math.sqrt(deltax)*rs_diffusion(ccoh,dir) + deltax*rs_drift(ccoh,dir);
 					}
 					if ((sim[si][repscomplete] > upper_boundary) && ci==1) {crdone = true;}
 					if ((sim[si][repscomplete] < lower_boundary) && ci==0) {crdone = true;}
@@ -1160,7 +1161,7 @@ function run(i) {
 			cur2 = 0;
 			$("#step2").show();
 			$("#continue").hide();
-			$("body").keydown(function(event) {continue2(event)});
+			// $("body").keydown(function(event) {continue2(event)});
 			break;
 		case 3:
 			elapsed();
