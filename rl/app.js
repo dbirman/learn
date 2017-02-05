@@ -76,11 +76,13 @@ io.on('connection', function(socket){
 		if (section[socket.id]!=undefined) {
 		  	var trees = ['A','B','C'];
 		  	var tree = Number(msg);
-		    console.log(socket.id + ' requested tree: ' + trees[Number(msg)-1]);
+		  	if (!isNaN(tree)) {		    
+		  		console.log(socket.id + ' requested tree: ' + trees[Number(msg)-1]);
 
-		    var id_sec = section[socket.id];
-		    forests[id_sec].emit[socket.id] = tree;
-		    console.log('Forest ' + id_sec + ' has ' + Object.keys(forests[id_sec].emit).length + ' pending requests');
+			    var id_sec = section[socket.id];
+			    forests[id_sec].emit[socket.id] = tree;
+			    console.log('Forest ' + id_sec + ' has ' + Object.keys(forests[id_sec].emit).length + ' pending requests');
+		  	}
 		} else {
 			console.log(socket.id + ': ignoring tree request, need to login');
 		}
