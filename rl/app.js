@@ -115,11 +115,11 @@ function run() {
 		forests[fi] = forest;
 	}
 
-	setTimeout(run,3000);
+	setTimeout(run,10000);
 }
 
-http.listen(3000, function(){
-  console.log('listening on *:3000');
+http.listen(8888, function(){
+  console.log('listening on *:8888');
   run();
 });
 
