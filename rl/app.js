@@ -220,7 +220,7 @@ function emitForest(forest) {
 function initForest() {
 	// Build up a forest variable
 	forest = {};
-	forest.apples = [10,10,10];
+	forest.apples = [getRandomInt(5,15),getRandomInt(5,15),getRandomInt(5,15)];
 
 	forest['emit'] = {}; // dictionary to track who to emit to
 
@@ -232,4 +232,10 @@ function checkForest(num) {
 		console.log('A new forest is growing: ' + num);
 		forests[num] = initForest();
 	}
+}
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
 }
