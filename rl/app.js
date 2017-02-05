@@ -5,7 +5,7 @@ var io = require('socket.io')(http);
 app.get( '/*' , function( req, res ) {
     // this is the current file they have requested
     var file = req.params[0]; 
-    console.log('\t :: Express :: file requested: ' + file);    
+    // console.log('\t :: Express :: file requested: ' + file);    
 
     // give them what they want
     res.sendfile("./" + file);
@@ -18,6 +18,7 @@ io.on('connection', function(socket){
 
   socket.on('disconnect', function(){
     console.log('user disconnected');
+    taDisconnect(socket.id);
   });
 
   socket.on('login', function(msg){
@@ -72,10 +73,15 @@ io.on('connection', function(socket){
 		console.log(socket.id + ': ignoring tree request, need to login');
 	}
   });
+
+  socket.on('ta_score', function(id) {
+  	io.to(socket.id).emit('ta_score',scores[id]);
+  });
 });
 
 var section = {};
 var talist = {};
+var scores = [];
 var forests = [];
 
 function run() {
@@ -83,8 +89,8 @@ function run() {
 	for (fi in forests) {
 		var forest = forests[fi];
 		forest = updateForest(forest);
-		forest = emitForest(forest);
 		taForest(forest);
+		forest = emitForest(forest);
 		forests[fi] = forest;
 	}
 
@@ -105,7 +111,25 @@ http.listen(3000, function(){
 // 'response' 0->5, amount each tree returns on this ping 
 
 function taForest(forest) {
-	// TAs 
+	// TAs
+	for (var id in talist) {
+		// get forest
+		forest = forests[talist[id]];
+		// send value updates
+		io.to(id).emit('ta_tree','A.'+forest['A']);
+		io.to(id).emit('ta_tree','B.'+forest['B']);
+		io.to(id).emit('ta_tree','C.'+forest['C']);
+		// send squirrel updates
+		// all student IDs with squirrels
+		ids = Object.keys(forest.emit);
+		// send key and tree
+		for (i in ids) {
+			cid = ids[i];
+			io.to(id).emit('ta_squirrel',cid+'.'+forest.emit[cid]);
+		}
+
+		io.to(id).emit('ta_alldone','');
+	}
 }
 
 function updateForest(forest) {
@@ -113,9 +137,9 @@ function updateForest(forest) {
 		rB = Math.random(),
 		rC = Math.random();
 
-	var A = forest['A'],
-		B = forest['B'],
-		C = forest['C'];
+	A = forest.apples[0];
+	B = forest.apples[1];
+	C = forest.apples[2];
 
 	if (rA<0.1) {A++;} else if (rA<0.2) {A--;}
 	if (A<0) {A=0;}
@@ -124,28 +148,46 @@ function updateForest(forest) {
 	if (rC<0.1) {C++;} else if (rC<0.2) {C--;}
 	if (C<0) {C=0;}
 
-	forest['A'] = A; forest['B'] = B; forest['C'] = C;
+	forest.apples = [A,B,C];
 
 	return forest;
+}
+
+function taDisconnect(sid) {
+	for (var id in talist) {
+		io.to(id).emit('ta_disconnect',sid);
+	}
 }
 
 function emitForest(forest) {
 	var trackEmit = forest['emit'];
 
-	var A = forest['A'],
-		B = forest['B'],
-		C = forest['C'];
+	var apples = [0,0,0];
 
+	var count = [0,0,0];
+
+	// First check the apple count
 	for (var id in trackEmit) {
-		if (trackEmit[id]==1) {
-			io.to(id).emit('treeA',A);
+		count[trackEmit[id]-1]++;
+	}
+
+	for (var i=0;i<3;i++) {
+		apples[i] = forest.apples[i]/count[i];
+	}
+
+	var trees = ['A','B','C'];
+	for (var id in trackEmit) {
+		tree = trackEmit[id]-1;
+		var amt = 0;
+		if (apples[tree]>=1) {
+			amt = Math.round(apples[tree]);
+		} else {
+			if (Math.random() < amt) {
+				amt = 1;
+			}
 		}
-		else if (trackEmit[id]==2) {
-			io.to(id).emit('treeB',B);
-		}
-		else if (trackEmit[id]==3) {
-			io.to(id).emit('treeC',C);
-		}
+		io.to(id).emit('tree'+trees[tree],amt);
+		scores[id] += amt;
 	}
 	trackEmit = {};
 
@@ -157,9 +199,7 @@ function emitForest(forest) {
 function initForest() {
 	// Build up a forest variable
 	forest = {};
-	forest['A'] = 3;
-	forest['B'] = 3;
-	forest['C'] = 3;
+	forest.apples = [10,10,10];
 
 	forest['emit'] = {}; // dictionary to track who to emit to
 

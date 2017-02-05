@@ -10,19 +10,34 @@ function request(tree) {
 socket.on('treeA', function(msg){
 	defaultSquirrel();
 	console.log('tree A: ' + msg);
-	addApples(Number(msg),1);
+	var num = Number(msg);
+	if (num>0) {
+		addApples(Number(msg),1);
+	} else {
+		addLeaf(1);
+	}
 });
 
 socket.on('treeB', function(msg){
 	defaultSquirrel();
 	console.log('tree B: ' + msg);
-	addApples(Number(msg),2);
+	var num = Number(msg);
+	if (num>0) {
+		addApples(Number(msg),2);
+	} else {
+		addLeaf(2);
+	}
 });
 
 socket.on('treeC', function(msg){
 	defaultSquirrel();
 	console.log('tree C: ' + msg);
-	addApples(Number(msg),3);
+	var num = Number(msg);
+	if (num>0) {
+		addApples(Number(msg),3);
+	} else {
+		addLeaf(3);
+	}
 });
 
 socket.on('status', function(msg) {
@@ -30,7 +45,7 @@ socket.on('status', function(msg) {
 	var connected = msg[0];
 	var group = msg[1];
 	console.log('Received connection status: ' + connected + ' as ' + group);
-	if (group=='ta') {
+	if (group=='TA') {
 		TA = true;
 		launchCanvas();
 	} else if (group=='student') {
@@ -57,6 +72,7 @@ function launch() {
  	treeImg.src = 'images/tree.png';
  	sqImg.src = 'images/squirrel.png';
  	apImg.src = 'images/apple.png';
+ 	leafImg.src = 'images/leaf.png';
 	canvas.addEventListener("click",updateCanvasClick,false);
 }
 
@@ -86,12 +102,20 @@ var ctx = canvas.getContext("2d");
 var treeImg = new Image();
 var sqImg = new Image();
 var apImg = new Image();
+var leafImg = new Image();
 
 function launchCanvas() {
 	// Begin canvas functionality
 	$("#login").hide();
 	$("#viewport").show();
 
+	if (!TA) {
+		// student, one squirrel
+		squirrels.push(newSquirrel());
+	} else {
+		// TA, dynamic squirrels (tied to info coming from server)
+		squirrels = {};
+	}
 	// add squirrel
 	objects.push(newTree(1));
 	objects.push(newTree(2));
@@ -106,12 +130,11 @@ var treeY = [400,50,300];
 var sqDefX = canvas.width/2;
 var sqDefY = canvas.height-200;
 
-var squirrelObj = newSquirrel();
-
 var treeScale = 200;
 var appleScale = 10;
 
 var objects = [];
+var squirrels = [];
 
 function draw() {
 
@@ -121,18 +144,29 @@ function draw() {
 	for (i in objects) {
 		o = objects[i];
 		ctx.drawImage(o.img,o.x,o.y,o.width,o.height);
-		objects[i] = updateObject(o);
+		updateObject(o);
 	}
 	// draw squirrel
-	o = squirrelObj;
-	ctx.drawImage(o.img,o.x,o.y,o.width,o.height);
-	objects[i] = updateObject(o);
+	for (i in squirrels) {
+		o = squirrels[i];
+		ctx.drawImage(o.img,o.x,o.y,o.width,o.height);
+		updateObject(o);
+	}
 
-	//draw score
 	ctx.font = "30px Arial";
 	ctx.fillStyle = "#ffffff";
-	ctx.fillText("Apples: " + score,canvas.width-150,30);
-
+	if (TA) {
+		if (ta_debug) {
+			// draw the tree values
+			var trees = ['A','B','C'];
+			for (var i=0;i<3;i++) {
+				ctx.fillText('Tree ' + trees[i] + ': ' + eval('ta_'+trees[i]),treeX[i],treeY[i]);
+			}
+		}
+	} else {
+		//draw score
+		ctx.fillText("Apples: " + score,canvas.width-150,30);
+	}
 	requestAnimationFrame(draw);
 }
 
@@ -148,7 +182,7 @@ function newApple(treeNum) {
 	apple.x = treeX[treeNum] + treeScale*Math.random()-5;
 	apple.y = treeY[treeNum] + 100*Math.random();
 	apple.toX = apple.x
-	apple.toY = apple.y + objects[0].height - Math.random()*20;
+	apple.toY = treeY[treeNum] + objects[0].height - Math.random()*20;
 	apple.width = 10;
 	apple.height = 10;
 	apple.img = apImg;
@@ -156,16 +190,31 @@ function newApple(treeNum) {
 	return apple;
 }
 
+function addLeaf(tree) {
+	objects.push(newLeaf(tree-1));
+}
+
+function newLeaf(treeNum) {
+	leaf = {};
+	leaf.x = treeX[treeNum] + treeScale*Math.random()-5;
+	leaf.y = treeY[treeNum] + 100*Math.random();
+	leaf.toX = leaf.x
+	leaf.toY = treeY[treeNum] + objects[0].height - Math.random()*20;
+	leaf.width = 20;
+	leaf.height = 20;
+	leaf.img = leafImg;
+
+	return leaf;
+}
+
 function updateObject(obj) {
 	obj.x += (obj.toX-obj.x)/50;
 	obj.y += (obj.toY-obj.y)/50;
-
-	return obj;
 }
 
 function defaultSquirrel() {
-	squirrelObj.toX = sqDefX;
-	squirrelObj.toY = sqDefY;
+	squirrels[0].toX = sqDefX;
+	squirrels[0].toY = sqDefY;
 }
 
 function newTree(num) {
@@ -195,7 +244,7 @@ function newSquirrel() {
 
 function eventClick(x,y,shift) {
 	if (TA) {
-		console.log('TA has no direct input');
+		ta_debug = !ta_debug;
 		return;
 	}
 	// Otherwise! Figure out if we clicked on a tree
@@ -231,6 +280,60 @@ function updateCanvas(evt,canvas) {
   return [x,y];
 }
 
+//////////////////
+// TA FUNCTIONS //
+//////////////////
 
+var ta_A, ta_B, ta_C;
 
+var ta_debug = false;
 
+// Updates a tree value
+// tree.value
+socket.on('ta_tree', function(msg){
+	msg = msg.split('.');
+	tree = msg[0];
+	value = Number(msg[1]);
+	if (tree=='A') {
+		ta_A = value;
+	}
+	if (tree=='B') {
+		ta_B = value;
+	}
+	if (tree=='C') {
+		ta_C = value;
+	}
+});
+
+// Updates knowledge about a student
+// id.tree.score
+socket.on('ta_squirrel', function(msg) {
+	msg = msg.split('.');
+	id = msg[0];
+	tree = Number(msg[1])-1;
+	if (squirrels[id]==undefined) {
+		squirrels[id] = newSquirrel();
+		squirrels[id].dead = false;
+	}
+	squirrels[id].toX = treeX[tree]+Math.random()*objects[0].width;
+	squirrels[id].toY = treeY[tree]+200+(Math.random()*(objects[0].height-200));
+	squirrels[id].updated = true;
+});
+
+socket.on('ta_alldone', function(msg) {
+	ids = Object.keys(squirrels);
+	for (i in ids) {
+		id = ids[i];
+		if (!squirrels[id].updated && !squirrels[id].dead) {
+			squirrels[id].toX = sqDefX + Math.random()*50 - 25;
+			squirrels[id].toY = sqDefY + Math.random()*50 - 25;
+		}
+		squirrels[id].updated = false;
+	}
+});
+
+socket.on('ta_disconnect', function(msg) {
+	if (squirrels[msg]!=undefined) {
+		delete squirrels[msg];
+	}
+});
