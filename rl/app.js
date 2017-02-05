@@ -17,65 +17,84 @@ io.on('connection', function(socket){
   console.log('Connection: ID ' + socket.id);
 
   socket.on('disconnect', function(){
-    console.log('user disconnected');
-    taDisconnect(socket.id);
+  	try {
+	    console.log('user disconnected');
+	    taDisconnect(socket.id);
+  	} catch(err) {
+  		console.log(err);
+  	}
   });
 
   socket.on('login', function(msg){
-  	// Message is student.section
-  	// or ta.section.password
-  	var res = msg.split('.');
+  	try {
+	  	// Message is student.section
+	  	// or ta.section.password
+	  	var res = msg.split('.');
 
-  	var success = false;
+	  	var success = false;
 
-  	var group = res[0];
-  	var sec = Number(res[1]);
+	  	var group = res[0];
+	  	var sec = Number(res[1]);
 
-  	// start the login process
-  	console.log(socket.id + ': requesting login as ' + group);
+	  	if (!isNaN(sec) && typeof(sec)=='number') {
+		  	// start the login process
+		  	console.log(socket.id + ': requesting login as ' + group);
 
-  	if (group=='student') {
-  		// add this student to the right section
-  		section[socket.id] = sec;
+		  	if (group=='student') {
+		  		// add this student to the right section
+		  		section[socket.id] = sec;
 
-  		io.to(socket.id).emit('status','connected.student');
-  		checkForest(sec); // check that this forest exists
-  		success = true;
-  	} else if (group=='ta') {
-  		// check password
-  		console.log(res[2]);
-  		if (res[2]=='forest') {
-	  		section[socket.id] = sec;
-	  		talist[socket.id] = sec;
+		  		io.to(socket.id).emit('status','connected.student');
+		  		checkForest(sec); // check that this forest exists
+		  		success = true;
+		  	} else if (group=='ta') {
+		  		// check password
+		  		console.log(res[2]);
+		  		if (res[2]=='forest') {
+			  		section[socket.id] = sec;
+			  		talist[socket.id] = sec;
 
-	  		io.to(socket.id).emit('status','connected.TA');
-	  		checkForest(sec); // check that this forest exists
-	  		success = true;
-  		}
-  	}
-  	if (success) {
-  		console.log(socket.id + ': succesful login');
-  	} else {
-  		console.log(socket.id + ': login failed');
-  	}
+			  		io.to(socket.id).emit('status','connected.TA');
+			  		checkForest(sec); // check that this forest exists
+			  		success = true;
+		  		}
+		  	}
+	  	}
+
+	  	if (success) {
+	  		console.log(socket.id + ': succesful login');
+	  	} else {
+	  		console.log(socket.id + ': login failed');
+	  	}
+	  } catch(err) {
+	  	console.log(err);
+	  }
   });
 
   socket.on('request', function(msg) {
-	if (section[socket.id]!=undefined) {
-	  	var trees = ['A','B','C'];
-	  	var tree = Number(msg);
-	    console.log(socket.id + ' requested tree: ' + trees[Number(msg)-1]);
+  	try {
+		if (section[socket.id]!=undefined) {
+		  	var trees = ['A','B','C'];
+		  	var tree = Number(msg);
+		    console.log(socket.id + ' requested tree: ' + trees[Number(msg)-1]);
 
-	    var id_sec = section[socket.id];
-	    forests[id_sec].emit[socket.id] = tree;
-	    console.log('Forest ' + id_sec + ' has ' + Object.keys(forests[id_sec].emit).length + ' pending requests');
-	} else {
-		console.log(socket.id + ': ignoring tree request, need to login');
+		    var id_sec = section[socket.id];
+		    forests[id_sec].emit[socket.id] = tree;
+		    console.log('Forest ' + id_sec + ' has ' + Object.keys(forests[id_sec].emit).length + ' pending requests');
+		} else {
+			console.log(socket.id + ': ignoring tree request, need to login');
+		}
+	} catch(err) {
+		console.log(err);
 	}
   });
 
   socket.on('ta_score', function(id) {
-  	io.to(socket.id).emit('ta_score',scores[id]);
+  	try {
+  		io.to(socket.id).emit('ta_score',scores[id]);
+  	} catch(err) {
+  		console.log(err);
+  	}
   });
 });
 
@@ -86,10 +105,10 @@ var forests = [];
 
 function run() {
 	console.log('Tick!');
+	taForest(); // send updates to the TAs
 	for (fi in forests) {
 		var forest = forests[fi];
 		forest = updateForest(forest);
-		taForest(forest);
 		forest = emitForest(forest);
 		forests[fi] = forest;
 	}
@@ -110,15 +129,15 @@ http.listen(3000, function(){
 // Server side:
 // 'response' 0->5, amount each tree returns on this ping 
 
-function taForest(forest) {
+function taForest() {
 	// TAs
 	for (var id in talist) {
 		// get forest
 		forest = forests[talist[id]];
 		// send value updates
-		io.to(id).emit('ta_tree','A.'+forest['A']);
-		io.to(id).emit('ta_tree','B.'+forest['B']);
-		io.to(id).emit('ta_tree','C.'+forest['C']);
+		io.to(id).emit('ta_tree','A.'+forest.apples[0]);
+		io.to(id).emit('ta_tree','B.'+forest.apples[1]);
+		io.to(id).emit('ta_tree','C.'+forest.apples[2]);
 		// send squirrel updates
 		// all student IDs with squirrels
 		ids = Object.keys(forest.emit);
