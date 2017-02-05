@@ -2,9 +2,14 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
-});
+app.get( '/*' , function( req, res ) {
+    // this is the current file they have requested
+    var file = req.params[0]; 
+    console.log('\t :: Express :: file requested: ' + file);    
+
+    // give them what they want
+    res.sendfile("./" + file);
+}); 
 
 var IDs = 0;
 
@@ -15,39 +20,73 @@ io.on('connection', function(socket){
     console.log('user disconnected');
   });
 
-  socket.on('request', function(msg){
-  	var trees = ['A','B','C'];
-    console.log(socket.id + ' requested tree: ' + trees[Number(msg)-1]);
-    trackEmit[socket.id] = Number(msg);
+  socket.on('login', function(msg){
+  	// Message is student.section
+  	// or ta.section.password
+  	var res = msg.split('.');
+
+  	var success = false;
+
+  	var group = res[0];
+  	var sec = Number(res[1]);
+
+  	// start the login process
+  	console.log(socket.id + ': requesting login as ' + group);
+
+  	if (group=='student') {
+  		// add this student to the right section
+  		section[socket.id] = sec;
+
+  		io.to(socket.id).emit('status','connected.student');
+  		checkForest(sec); // check that this forest exists
+  		success = true;
+  	} else if (group=='ta') {
+  		// check password
+  		console.log(res[2]);
+  		if (res[2]=='forest') {
+	  		section[socket.id] = sec;
+	  		talist[socket.id] = sec;
+
+	  		io.to(socket.id).emit('status','connected.TA');
+	  		checkForest(sec); // check that this forest exists
+	  		success = true;
+  		}
+  	}
+  	if (success) {
+  		console.log(socket.id + ': succesful login');
+  	} else {
+  		console.log(socket.id + ': login failed');
+  	}
+  });
+
+  socket.on('request', function(msg) {
+	if (section[socket.id]!=undefined) {
+	  	var trees = ['A','B','C'];
+	  	var tree = Number(msg);
+	    console.log(socket.id + ' requested tree: ' + trees[Number(msg)-1]);
+
+	    var id_sec = section[socket.id];
+	    forests[id_sec].emit[socket.id] = tree;
+	    console.log('Forest ' + id_sec + ' has ' + Object.keys(forests[id_sec].emit).length + ' pending requests');
+	} else {
+		console.log(socket.id + ': ignoring tree request, need to login');
+	}
   });
 });
 
-var trackEmit = {};
-
-var A = 2;
-var B = 2;
-var C = 2;
+var section = {};
+var talist = {};
+var forests = [];
 
 function run() {
-	rA = Math.random(); rB = Math.random(); rC = Math.random();
-	if (rA<0.1) {A++;} else if (rA<0.2) {A--;}
-	if (rB<0.1) {B++;} else if (rB<0.2) {B--;}
-	if (rC<0.1) {C++;} else if (rC<0.2) {C--;}
-
-	for (var id in trackEmit) {
-		console.log(trackEmit[id]);
-		if (trackEmit[id]==1) {
-			io.to(id).emit('treeA',A);
-			console.log('Sending A to ' + id);
-		}
-		else if (trackEmit[id]==2) {
-			io.to(id).emit('treeB',B);
-		}
-		else if (trackEmit[id]==3) {
-			io.to(id).emit('treeC',C);
-		}
+	console.log('Tick!');
+	for (fi in forests) {
+		var forest = forests[fi];
+		forest = updateForest(forest);
+		forest = emitForest(forest);
+		taForest(forest);
+		forests[fi] = forest;
 	}
-	trackEmit = {};
 
 	setTimeout(run,3000);
 }
@@ -64,3 +103,72 @@ http.listen(3000, function(){
 
 // Server side:
 // 'response' 0->5, amount each tree returns on this ping 
+
+function taForest(forest) {
+	// TAs 
+}
+
+function updateForest(forest) {
+	var rA = Math.random(),
+		rB = Math.random(),
+		rC = Math.random();
+
+	var A = forest['A'],
+		B = forest['B'],
+		C = forest['C'];
+
+	if (rA<0.1) {A++;} else if (rA<0.2) {A--;}
+	if (A<0) {A=0;}
+	if (rB<0.1) {B++;} else if (rB<0.2) {B--;}
+	if (B<0) {B=0;}
+	if (rC<0.1) {C++;} else if (rC<0.2) {C--;}
+	if (C<0) {C=0;}
+
+	forest['A'] = A; forest['B'] = B; forest['C'] = C;
+
+	return forest;
+}
+
+function emitForest(forest) {
+	var trackEmit = forest['emit'];
+
+	var A = forest['A'],
+		B = forest['B'],
+		C = forest['C'];
+
+	for (var id in trackEmit) {
+		if (trackEmit[id]==1) {
+			io.to(id).emit('treeA',A);
+		}
+		else if (trackEmit[id]==2) {
+			io.to(id).emit('treeB',B);
+		}
+		else if (trackEmit[id]==3) {
+			io.to(id).emit('treeC',C);
+		}
+	}
+	trackEmit = {};
+
+	forest['emit'] = trackEmit;
+
+	return forest;
+}
+
+function initForest() {
+	// Build up a forest variable
+	forest = {};
+	forest['A'] = 3;
+	forest['B'] = 3;
+	forest['C'] = 3;
+
+	forest['emit'] = {}; // dictionary to track who to emit to
+
+	return forest;
+}
+
+function checkForest(num) {
+	if (!forests[num]) {
+		console.log('A new forest is growing: ' + num);
+		forests[num] = initForest();
+	}
+}
