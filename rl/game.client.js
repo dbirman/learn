@@ -313,7 +313,6 @@ socket.on('ta_squirrel', function(msg) {
 	tree = Number(msg[1])-1;
 	if (squirrels[id]==undefined) {
 		squirrels[id] = newSquirrel();
-		squirrels[id].dead = false;
 	}
 	squirrels[id].toX = treeX[tree]+Math.random()*objects[0].width;
 	squirrels[id].toY = treeY[tree]+200+(Math.random()*(objects[0].height-200));
@@ -324,7 +323,7 @@ socket.on('ta_alldone', function(msg) {
 	ids = Object.keys(squirrels);
 	for (i in ids) {
 		id = ids[i];
-		if (!squirrels[id].updated && !squirrels[id].dead) {
+		if (!squirrels[id].updated) {
 			squirrels[id].toX = sqDefX + Math.random()*50 - 25;
 			squirrels[id].toY = sqDefY + Math.random()*50 - 25;
 		}
