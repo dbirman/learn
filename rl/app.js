@@ -118,7 +118,7 @@ function run() {
 	setTimeout(run,5000);
 }
 
-var port = 8888;
+var port = 8080;
 http.listen(port, function(){
   console.log('listening on *: ' + port);
   run();
