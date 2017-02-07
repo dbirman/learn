@@ -329,6 +329,7 @@ socket.on('ta_alldone', function(msg) {
 		}
 		squirrels[id].updated = false;
 	}
+	plotScores();
 });
 
 socket.on('ta_disconnect', function(msg) {
@@ -336,3 +337,69 @@ socket.on('ta_disconnect', function(msg) {
 		delete squirrels[msg];
 	}
 });
+
+scores = {};
+
+function getScore(id) {
+	socket.emit('ta_score',id);
+}
+
+socket.on('ta_score', function(msg){
+	var msg = msg.split('.');
+	var id = msg[0];
+	var score = Number(msg[1]);
+	if (scores[id]==undefined) {
+		scores[id] = [];
+	}
+	scores[id].push(score);
+	console.log(scores[id]);
+});
+
+function plotScores() {
+	// Request all scores for the current squirrels
+	var ids = Object.keys(squirrels);
+	for (var i=0;i<ids.length;i++) {
+		var id = ids[i];
+		getScore(id);
+	}
+	setTimeout(plotScores_,2000);
+}
+
+// private plotting function
+function plotScores_() {
+	var ids = Object.keys(squirrels);
+	var traces = [];
+
+	for (var i=0;i<ids.length;i++) {
+		var id = ids[i];
+		if (scores[id]!=undefined) {
+			var trace = {
+				x: Array.apply(null, Array(scores[id].length)).map(function (_, i) {return i;}),
+				y: scores[id]
+			}
+			traces.push(trace);
+		}
+	}
+
+	var layout2 = layout;
+	layout2.xaxis.title = 'Time (ticks)';
+	// layout2.xaxis.range = [0,40];
+	layout2.yaxis.title = 'Apples';
+	// layout2.yaxis.range = [-25,25];
+	// layout2.width = 700;
+	// layout2.height = 400;
+	Plotly.newPlot('ta_plot',traces,layout);
+}
+
+
+var layout = {
+	title: 'Default Layout (set title)',
+	xaxis: {color:'#ffffff',showgrid:false,zeroline:true},
+	yaxis: {color:'#ffffff',showgrid:false,zeroline:true},
+	autosize: false,
+	plot_bgcolor:'rgba(1,1,1,0)',
+	paper_bgcolor:'rgba(1,1,1,0)',
+	font: {
+		color: '#ffffff'
+	}
+}

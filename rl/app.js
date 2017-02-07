@@ -19,6 +19,9 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
   	try {
 	    console.log('user disconnected');
+	    delete scores[socket.id];
+	    delete section[socket.id];
+	    delete talist[socket.id];
 	    taDisconnect(socket.id);
   	} catch(err) {
   		console.log(err);
@@ -93,7 +96,7 @@ io.on('connection', function(socket){
 
   socket.on('ta_score', function(id) {
   	try {
-  		io.to(socket.id).emit('ta_score',scores[id]);
+  		io.to(socket.id).emit('ta_score',id+'.'+scores[id]);
   	} catch(err) {
   		console.log(err);
   	}
@@ -102,7 +105,7 @@ io.on('connection', function(socket){
 
 var section = {};
 var talist = {};
-var scores = [];
+var scores = {};
 var forests = [];
 
 function run() {
@@ -209,6 +212,7 @@ function emitForest(forest) {
 			}
 		}
 		io.to(id).emit('tree'+trees[tree],amt);
+		if (!scores[id]) {scores[id]=0;}
 		scores[id] += amt;
 	}
 	trackEmit = {};
