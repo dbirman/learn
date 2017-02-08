@@ -165,7 +165,7 @@ function draw() {
 		}
 	} else {
 		//draw score
-		ctx.fillText("Apples: " + score,canvas.width-150,30);
+		ctx.fillText("Apples: " + score,canvas.width-200,30);
 	}
 	requestAnimationFrame(draw);
 }
@@ -174,6 +174,10 @@ function addApples(num,tree) {
 	for (var i=0;i<num;i++) {
 		score++;
 		objects.push(newApple(tree-1));
+	}
+	if (score>10) {
+		squirrels[0].width = Math.round(Math.log(score)*10);
+		squirrels[0].height = squirrels[0].width;
 	}
 }
 
@@ -236,8 +240,8 @@ function newSquirrel() {
 	squirrel.y = sqDefY;
 	squirrel.toX = squirrel.x;
 	squirrel.toY = squirrel.y;
-	squirrel.width = 100;
-	squirrel.height = 100;
+	squirrel.width = 20;
+	squirrel.height = 20;
 	squirrel.img = sqImg;
 	return squirrel;
 }
