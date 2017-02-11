@@ -35,10 +35,13 @@
       <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 	</head>
 	<body>
+
+	<img id="dpsquirrel" src="images/deadpool.png" style="display:none;z-index:1;position:absolute;"/>
 		<div id="page-wrapper">
 
 			<!-- Header -->
 				<header id="header">
+
 					<h1 id="logo"><a href="../learn.html">Reinforcement learning lab</a></h1>
 					<nav id="nav">
 						<ul>
@@ -67,6 +70,28 @@
 		<li>An example algorithm used for simple reinforcement learning.</li>
 		<li>Examples of situations in which reinforcement learning fails to fully account for behavior.</li>
 	</ul>
+</div>
+
+<div id="block2">
+	<h2>Demo</h2>
+	<p>The first part of this tutorial is a live demonstration of reinforcement learning in action. You will take on the role of a squirrel, your goal is to fatten yourself up to survive the Palo Alto winter. We all know how bad it can get, so collect a lot of apples! There will be three trees, each of which drops apples. Search around to find the best tree... good luck!</p>
+	<p>Head over to: <a href="http://localhost:8080" target="_blank">our local forest</a> to get started on the demo. Your TA will tell you which section to join.</p>
+</div>
+
+<div id="block3">
+	<h2>Verbal model</h2>
+	<p>Along with your class you should have had a discussion about a verbal model of learning in the apple hoarding task. Your model should have ended up being something like: "I keep an estimate of how many apples each tree drops in my mind. I pick a tree to go to and compare how many apples I get against what I expected. I adjust up or down accordingly". This is the verbal model that we're now going to translate into a computational one.</p>
+	<p>We've done this before so we're now going to dig into more of the details than we have in past computational models. The first thing to do here is to take the computational goal we've described (the verbal model) and turn it into a mathematical equation. This is important: the implementation we're going to use is javascript, a programming language, and javascript relies on our algorithm being in formal mathematical terms.</p>
+	<p>The first part of our verbal model was: <b>keep an estimate of how many apples each tree drops</b>. For simplicity we're going to just model one tree for now, but what this basically means is that there's some variable that is going to keep track of our <b>knowledge</b> for a particular tree. We'll call this variable A, for apples:</p>
+	<div id="katex1"></div>
+	<p>A starts at zero because initially we don't know anything about trees and we're pessimistic. The second part of the verbal model says, I pick a tree and compare how many apples I get against what I expected. Let's call the number of apples you get on each visit R, for <b>reward</b>. We'll call the difference between your knowledge and the reward the <b>reward prediction error</b>:</p>
+	<div id="katex2"></div>
+	<p>Notice that we indexed A with a little <b>v</b>? That's because we're now talking about a specific visit. Your knowledge about how many apples a tree drops is going to change over time so we need to be specific about when exactly we're talking about. Before we go on let's think about the reward prediction error for a bit.</p>
+</div>
+
+<div id="block4">
+	<h2>Reward prediction error</h2>
+	<p>Here's a graph that you can play with. The idea is that we're going to give you access to the 
 </div>
 
 <div id="endblock">
