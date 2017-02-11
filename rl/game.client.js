@@ -7,6 +7,12 @@ function request(tree) {
 	socket.emit('request',tree);
 }
 
+function requestReset() {
+	if (TA) {
+		socket.emit('ta_reset','');
+	}
+}
+
 socket.on('treeA', function(msg){
 	defaultSquirrel();
 	console.log('tree A: ' + msg);

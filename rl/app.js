@@ -101,6 +101,16 @@ io.on('connection', function(socket){
   		console.log(err);
   	}
   });
+
+  socket.on('ta_reset', function(id) {
+  	try {
+  		if (talist[id]!=undefined) {
+  			forests[talist[id]] = resetForest(forests[talist[id]]);
+  		}
+  	} catch(err) {
+  		console.log(err);
+  	}
+  });
 });
 
 var section = {};
@@ -158,6 +168,8 @@ function taForest() {
 }
 
 function updateForest(forest) {
+	return forest;
+	// Skipping stochastic updates
 	var rA = Math.random(),
 		rB = Math.random(),
 		rC = Math.random();
@@ -222,10 +234,15 @@ function emitForest(forest) {
 	return forest;
 }
 
+function resetForest(forest) {
+	forest.apples = [getRandomInt(5,25),getRandomInt(5,25),getRandomInt(5,25)];
+	return forest;
+}
+
 function initForest() {
 	// Build up a forest variable
 	forest = {};
-	forest.apples = [getRandomInt(5,15),getRandomInt(5,15),getRandomInt(5,15)];
+	forest.apples = [getRandomInt(5,25),getRandomInt(5,25),getRandomInt(5,25)];
 
 	forest['emit'] = {}; // dictionary to track who to emit to
 
