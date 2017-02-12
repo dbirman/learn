@@ -15,7 +15,7 @@ var on =0 ;
 function key2(event) {
 	var k = event.which;
 	if (k==order[on]) {event.preventDefault();on++;} else {on=0;}
-	if (on==order.length) {$("#dpsquirrel").show();$("#dpsquirrel").fadeOut(2000);$("#continue").show();done2=true;document.removeEventListener("keydown",key2);}
+	if (on==order.length) {$("#continue").show();done2=true;document.removeEventListener("keydown",key2);}
 }
 
 ////////////////////////////////
@@ -37,5 +37,6 @@ function run(i) {
 function launch_local() {
 	katex.render("A=0",document.getElementById("katex1"),{displayMode:true});	
 	katex.render("RPE=R-A_{v}",document.getElementById("katex2"),{displayMode:true});	
+	katex.render("A_{v+1}=A_{v} + \\alpha(R-A_{v})",document.getElementById("katex3"),{displayMode:true});	
 
 }

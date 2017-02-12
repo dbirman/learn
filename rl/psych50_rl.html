@@ -91,18 +91,34 @@
 
 <div id="block4">
 	<h2>Reward prediction error</h2>
-	<p>Here's a graph that you can play with. The idea is that we're going to give you access to the 
+	<p>To help you get a sense for how prediction error is useful let's simulate just a single tree. On each step we're going to let you make a guess of how many apples will fall and then check your answer.</p>
+	<canvas id="canvas4"></canvas>
+	<textarea id="text4" oninput="text4();"></textarea>
+</div>
+
+<div id="block5">
+	<h2>Rescorla-Wagner</h2>
+	<p>The complete model that we've now built up looks as follows:</p>
+	<div id="katex3"></div>
+</div>
+
+<div id="block6">
+	<h2>Multiple trees</h2>
+</div>
+
+<div id="block7">
+	<h2>Other sources of information?</h2>
+	<p>You've now seen how reinforcement learning can be used to explain your behavior in the task you performed earlier. But what we hid from you in the task was that all the students in the room were doing the task together! What if you could all see each other? How would that additional social information change your behavior? 
 </div>
 
 <div id="endblock">
 	<h2>Tutorial complete!</h2>
 	<p> Your TAs would be happy to discuss any aspect of the tutorial. As a reminder, you should now have a better understanding of the following:</p>
 		<ul>
-		<li>How cells in visual cortex can act as filters, only detecting certain patterns of information.</li>
-		<li>How representations in the cortical visual hierarchy become more complex as you proceed deeper through cortical areas.</li>
-		<li>Be able to explain why invariance is an important property to have in the highest levels of visual cortex.</li>
+			<li>How reinforcement learning solves the computational goal of "supervised learning".</li>
+			<li>An example algorithm used for simple reinforcement learning.</li>
+			<li>Examples of situations in which reinforcement learning fails to fully account for behavior.</li>
 		</ul>
-	</p>
 </div>
 
 
