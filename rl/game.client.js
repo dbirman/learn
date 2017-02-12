@@ -190,6 +190,9 @@ function addApples(num,tree) {
 		squirrels[0].width = Math.round(Math.log(score)*25);
 		squirrels[0].height = squirrels[0].width;
 	}
+	if (score>=100 && sqImg.src != "images/deadpool.png") {
+		sqImg.src = "images/deadpool.png";
+	}
 }
 
 function newApple(treeNum) {
