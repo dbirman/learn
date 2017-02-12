@@ -63,11 +63,12 @@
 
 <div id="block1">
 	<h2>Reinforcement learning lab</h2>
+	<p>This final lab is focused on helping you understand the reinforcement learning models we use in cognitive neuroscience. We want you to both realize their usefuleness but also their inherent limitations. Learning is complex--and reinforcement learning is able to capture many forms of learning, such as operant conditioning tasks, but fail at one-shot learning tasks. There's an entire field now dedicated to reinforcement learning but we're going to focus narrowly on just one specific idea: that you can estimate the <b>value</b> of an action by comparing your prediction against reality over and over.</p>
 	<h1>Learning goals</h1>
 	After this lab you should have a better understanding of the following:
 	<ul>
 		<li>How reinforcement learning solves the computational goal of "supervised learning".</li>
-		<li>An example algorithm used for simple reinforcement learning.</li>
+		<li>Why the Rescorla-Wagner algorithm works for simple reinforcement learning.</li>
 		<li>Examples of situations in which reinforcement learning fails to fully account for behavior.</li>
 	</ul>
 </div>
@@ -91,9 +92,9 @@
 
 <div id="block4">
 	<h2>Reward prediction error</h2>
-	<p>To help you get a sense for how prediction error is useful let's simulate just a single tree. On each step we're going to let you make a guess of how many apples will fall and then check your answer.</p>
+	<p>To help you get a sense for how prediction error is useful let's simulate just a single tree. On each step we're going to let you make a guess of how many apples will fall and then check your answer. We won't tell you how many apples actually fell, we're just going to tell you whether the <b>prediction error</b> was positive (more apples fell than you expected) or negative. The point of this demo is simply to reinforce the idea that you don't need absolute knowledge to do well at estimating something's value, as long as you can integrate information over time. This should remind you of a similar story we heard about LIP neurons and MT!</p>
 	<canvas id="canvas4"></canvas>
-	<textarea id="text4" oninput="text4();"></textarea>
+	<textarea id="text4" oninput="text4();" placeholder="Enter a guess (like 1) and then press enter"></textarea>
 </div>
 
 <div id="block5">
