@@ -53,6 +53,7 @@ socket.on('status', function(msg) {
 	console.log('Received connection status: ' + connected + ' as ' + group);
 	if (group=='TA') {
 		TA = true;
+		$("#ta_stuff").show();
 		launchCanvas();
 	} else if (group=='student') {
 		TA = false;
@@ -81,6 +82,21 @@ function launch() {
  	leafImg.src = 'images/leaf.png';
 	canvas.addEventListener("click",updateCanvasClick,false);
 }
+
+function ta_alive() {
+	if (TA) {
+		socket.emit('ta_reset');
+		socket.emit('ta_alive');
+	}
+}
+
+socket.on('ta_alive', function(alive) {
+	if (alive) {
+		$("#alive").text('Kill forest (also resets)');
+	} else {
+		$("#alive").text('Bring forest to life');
+	}
+})
 
 
 window.onload = function() {launch();};
@@ -370,7 +386,6 @@ socket.on('ta_score', function(msg){
 		scores[id] = [];
 	}
 	scores[id].push(score);
-	console.log(scores[id]);
 });
 
 function plotScores() {

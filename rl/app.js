@@ -111,6 +111,15 @@ io.on('connection', function(socket){
   		console.log(err);
   	}
   });
+
+  socket.on('ta_alive', function() {
+  	try {
+  		forests[talist[socket.id]].alive = !forests[talist[socket.id]].alive;
+  		io.to(socket.id).emit('ta_alive',forests[talist[socket.id]].alive);
+  	} catch(err) {
+  		console.log(err);
+  	}
+  });
 });
 
 var section = {};
@@ -122,10 +131,15 @@ function run() {
 	console.log('Tick!');
 	taForest(); // send updates to the TAs
 	for (fi in forests) {
+		// check that a TA is connected 
 		var forest = forests[fi];
-		forest = updateForest(forest);
-		forest = emitForest(forest);
-		forests[fi] = forest;
+		if (forest.alive) {
+			forest = updateForest(forest);
+			forest = emitForest(forest);
+			forests[fi] = forest;
+		} else {
+			console.log('Forest ' + fi + ' is not alive.');
+		}
 	}
 
 	setTimeout(run,5000);
@@ -243,7 +257,7 @@ function initForest() {
 	// Build up a forest variable
 	forest = {};
 	forest.apples = [getRandomInt(5,25),getRandomInt(5,25),getRandomInt(5,25)];
-
+	forest.alive = false;
 	forest['emit'] = {}; // dictionary to track who to emit to
 
 	return forest;
