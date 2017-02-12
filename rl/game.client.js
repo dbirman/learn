@@ -81,6 +81,7 @@ function launch() {
  	apImg.src = 'images/apple.png';
  	leafImg.src = 'images/leaf.png';
 	canvas.addEventListener("click",updateCanvasClick,false);
+	console.log('A friendly message from Dan: This isn\'t a CS class--there are no bonus points for crashing the server.');
 }
 
 function ta_alive() {
@@ -203,7 +204,7 @@ function addApples(num,tree) {
 		objects.push(newApple(tree-1));
 	}
 	if (score>=1) {
-		squirrels[0].width = Math.round(Math.log(score)*25);
+		squirrels[0].width = Math.round(Math.log(score)*25/Math.log(2));
 		squirrels[0].height = squirrels[0].width;
 	}
 	if (score>=100 && sqImg.src != "images/deadpool.png") {
