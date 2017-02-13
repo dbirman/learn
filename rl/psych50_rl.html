@@ -92,10 +92,14 @@
 
 <div id="block4">
 	<h2>Reward prediction error</h2>
-	<p>To help you get a sense for how prediction error is useful let's simulate just a single tree. On each step we're going to let you make a guess of how many apples will fall and then check your answer. We won't tell you how many apples actually fell, we're just going to tell you whether the <b>prediction error</b> was positive (more apples fell than you expected) or negative. The point of this demo is to reinforce the idea that you don't need absolute knowledge to do well at estimating something's value, as long as you can integrate information over time. This should remind you of a similar story we heard about LIP neurons and MT!</p>
-	<canvas id="canvas4"></canvas>
-	<textarea id="text4" oninput="text4();" placeholder="Enter a guess (like 1) and then press enter"></textarea>
+	<p>To help you get a sense for how prediction error is useful let's simulate just a single tree. On each step we're going to let you make a guess of how many apples will fall and then check your answer. We won't tell you how many apples actually fell, we're just going to tell you whether the <b>prediction error</b> was positive (more apples fell than you expected) or negative. The point of this demo is to reinforce the idea that you don't need absolute knowledge to do well at estimating something's value, as long as you can integrate information over time. This should remind you of a similar story we heard about LIP neurons and MT! (The number of apples dropping is random... just for visualizing what's going on)</p>
+	<canvas id="canvas4" height=400 width=400></canvas>
+	<br>
+	<span id="out4"></span>
+	<input id="guess4v" type="range" style="width:200px;" name="Guess" min="0" max="10" step="0.1" value="0">
+	<a class="button" id="guess4" onclick="run4();">Visit tree</a>
 	<div id="end4">
+	<br>
 	<p>Nice work! Hopefully the reward prediction error makes sense. We're going to put everything together now and look at how the Rescorla-Wagner algorithm works.</p>
 	</div>
 </div>
@@ -104,8 +108,8 @@
 	<h2>Rescorla-Wagner</h2>
 	<p>The complete model that we've now built up looks as follows:</p>
 	<div id="katex3"></div>
-	<p>On each visit to the tree we take our current prediction, Av, and add to it the reward prediction error. Notice that there's a variable alpha which we added. Alpha is called the <b>learning rate</b> because it controls how quickly we learn. Check out the graph below. It shows you the reward prediction error on each visit and the current estimate of the tree's value. Notice how when you increase alpha the estimate gets more jumpy? What's happening is that an alpha of 1 means that the algorithm has a very short memory, it only knows what just happened. A really small alpha near 0 means that the algorithm has a long memory, and it integrates all that information together. Usually there's an optimal alpha for a given task, where you learn quickly enough but without jumping randomly.
-	<input ></p>
+	<p>On each visit to the tree we take our current prediction, Av, and add to it the reward prediction error. Notice that there's a variable alpha which we added. Alpha is called the <b>learning rate</b> because it controls how quickly we learn. Check out the graph below. It shows you the reward prediction error on each visit and the current estimate of the tree's value. Notice how when you increase alpha the estimate gets more jumpy? What's happening is that an alpha of 1 means that the algorithm has a very short memory, it only knows what just happened. A really small alpha near 0 means that the algorithm has a long memory, and it integrates all that information together. Usually there's an optimal alpha for a given task, where you learn quickly enough but without jumping randomly.</p>
+	<input >
 	<div id="plot5"></div>
 	<p>One question you should ask yourself about the learning rate is whether it matches your verbal model. When you were a squirrel, did you feel like you took the same amount of information from each trial? Or alternatively did you feel like once you were more or less certain about which tree was best you stopped learning?</p>
 </div>
