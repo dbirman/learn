@@ -422,7 +422,7 @@ function plotScores_() {
 	// layout2.yaxis.range = [-25,25];
 	// layout2.width = 700;
 	// layout2.height = 400;
-	Plotly.newPlot('ta_plot',traces,layout);
+	Plotly.newPlot('ta_plot',traces,layout2);
 }
 
 

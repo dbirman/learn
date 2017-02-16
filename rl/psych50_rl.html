@@ -75,8 +75,8 @@
 
 <div id="block2">
 	<h2>Demo</h2>
-	<p>The first part of this tutorial is a live demonstration of reinforcement learning in action. You will take on the role of a squirrel, your goal is to fatten yourself up to survive the Palo Alto winter. We all know how bad it can get, so collect a lot of apples! There will be three trees, each of which drops apples. Search around to find the best tree... good luck!</p>
-	<p>Head over to: <a href="http://localhost:8080" target="_blank">our local forest</a> to get started on the demo. Your TA will tell you which section to join.</p>
+	<p>The first part of this tutorial is a live demonstration of reinforcement learning in action. You will take on the role of a squirrel, your goal is to fatten yourself up to survive the Palo Alto winter. We all know how bad it can get, so collect a lot of apples! There will be three trees, each of which drops apples. Click on a tree to visit it--every few seconds apples drop around to find the best tree... good luck!</p>
+	<p>Head over to: <a href="http://gru.stanford.edu:8080" target="_blank">our local forest</a> to get started on the demo. Your TA will tell you which section to join.</p>
 </div>
 
 <div id="block3">
@@ -106,23 +106,31 @@
 
 <div id="block5">
 	<h2>Rescorla-Wagner</h2>
-	<p>The complete model that we've now built up looks as follows:</p>
+	<p>The last thing we need to think about is the <b>learning rate</b>. The intuition we want you to have for the learning rate is that it indexes how much you trust the reward prediction error. If there is a lot of variability in the world then you shouldn't trust it too much, you want a low learning rate to give yourself time to build up a good representation of the world. If the world is very stable and there isn't any noise then you can trust the reward prediction error. Don't worry if that intuition doesn't make perfect sense, we're going to play with it below.</p>
+	<p>Adding the learning rate, the complete model that we've now built up looks as follows:</p>
 	<div id="katex3"></div>
-	<p>On each visit to the tree we take our current prediction, Av, and add to it the reward prediction error. Notice that there's a variable alpha which we added. Alpha is called the <b>learning rate</b> because it controls how quickly we learn. Check out the graph below. It shows you the reward prediction error on each visit and the current estimate of the tree's value. Notice how when you increase alpha the estimate gets more jumpy? What's happening is that an alpha of 1 means that the algorithm has a very short memory, it only knows what just happened. A really small alpha near 0 means that the algorithm has a long memory, and it integrates all that information together. Usually there's an optimal alpha for a given task, where you learn quickly enough but without jumping randomly.</p>
-	<input >
+	<p>In english: on each visit to the tree (currently <b>v</b>, the next visit is <b>v+1</b>) we take our current prediction, <b>Av</b>, and add to it the reward prediction error, reduced by the learning rate (the inverse of how noisy we think the environment is).</p>
+	<p>Check out the graph below. It shows you the reward prediction error on each visit and the current estimate of the tree's value. We want you to get a sense for how alpha changes the learning over time--try tweaking alpha and then take a look at the examples we've put before.</p>
+	<input type="range" style="width:200px;" min="0.01" max="1.00" step="0.01" value="0.50" oninput="learningrate5(this.value);"><span id="alpha5">Learning rate = 0.50</span><br>
 	<div id="plot5"></div>
-	<p>One question you should ask yourself about the learning rate is whether it matches your verbal model. When you were a squirrel, did you feel like you took the same amount of information from each trial? Or alternatively did you feel like once you were more or less certain about which tree was best you stopped learning?</p>
+	<br>
+	<p>There are a few things we want you to notice about the learning rate:</p>
+	<ul>
+		<li>Notice how when you increase the learning rate the estimate gets more jumpy? Why is that happening? (Hint: the noise in the rewards is set to a specific value)</li>
+		<li>Does the learning rate match your verbal model? When you were a squirrel, did you feel like you trusted the information equally on each trial?</li>
+		<li>Do you have any ideas, based on your intuitions, for how we might alter the learning rate <i>over time</i> to better match how you behaved in the task?</li>
+	</ul>
 </div>
 
 <div id="block6">
 	<h2>Multiple trees</h2>
-	<p>In the demo you kept in mind the values of three trees. We can do this just fine with Rescorla-Wagner. So let's try it out! What we're going to do now is let you try to compare yourself to an "optimal" squirrel that is running the Rescorla-Wagner algorithm. There will be three trees with random values from 5-15, and your job is to score as much as possible. Can you beat the computer?</p>
-	<p>Before we start there are two things to mention. First: what should the optimal squirrel's learning rate be? Second: how should the squirrel pick between trees? We'll let you control the squirrel's learning rate. Click the button to change it from slow, fast, or optimal. The <b>optimal</b> option was chosen by running many thousands of simulated runs of this task and choosing the alpha value that scored highest. For the picking, we're going to do something that is pretty standard in reinforcement learning. 
+	<p>In the demo you kept in mind the values of three trees. We can do this just fine with Rescorla-Wagner. Each tree simply gets updated when it gets visited, and otherwise the value doesn't change. But there's a different problem with having multiple problems which goes beyond reinforcement learning. Reinforcement learning is about discovering the <b>value</b> of taking different actions in the world. But given different options with known values, how should you pick between them? This is the realm of <b>decision making</b>.</p>
+	
 </div>
 
 <div id="block7">
 	<h2>Other sources of information?</h2>
-	<p>You've now seen how reinforcement learning can be used to explain your behavior in the task you performed earlier. But what we hid from you in the task was that all the students in the room were doing the task together! What if you could all see each other? How would that additional social information change your behavior? 
+	<p>You've now seen how reinforcement learning can be used to explain your behavior in the task you performed earlier. But what we hid from you in the task was that all the students in the room were doing the task together! What if you could all see each other? How would that additional social information change your behavior? We don't have to imagine this situation--we're just going to try it out live. Connect to <a href="http://gru.stanford.edu:8080" target="_blank">our local forest</a> again and follow your TAs instructions. You'll have to wait for other students to catch up, so this is a good time to ask questions.</p>
 </div>
 
 <div id="endblock">

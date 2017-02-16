@@ -71,11 +71,61 @@ function run4() {
 }
 
 ////////////////////////////////
-////////// BLOCK 4 /////////////
+////////// BLOCK 5 /////////////
+////////////////////////////////
+
+var avg_reward = 10;
+var noise = 4;
+var learning_rate = 0.50;
+var visits =0;
+var A = 0;
+var rpe_trace, av_trace ;
+var to;
+
+function resetTraces5() {
+	rpe_trace = {x:[],y:[],mode:'line',line:{color:'blue'},type:'scatter',name:'RPE'};
+	av_trace = {x:[],y:[],mode:'line',line:{color:'red'},type:'scatter',name:'Av'};
+}
+
+function learningrate5(val) {
+	learning_rate = val;
+	$("#alpha5").html("Learning rate = " + val);
+}
+
+function run5() {
+	if (visits>30) {
+		visits=0; A=0;
+		resetTraces5();
+	}
+
+	// Generate data
+	var R = avg_reward + Math.random()*noise*2-noise;
+	var RPE = R-A;
+	A = A + learning_rate*RPE;
+
+	rpe_trace.x.push(visits);
+	rpe_trace.y.push(RPE);
+	av_trace.x.push(visits);
+	av_trace.y.push(A);
+
+	visits++;
+
+	var layout2 = layout;
+	layout2.title = 'Apple estimate and RPE over time';
+	layout.xaxis.title = 'Time (visits)';
+	layout.yaxis.title = 'Av (estimate of tree)';
+	Plotly.newPlot('plot5',[rpe_trace, av_trace],layout);
+
+	to = setTimeout(run5,1000);
+}
+
+////////////////////////////////
+////////// END CODE /////////////
 ////////////////////////////////
 
 function run(i) {	
 	$("#continue").show();
+	clearTimeout(to);
 	// Runs each time a block starts incase that block has to do startup
 	switch(i) {
 		case 2:
@@ -83,6 +133,9 @@ function run(i) {
 			break;
 		case 4:
 			if (!done4) {$("#continue").hide();launch4();}
+			break;
+		case 5:
+			run5();
 			break;
 	}
 }
@@ -94,6 +147,7 @@ function launch_local() {
 	katex.render("RPE=R-A_{v}",document.getElementById("katex2"),{displayMode:true});	
 	katex.render("A_{v+1}=A_{v} + \\alpha(R-A_{v})",document.getElementById("katex3"),{displayMode:true});	
 	$("#end4").hide();
+	resetTraces5();
 }
 
 
