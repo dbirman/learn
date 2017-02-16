@@ -129,6 +129,10 @@ var forests = [];
 
 function run() {
 	console.log('Tick!');
+	// send tick message
+	for (var id in section) {
+		io.to(id).emit('tick');
+	}
 	taForest(); // send updates to the TAs
 	for (fi in forests) {
 		// check that a TA is connected 

@@ -13,6 +13,10 @@ function requestReset() {
 	}
 }
 
+socket.on('tick', function() {
+	progress=0;
+});
+
 socket.on('treeA', function(msg){
 	defaultSquirrel();
 	console.log('tree A: ' + msg);
@@ -75,6 +79,7 @@ function login(group,section,password) {
 }
 
 function launch() {
+	prev_tick = now();
 	$("#viewport").hide();
  	treeImg.src = 'images/tree.png';
  	sqImg.src = 'images/squirrel.png';
@@ -181,6 +186,8 @@ function draw() {
 		updateObject(o);
 	}
 
+	drawProgress();
+
 	ctx.font = "30px Arial";
 	ctx.fillStyle = "#ffffff";
 	if (TA) {
@@ -196,6 +203,31 @@ function draw() {
 		ctx.fillText("Apples: " + score,canvas.width-200,30);
 	}
 	requestAnimationFrame(draw);
+}
+
+var progress = 0;
+
+var prev_tick;
+
+function elapsed() {
+	// Returns time since the last call to elapsed
+	var elapsed = now()-prev_tick;
+	prev_tick = now();
+	return elapsed;
+}
+
+function now() {
+	return performance.now();
+}
+
+function drawProgress() {
+	progress += elapsed();
+	var time = progress/5000;
+	ctx.fillStyle = "#ffffff";
+	ctx.fillRect(0,0,400,30);
+	ctx.fillStyle = "#5DADE2";
+	ctx.fillRect(0,0,time*400,30);
+	ctx.fillText("Next tick...",0,0);
 }
 
 function addApples(num,tree) {
@@ -398,6 +430,7 @@ function plotScores() {
 	}
 	setTimeout(plotScores_,2000);
 }
+
 
 // private plotting function
 function plotScores_() {
