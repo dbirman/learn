@@ -125,7 +125,17 @@
 <div id="block6">
 	<h2>Multiple trees</h2>
 	<p>In the demo you kept in mind the values of three trees. We can do this just fine with Rescorla-Wagner. Each tree simply gets updated when it gets visited, and otherwise the value doesn't change. But there's a different problem with having multiple problems which goes beyond reinforcement learning. Reinforcement learning is about discovering the <b>value</b> of taking different actions in the world. But given different options with known values, how should you pick between them? This is the realm of <b>decision making</b>.</p>
-	
+	<p>For today we want to contrast two ways of picking which tree to visit. Imagine that you believe that trees A, B, and C drop 1, 2, and 3 apples on average. Or in other mathematical terms:</p>
+	<div id="katex6"></div>
+	<p>One rule you could use to decide where to go next is winner-take-all. Since tree C is worth the most you would go there. There are two possible outcomes for the <i>following</i> visit. If on this visit your belief about tree C improves or stays the same, you'll keep repeating this action. But if you were to get far less apples than expected, you might reduce your estimate of tree C's value enough to make tree B the best option. In a winner-take-all rule the only way to change options is for your current option to get a lot worse. Formally we can represent winner take all by saying that the probability of visiting a tree is a binary value (0 or 1), based on whether it is the maximum:</p>
+	<div id="katex6-2"></div>
+	<p>Another rule you might use is called <b>softmax</b>. Softmax sets the probability of going to a tree to be that trees value, divided by the total value available among all trees:</p>
+	<div id="katex6-3"></div>
+	<p>The advantage of softmax over winner-take-all is that it allows you to continue <b>exploring</b> rather than <b>exploiting</b> the same tree over and over. If it turns out your estimates aren't perfect then exploring is often a better strategy than exploiting. Let's run a simulation to help you understand this idea. Let's call softmax an "explore" strategy and winner-take-all the "exploit" strategy. We're going to have three squirrels below, a red, purple, and blue squirrel. The red and blue squirrels will represent the exploit and explore strategies, respectively (in reality they spend 90% of their time in their preferred mode). The purple squirrel spends half of its time exploiting, and half of its time exploring. Which squirrel do you expect will gain the most apples?</p>
+	<p>Whatever your guess is we hope you realized that <i>it depends</i>! If the world is really noisy then you should explore more, if the world is very stable, then you should exploit. You can use the slider bar to control how noisy the world is, the noise is calculated for each visit by randomly adding or subtracting apples to the true value of each tree. The number of apples maxes out at the noise value. Try it out and then make sure you understand the questions at the bottom. Click anywhere in the forest to reset the simulation.</p>
+	<input type="range" style="width:200px;" min="0.01" max="1.00" step="0.01" value="0.50" oninput="learningrate5(this.value);"><span id="alpha5">Learning rate = 0.50</span><br>
+	<canvas id="canvas4" height=400 width=400></canvas>
+	<div id="plot5"></div>
 </div>
 
 <div id="block7">
