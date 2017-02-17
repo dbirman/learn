@@ -104,6 +104,20 @@ socket.on('ta_alive', function(alive) {
 	}
 })
 
+function ta_dropmode() {
+	if (TA) {
+		socket.emit('ta_dropmode');
+	}
+}
+
+socket.on('ta_dropmode', function(dropmode) {
+	if (dropmode=='prob') {
+		$("#comp").text('Switch to competitive');
+	} else {
+		$("#comp").text('Switch to probabilistic');
+	}
+})
+
 
 window.onload = function() {launch();};
 

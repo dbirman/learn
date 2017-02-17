@@ -120,6 +120,20 @@ io.on('connection', function(socket){
   		console.log(err);
   	}
   });
+
+  socket.on('ta_dropmode', function() {
+  	try {
+  		if (forests[talist[socket.id]].drop=='prob') {
+  			forests[talist[socket.id]].drop = 'comp';
+  		} else {
+  			forests[talist[socket.id]].drop = 'prob';
+  		}
+  		io.to(socket.id).emit('ta_dropmode',forests[talist[socket.id]].drop);
+  		console.log(forests[talist[socket.id]].drop);
+  	} catch(err) {
+  		console.log(err);
+  	}
+  });
 });
 
 var section = {};
@@ -138,7 +152,6 @@ function run() {
 		// check that a TA is connected 
 		var forest = forests[fi];
 		if (forest.alive) {
-			forest = updateForest(forest);
 			forest = emitForest(forest);
 			forests[fi] = forest;
 		} else {
@@ -169,9 +182,16 @@ function taForest() {
 		// get forest
 		forest = forests[talist[id]];
 		// send value updates
-		io.to(id).emit('ta_tree','A.'+forest.apples[0]);
-		io.to(id).emit('ta_tree','B.'+forest.apples[1]);
-		io.to(id).emit('ta_tree','C.'+forest.apples[2]);
+		if (forest.drop=='prob') {
+			io.to(id).emit('ta_tree','A.'+forest.probs[0]);
+			io.to(id).emit('ta_tree','B.'+forest.probs[1]);
+			io.to(id).emit('ta_tree','C.'+forest.probs[2]);
+		} else {
+			// return expected # of apples
+			io.to(id).emit('ta_tree','A.'+forest.apples[0]);
+			io.to(id).emit('ta_tree','B.'+forest.apples[1]);
+			io.to(id).emit('ta_tree','C.'+forest.apples[2]);
+		}
 		// send squirrel updates
 		// all student IDs with squirrels
 		ids = Object.keys(forest.emit);
@@ -185,29 +205,6 @@ function taForest() {
 	}
 }
 
-function updateForest(forest) {
-	return forest;
-	// Skipping stochastic updates
-	var rA = Math.random(),
-		rB = Math.random(),
-		rC = Math.random();
-
-	A = forest.apples[0];
-	B = forest.apples[1];
-	C = forest.apples[2];
-
-	if (rA<0.1) {A++;} else if (rA<0.2) {A--;}
-	if (A<0) {A=0;}
-	if (rB<0.1) {B++;} else if (rB<0.2) {B--;}
-	if (B<0) {B=0;}
-	if (rC<0.1) {C++;} else if (rC<0.2) {C--;}
-	if (C<0) {C=0;}
-
-	forest.apples = [A,B,C];
-
-	return forest;
-}
-
 function taDisconnect(sid) {
 	for (var id in talist) {
 		io.to(id).emit('ta_disconnect',sid);
@@ -216,37 +213,47 @@ function taDisconnect(sid) {
 
 function emitForest(forest) {
 	var trackEmit = forest['emit'];
-
-	var apples = [0,0,0];
-
-	var count = [0,0,0];
-
-	// First check the apple count
-	for (var id in trackEmit) {
-		count[trackEmit[id]-1]++;
-	}
-
-	for (var i=0;i<3;i++) {
-		apples[i] = forest.apples[i]/count[i];
-	}
-
 	var trees = ['A','B','C'];
-	for (var id in trackEmit) {
-		tree = trackEmit[id]-1;
-		var amt = 0;
-		if (apples[tree]>=1) {
-			amt = Math.round(apples[tree]);
-		} else {
-			if (Math.random() < amt) {
-				amt = 1;
+
+	if (forest.drop == 'prob') {
+		// for each person simply calculate as probability
+		for (var id in trackEmit) {
+			if (Math.random() < forest.probs[trackEmit[id]-1]) {
+				io.to(id).emit('tree'+trees[trackEmit[id]-1],1);
+				scores[id] += 1;
 			}
 		}
-		io.to(id).emit('tree'+trees[tree],amt);
-		if (!scores[id]) {scores[id]=0;}
-		scores[id] += amt;
-	}
-	trackEmit = {};
+	} else {
+		// competitive: trees don't always drop AND they drop limited apples
+		var apples = [0,0,0];
+		var count = [0,0,0];
+		// First check the apple count
+		for (var id in trackEmit) {
+			count[trackEmit[id]-1]++;
+		}
 
+		for (var i=0;i<3;i++) {
+			apples[i] = forest.apples[i]/count[i];
+		}
+
+		for (var id in trackEmit) {
+			tree = trackEmit[id]-1;
+			var amt = 0;
+			if (apples[tree]>=1) {
+				amt = 1;
+			} else {
+				if (Math.random() < amt) {
+					amt = 1;
+				}
+			}
+			io.to(id).emit('tree'+trees[tree],amt);
+			if (!scores[id]) {scores[id]=0;}
+			scores[id] += amt;
+		}
+	}
+
+	// reset trackEmit
+	trackEmit = {};
 	forest['emit'] = trackEmit;
 
 	return forest;
@@ -260,8 +267,10 @@ function resetForest(forest) {
 function initForest() {
 	// Build up a forest variable
 	forest = {};
-	forest.apples = [getRandomInt(5,25),getRandomInt(5,25),getRandomInt(5,25)];
+	forest.probs = [Math.random(),Math.random(),Math.random()];
+	forest.apples = [getRandomInt(0,10),getRandomInt(0,10),getRandomInt(0,10)];
 	forest.alive = false;
+	forest.drop = 'prob'; // or COMP
 	forest['emit'] = {}; // dictionary to track who to emit to
 
 	return forest;
