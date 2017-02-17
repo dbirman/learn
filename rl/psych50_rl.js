@@ -138,10 +138,19 @@ var ctx6 = canvas6.getContext("2d");
 
 var lr = 0.2;
 
+var reset_time = 2000;
+
 var A,B,C;
 var treeX = [0,100,300], treeY = [200,0,100];
 
 var wins = [0,0,0];
+
+var noise = 1;
+
+function noise6(val) {
+	noise = val;
+	$("#noise6").html("Noise = "+val);
+}
 
 function reset6() {
 	// check if we have a winner
@@ -154,6 +163,7 @@ function reset6() {
 		wins[indexOfMax(svals)]++;
 		$("#win6").html("Number of wins. red/exploit: " + wins[0] +" blue/explore: "+ wins[1] +" purple/mix: " + wins[2]);
 	}
+	steps=0;
 	A = Math.round(Math.random()*6);
 	B = Math.round(Math.random()*6);
 	C = Math.round(Math.random()*6);
@@ -197,7 +207,7 @@ var sqDefX = 200, sqDefY = 300;
 
 function run6() {
 	time += elapsed();
-	if (time>3000) {visit6(); plot6();time=0;}
+	if (time>reset_time) {visit6(); plot6();time=0;}
 
 	ctx6.clearRect(0,0,canvas6.width,canvas6.height);
 	for (i in objects6) {
@@ -216,16 +226,25 @@ var red = {},blue = {},purple = {}; // track the squirrel's values
 
 var red_trace, blue_trace, purple_trace;
 
+function fast() {
+	reset_time=250;
+}
 function visit6() {
-	if (steps++>30) {
+	if (steps++>15) {
 		reset6(); return;
 	}
 	// remove all apples
 	for (var i=objects6.length-1;i>5;i--) {
 		objects6.pop();
 	}
-	var vals = [A,B,C];
 	// drop now apples
+
+	var vals = [A,B,C];
+	for (var i=0;i<3;i++) {
+		vals[i] = vals[i]+randint(0,noise*2)-noise;
+		if (vals[i]<0) {vals[i]=0;}
+	}
+
 	for (var z=0;z<3;z++) {
 		for (var i=0;i<vals[z];i++) {
 			objects6.push(newApple());
@@ -235,13 +254,12 @@ function visit6() {
 			objects6[objects6.length-1].toY = treeY[z]+objects6[z].height-Math.random()*20;
 		}
 	}
-
 	// update squirrel values
 	var red_got = vals[red.pick];
 	red_trace.x.push(steps);
 	red_trace.y.push(red_trace.y[red_trace.y.length-1]+red_got);
 	red.vals[red.pick] = red.vals[red.pick] + alpha * (red_got - red.vals[red.pick]);
-	if (Math.random() < 0.9) {
+	if (Math.random() < 0.95) {
 		// exploit
 		red.pick = indexOfMax(red.vals);
 	} else {
@@ -253,7 +271,7 @@ function visit6() {
 	blue_trace.x.push(steps);
 	blue_trace.y.push(blue_trace.y[blue_trace.y.length-1]+blue_got);
 	blue.vals[blue.pick] = blue.vals[blue.pick] + alpha * (blue_got - blue.vals[blue.pick]);
-	if (Math.random() < 0.9) {
+	if (Math.random() < 0.95) {
 		// explore
 		blue.pick = explore(red.vals);
 	} else {
@@ -393,7 +411,7 @@ function newSquirrel() {
 
 function randint(min, max) {
   min = Math.ceil(min);
-  max = Math.floor(max);
+  max = Math.floor(max)+1;
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
