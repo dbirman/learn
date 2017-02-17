@@ -32,6 +32,7 @@
 			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
 		<!-- Plotting: Plot.ly JS -->
+			<script type="text/javascript" src="../assets/js/mathjax/MathJax.js?config=TeX-AMS-MML_SVG"></script>
       <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 	</head>
 	<body>
@@ -63,29 +64,29 @@
 
 <div id="block1">
 	<h2>Reinforcement learning lab</h2>
-	<p>This final lab is focused on helping you understand the reinforcement learning models we use in cognitive neuroscience. We want you to both realize their usefuleness but also their inherent limitations. Learning is complex--and reinforcement learning is able to capture many forms of learning, such as operant conditioning tasks, but fail at one-shot learning tasks. There's an entire field now dedicated to reinforcement learning but we're going to focus narrowly on just one specific idea: that you can estimate the <b>value</b> of an action by comparing your prediction against reality over and over.</p>
+	<p>This final lab is focused on helping you understand the reinforcement learning models we use in cognitive neuroscience. We want you to both realize their usefuleness but also their inherent limitations. Learning is complex--and reinforcement learning is able to capture many forms of learning. That said, there are many caveats, some of which we will discuss today. There is now an entire field dedicated to reinforcement learning but we're going to focus narrowly on just one specific idea: that you can estimate the <b>value</b> of an action by comparing your prediction against reality over and over.</p>
 	<h1>Learning goals</h1>
 	After this lab you should have a better understanding of the following:
 	<ul>
-		<li>How reinforcement learning solves the computational goal of "supervised learning".</li>
-		<li>Why the Rescorla-Wagner algorithm works for simple reinforcement learning.</li>
-		<li>Examples of situations in which reinforcement learning fails to fully account for behavior.</li>
+		<li>How reinforcement learning and decision making are used together for action selection</li>
+		<li>How the rescorla-wagner and softmax algorithms provide an algorithmic solution for reinforcement learning and decision making</li>
+		<li>When these simple algorithms are effective and when they fail</li>
 	</ul>
 </div>
 
 <div id="block2">
 	<h2>Demo</h2>
-	<p>The first part of this tutorial is a live demonstration of reinforcement learning in action. You will take on the role of a squirrel, your goal is to fatten yourself up to survive the Palo Alto winter. We all know how bad it can get, so collect a lot of apples! There will be three trees, each of which drops apples. Click on a tree to visit it--every few seconds apples drop around to find the best tree... good luck!</p>
+	<p>The first part of this tutorial is a live demonstration of reinforcement learning in action. You will take on the role of a squirrel, your goal is to fatten yourself up to survive the Palo Alto winter. We all know how bad it can get, so collect a lot of apples! There will be three trees, each of which drops apples. Click on a tree to visit it--every few seconds apples drop from the tree you are visiting. You'll have to search among all of the trees to find the best tree... good luck!</p>
 	<p>Head over to: <a href="http://gru.stanford.edu:8080" target="_blank">our local forest</a> to get started on the demo. Your TA will tell you which section to join.</p>
 </div>
 
 <div id="block3">
 	<h2>Verbal model</h2>
 	<p>Along with your class you should have had a discussion about a verbal model of learning in the apple hoarding task. Your model should have ended up being something like: "I keep an estimate of how many apples each tree drops in my mind. I pick a tree to go to and compare how many apples I get against what I expected. I adjust up or down accordingly". This is the verbal model that we're now going to translate into a computational one.</p>
-	<p>We've done this before so we're now going to dig into more of the details than we have in past computational models. The first thing to do here is to take the computational goal we've described (the verbal model) and turn it into a mathematical equation. This is important: the implementation we're going to use is javascript, a programming language, and javascript relies on our algorithm being in formal mathematical terms.</p>
-	<p>The first part of our verbal model was: <b>keep an estimate of how many apples each tree drops</b>. For simplicity we're going to just model one tree for now, but what this basically means is that there's some variable that is going to keep track of our <b>knowledge</b> for a particular tree. We'll call this variable A, for apples:</p>
+	<p>We've done this before so we're now going to dig into more of the details than we have in past computational models. The first thing to do here is to take the computational goal we've described (the verbal model) and turn it into a mathematical equation. This is important: our goal as cognitive neuroscientists is to connect the dots between behavior and the brain. Formalizing learning will allow us to make specific predictions, both about what should be represented by the brain but also about future behaviors. These predictions are the key to testing whether reinforcement learning is how a squirrel might solve this particular task.</p>
+	<p>The first part of our verbal model was: <b>keep an estimate of how many apples each tree drops</b>. For now we're going to model a world in which you make decisions about only one tree. What this means is that there's some variable that is going to keep track of our <b>knowledge</b> for a particular tree. We'll call this variable A, for apples:</p>
 	<div id="katex1"></div>
-	<p>A starts at zero because initially we don't know anything about trees and we're pessimistic. The second part of the verbal model says, "I pick a tree and compare how many apples I get against what I expected". Let's call the number of apples you get on each visit R, for <b>reward</b>. We'll call the difference between your knowledge and the reward the <b>reward prediction error</b>:</p>
+	<p>A should probably start at our best guess about trees (before we get any information), which you could call your prior knowledge. We'll start at zero for simplicity, which sort of implies we're pessimistic. The second part of the verbal model says, "I pick a tree and compare how many apples I get against what I expected". Let's call the number of apples you get on each visit R, for <b>reward</b>. We'll call the difference between your knowledge and the reward the <b>reward prediction error</b>:</p>
 	<div id="katex2"></div>
 	<p>Notice that we indexed A with a little <b>v</b>? That's because we're now talking about a specific visit. Your knowledge about how many apples a tree drops is going to change over time so we need to be specific about when exactly we're talking about. Before we go on let's think about the reward prediction error for a bit.</p>
 </div>
@@ -124,18 +125,18 @@
 
 <div id="block6">
 	<h2>Multiple trees</h2>
-	<p>In the demo you kept in mind the values of three trees. We can do this just fine with Rescorla-Wagner. Each tree simply gets updated when it gets visited, and otherwise the value doesn't change. But there's a different problem with having multiple problems which goes beyond reinforcement learning. Reinforcement learning is about discovering the <b>value</b> of taking different actions in the world. But given different options with known values, how should you pick between them? This is the realm of <b>decision making</b>.</p>
-	<p>For today we want to contrast two ways of picking which tree to visit. Imagine that you believe that trees A, B, and C drop 1, 2, and 3 apples on average. Or in other mathematical terms:</p>
+	<p>In the demo you kept in mind the values of three trees. We can do this just fine with Rescorla-Wagner. Each tree simply gets updated when it gets visited, and otherwise the value doesn't change. But there's a different problem with having multiple problems which goes beyond reinforcement learning. Reinforcement learning is about discovering the <b>value</b> of taking different actions in the world. But given different choices with known values, how should you pick between them? In other words you were doing two things during the task: determining values and then using those values to make decisions. This next section will be focused on <b>decision making</b>.</p>
+	<p>For today we want to contrast two ways of picking which tree to visit. Imagine that you believe that trees A, B, and C drop 1, 2, and 3 apples on average. Or as variables:</p>
 	<div id="katex6"></div>
-	<p>One rule you could use to decide where to go next is winner-take-all. Since tree C is worth the most you would go there. There are two possible outcomes for the <i>following</i> visit. If on this visit your belief about tree C improves or stays the same, you'll keep repeating this action. But if you were to get far less apples than expected, you might reduce your estimate of tree C's value enough to make tree B the best option. In a winner-take-all rule the only way to change options is for your current option to get a lot worse. Formally we can represent winner take all by saying that the probability of visiting a tree is a binary value (0 or 1), based on whether it is the maximum:</p>
-	<div id="katex6-2"></div>
-	<p>Another rule you might use is called <b>softmax</b>. Softmax sets the probability of going to a tree to be that trees value, divided by the total value available among all trees:</p>
+	<p>One rule you could use to decide where to go next is winner-take-all. Since tree C is worth the most you would go there. There are two possible outcomes for the <i>following</i> visit. If on this visit your belief about tree C improves or stays the same, you'll keep repeating this action. But if you were to get far less apples than expected, you might reduce your estimate of tree C's value enough to make tree B the best choice. In a winner-take-all rule the only way to change choices is for your current choice to get a lot worse. Formally we can represent winner take all by saying that the probability of visiting a tree is a binary value (0 or 1), based on whether it is the maximum:</p>
+	<!-- <div id="katex6-2"></div> -->
+	<p>Alternatively you could be choosing probabilistically. That is, how frequently you choose an option will depend on how you value it compared to other options. This rule is called <b>softmax</b>. Softmax sets the probability of going to a tree to be that trees value, divided by the total value available among all trees:</p>
 	<div id="katex6-3"></div>
 	<p>The advantage of softmax over winner-take-all is that it allows you to continue <b>exploring</b> rather than <b>exploiting</b> the same tree over and over. If it turns out your estimates aren't perfect then exploring is often a better strategy than exploiting. Let's run a simulation to help you understand this idea. Let's call softmax an "explore" strategy and winner-take-all the "exploit" strategy. We're going to have three squirrels below, a red, purple, and blue squirrel. The red and blue squirrels will represent the exploit and explore strategies, respectively (in reality they spend 90% of their time in their preferred mode). The purple squirrel spends half of its time exploiting, and half of its time exploring. Which squirrel do you expect will gain the most apples?</p>
 	<p>Whatever your guess is we hope you realized that <i>it depends</i>! If the world is really noisy then you should explore more, if the world is very stable, then you should exploit. You can use the slider bar to control how noisy the world is, the noise is calculated for each visit by randomly adding or subtracting apples to the true value of each tree. The number of apples maxes out at the noise value. Try it out and then make sure you understand the questions at the bottom. Click anywhere in the forest to reset the simulation.</p>
-	<input type="range" style="width:200px;" min="0.01" max="1.00" step="0.01" value="0.50" oninput="learningrate5(this.value);"><span id="alpha5">Learning rate = 0.50</span><br>
-	<canvas id="canvas4" height=400 width=400></canvas>
-	<div id="plot5"></div>
+	<input type="range" style="width:200px;" min="1" max="10" step="1" value="3" oninput="learningrate5(this.value);"><span id="noise6">Noise = 3</span><br>
+	<canvas id="canvas4" height=400 width=800></canvas>
+	<div id="plot6"></div>
 </div>
 
 <div id="block7">
@@ -147,10 +148,10 @@
 	<h2>Tutorial complete!</h2>
 	<p> Your TAs would be happy to discuss any aspect of the tutorial. As a reminder, you should now have a better understanding of the following:</p>
 		<ul>
-			<li>How reinforcement learning solves the computational goal of "supervised learning".</li>
-			<li>An example algorithm used for simple reinforcement learning.</li>
-			<li>Examples of situations in which reinforcement learning fails to fully account for behavior.</li>
-		</ul>
+			<li>How reinforcement learning and decision making are used together for action selection</li>
+			<li>How the rescorla-wagner and softmax algorithms provide an algorithmic solution for reinforcement learning and decision making</li>
+			<li>When these simple algorithms are effective and when they fail</li>
+	</ul>
 </div>
 
 
