@@ -270,7 +270,7 @@ function initForest() {
 	// Build up a forest variable
 	forest = {};
 	forest.probs = [Math.random(),Math.random(),Math.random()];
-	forest.apples = [getRandomInt(0,10),getRandomInt(0,10),getRandomInt(0,10)];
+	forest.apples = [getRandomInt(3,13),getRandomInt(3,13),getRandomInt(3,13)];
 	forest.alive = false;
 	forest.drop = 'prob'; // or COMP
 	forest['emit'] = {}; // dictionary to track who to emit to
