@@ -135,7 +135,8 @@
 	<p>The advantage of softmax over winner-take-all is that it allows you to continue <b>exploring</b> rather than <b>exploiting</b> the same tree over and over. If it turns out your estimates aren't perfect then exploring is often a better strategy than exploiting. Let's run a simulation to help you understand this idea. Let's call softmax an "explore" strategy and winner-take-all the "exploit" strategy. We're going to have three squirrels below, a red, purple, and blue squirrel. The red and blue squirrels will represent the exploit and explore strategies, respectively (in reality they spend 90% of their time in their preferred mode). The purple squirrel spends half of its time exploiting, and half of its time exploring. Which squirrel do you expect will gain the most apples?</p>
 	<p>Whatever your guess is we hope you realized that <i>it depends</i>! If the world is really noisy then you should explore more, if the world is very stable, then you should exploit. You can use the slider bar to control how noisy the world is, the noise is calculated for each visit by randomly adding or subtracting apples to the true value of each tree. The number of apples maxes out at the noise value. Try it out and then make sure you understand the questions at the bottom. Click anywhere in the forest to reset the simulation.</p>
 	<input type="range" style="width:200px;" min="1" max="10" step="1" value="3" oninput="learningrate5(this.value);"><span id="noise6">Noise = 3</span><br>
-	<canvas id="canvas4" height=400 width=800></canvas>
+	<canvas id="canvas6" height=500 width=800 onclick="reset6();"></canvas>
+	<br><span id="win6">Number of wins. red/exploit: 0 blue/explore: 0 purple/mix: 0</span>
 	<div id="plot6"></div>
 </div>
 

@@ -131,34 +131,175 @@ function run5() {
 
 var tick6;
 
-var objects = []; // trees and squirrels
+var objects6 = []; // trees and squirrels
 
-var exploit; // A/B/C for exploit model
-var explore;
-var fifty;
+var canvas6 = document.getElementById("canvas6");
+var ctx6 = canvas6.getContext("2d");
 
 var lr = 0.2;
 
 var A,B,C;
+var treeX = [0,100,300], treeY = [200,0,100];
+
+var wins = [0,0,0];
 
 function reset6() {
-	exploit = [0,0,0]; explore = [0,0,0]; fifty = [0,0,0];
-	A = Math.round(Math.random()*10+5);
-	B = Math.round(Math.random()*10+5);
-	C = Math.round(Math.random()*10+5);
+	// check if we have a winner
+	if (steps>5) {
+		var svals = []
+		var sqs = [red_trace,blue_trace,purple_trace];
+		for (var i=0;i<2;i++) {
+			svals[i] = sqs[i].y[sqs[i].y.length-1];
+		}
+		wins[indexOfMax(svals)]++;
+		$("#win6").html("Number of wins. red/exploit: " + wins[0] +" blue/explore: "+ wins[1] +" purple/mix: " + wins[2]);
+	}
+	A = Math.round(Math.random()*6);
+	B = Math.round(Math.random()*6);
+	C = Math.round(Math.random()*6);
+	objects6 = [];
+	for (var i=0;i<3;i++) {
+		objects6.push(newTree());
+		objects6[i].x = treeX[i];
+		objects6[i].toX = objects6[i].x;
+		objects6[i].y = treeY[i];
+		objects6[i].toY = objects6[i].y;
+		objects6[i].width = 100;
+		objects6[i].height = 100*treeImg.height/treeImg.width;
+	}
+	for (var i=0;i<3;i++) {
+		objects6.push(newSquirrel());
+		objects6[i+3].toX = objects6[i+3].x+Math.random()*40-20;
+		objects6[i+3].toY = objects6[i+3].y+Math.random()*40-20;
+	}
+	objects6[3].img = sqImg_red;
+	objects6[4].img = sqImg_blue;
+	objects6[5].img = sqImg_purple;
+	// red: CD6155
+	// blue: 5DADE2
+	// purple: 6155cd
+	red = {pick:randint(0,2),vals:[3,3,3]}
+	blue = {pick:randint(0,2),vals:[3,3,3]}
+	purple = {pick:randint(0,2),vals:[3,3,3]}
+	red_trace = {x:[0],y:[0],mode:'line',line:{color:'red'},type:'scatter',name:'Red: exploit'};
+	blue_trace = {x:[0],y:[0],mode:'line',line:{color:'blue'},type:'scatter',name:'Blue: explore'};
+	purple_trace = {x:[0],y:[0],mode:'line',line:{color:'purple'},type:'scatter',name:'Purple: mix'};
 }
 
 function init6() {
+	elapsed();
 	reset6();
 }
 
 var time = 0;
 
+var sqDefX = 200, sqDefY = 300;
+
 function run6() {
 	time += elapsed();
-	if (time>3000) {plot6(); }
+	if (time>3000) {visit6(); plot6();time=0;}
 
+	ctx6.clearRect(0,0,canvas6.width,canvas6.height);
+	for (i in objects6) {
+		o = objects6[i];
+		ctx6.drawImage(o.img,o.x,o.y,o.width,o.height);
+		updateObject(o);
+	}
 	tick6 = requestAnimationFrame(run6);
+}
+
+var alpha = 0.2;
+
+var steps = 0;
+
+var red = {},blue = {},purple = {}; // track the squirrel's values
+
+var red_trace, blue_trace, purple_trace;
+
+function visit6() {
+	if (steps++>30) {
+		reset6(); return;
+	}
+	// remove all apples
+	for (var i=objects6.length-1;i>5;i--) {
+		objects6.pop();
+	}
+	var vals = [A,B,C];
+	// drop now apples
+	for (var z=0;z<3;z++) {
+		for (var i=0;i<vals[z];i++) {
+			objects6.push(newApple());
+			objects6[objects6.length-1].x = treeX[z]+Math.random()*100;
+			objects6[objects6.length-1].y = treeY[z]+Math.random()*20;
+			objects6[objects6.length-1].toX = objects6[objects6.length-1].x;
+			objects6[objects6.length-1].toY = treeY[z]+objects6[z].height-Math.random()*20;
+		}
+	}
+
+	// update squirrel values
+	var red_got = vals[red.pick];
+	red_trace.x.push(steps);
+	red_trace.y.push(red_trace.y[red_trace.y.length-1]+red_got);
+	red.vals[red.pick] = red.vals[red.pick] + alpha * (red_got - red.vals[red.pick]);
+	if (Math.random() < 0.9) {
+		// exploit
+		red.pick = indexOfMax(red.vals);
+	} else {
+		// explore
+		red.pick = explore(red.vals);
+	}
+
+	var blue_got = vals[blue.pick];
+	blue_trace.x.push(steps);
+	blue_trace.y.push(blue_trace.y[blue_trace.y.length-1]+blue_got);
+	blue.vals[blue.pick] = blue.vals[blue.pick] + alpha * (blue_got - blue.vals[blue.pick]);
+	if (Math.random() < 0.9) {
+		// explore
+		blue.pick = explore(red.vals);
+	} else {
+		// exploit
+		blue.pick = indexOfMax(red.vals);
+	}
+
+	var purple_got = vals[purple.pick];
+	purple_trace.x.push(steps);
+	purple_trace.y.push(purple_trace.y[purple_trace.y.length-1]+purple_got);
+	purple.vals[purple.pick] = purple.vals[purple.pick] + alpha * (purple_got - purple.vals[purple.pick]);
+	if (Math.random() < 0.5) {
+		// explore
+		purple.pick = explore(red.vals);
+	} else {
+		// exploit
+		purple.pick = indexOfMax(red.vals);
+	}
+
+	// update squirrel to locations
+	var hold = [red,blue,purple];
+	for (var i=0;i<3;i++) {
+		objects6[i+3].toX = treeX[hold[i].pick]+Math.random()*100;
+		objects6[i+3].toY = treeY[hold[i].pick]+objects6[0].height-Math.random()*20;
+	}
+}
+
+function explore(vals) {
+	var r = Math.random();
+	 cvs = [0,0,1];
+	for (var i=0;i<2;i++) {
+		// convert location
+		cvs[i] = Math.exp(vals[i])/(Math.exp(vals[0])+Math.exp(vals[1])+Math.exp(vals[2]));
+	}
+	cvs[1] = cvs[0]+cvs[1];
+	for (var i=0;i<3; i++) {
+		if (r <= cvs[i]) {return i;}
+	}
+}
+
+function plot6() {
+	var layout2 = layout;
+	layout2.title = 'Apples collected';
+	layout.xaxis.title = 'Time (visits)';
+	layout.yaxis.title = 'Apples';
+	Plotly.newPlot('plot6',[red_trace,blue_trace,purple_trace],layout);
 }
 
 ////////////////////////////////
@@ -168,6 +309,7 @@ function run6() {
 function run(i) {	
 	$("#continue").show();
 	clearTimeout(to);
+	cancelAnimationFrame(tick4);
 	cancelAnimationFrame(tick6);
 	// Runs each time a block starts incase that block has to do startup
 	switch(i) {
@@ -181,12 +323,11 @@ function run(i) {
 			run5();
 			break;
 		case 6:
+			init6();
 			run6();
 			break;
 	}
 }
-
-
 
 function launch_local() {
 	katex.render("A=0",document.getElementById("katex1"),{displayMode:true});	
@@ -198,6 +339,9 @@ function launch_local() {
 	$("#end4").hide();
 	resetTraces5();
 	init6();
+	sqImg_red.src = 'images/squirrel_red.png';
+	sqImg_blue.src = 'images/squirrel_blue.png';
+	sqImg_purple.src = 'images/squirrel_purple.png';
 }
 
 
@@ -229,4 +373,44 @@ function newTree(num) {
 	tree.height = 200*treeImg.height/treeImg.width;
 	tree.img = treeImg;
 	return tree;
+}
+
+var sqImg_red = new Image();
+var sqImg_blue = new Image();
+var sqImg_purple = new Image();
+
+function newSquirrel() {
+	squirrel = {};
+	squirrel.x = sqDefX;
+	squirrel.y = sqDefY;
+	squirrel.toX = squirrel.x;
+	squirrel.toY = squirrel.y;
+	squirrel.width = 50;
+	squirrel.height = 50;
+	squirrel.img = '';
+	return squirrel;
+}
+
+function randint(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function indexOfMax(arr) {
+    if (arr.length === 0) {
+        return -1;
+    }
+
+    var max = arr[0];
+    var maxIndex = 0;
+
+    for (var i = 1; i < arr.length; i++) {
+        if (arr[i] > max) {
+            maxIndex = i;
+            max = arr[i];
+        }
+    }
+
+    return maxIndex;
 }
