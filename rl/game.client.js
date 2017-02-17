@@ -174,8 +174,8 @@ function launchCanvas() {
 var treeX = [100,400,600];
 var treeY = [400,50,300];
 
-var sqDefX = canvas.width/2;
-var sqDefY = canvas.height-200;
+var sqDefX = 450;
+var sqDefY = 650;
 
 var treeScale = 200;
 var appleScale = 10;
@@ -214,7 +214,7 @@ function draw() {
 		}
 	} else {
 		//draw score
-		ctx.fillText("Apples: " + score,canvas.width-200,30);
+		ctx.fillText("Apples: " + score,700,30);
 	}
 	requestAnimationFrame(draw);
 }
@@ -372,9 +372,10 @@ var ta_debug = false;
 // Updates a tree value
 // tree.value
 socket.on('ta_tree', function(msg){
-	msg = msg.split('.');
+	msg = msg.split(',');
 	tree = msg[0];
 	value = Number(msg[1]);
+	value = Math.round(value*100)/100;
 	if (tree=='A') {
 		ta_A = value;
 	}

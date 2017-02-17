@@ -183,14 +183,14 @@ function taForest() {
 		forest = forests[talist[id]];
 		// send value updates
 		if (forest.drop=='prob') {
-			io.to(id).emit('ta_tree','A.'+forest.probs[0]);
-			io.to(id).emit('ta_tree','B.'+forest.probs[1]);
-			io.to(id).emit('ta_tree','C.'+forest.probs[2]);
+			io.to(id).emit('ta_tree','A,'+forest.probs[0]);
+			io.to(id).emit('ta_tree','B,'+forest.probs[1]);
+			io.to(id).emit('ta_tree','C,'+forest.probs[2]);
 		} else {
 			// return expected # of apples
-			io.to(id).emit('ta_tree','A.'+forest.apples[0]);
-			io.to(id).emit('ta_tree','B.'+forest.apples[1]);
-			io.to(id).emit('ta_tree','C.'+forest.apples[2]);
+			io.to(id).emit('ta_tree','A,'+forest.apples[0]);
+			io.to(id).emit('ta_tree','B,'+forest.apples[1]);
+			io.to(id).emit('ta_tree','C,'+forest.apples[2]);
 		}
 		// send squirrel updates
 		// all student IDs with squirrels
@@ -221,6 +221,8 @@ function emitForest(forest) {
 			if (Math.random() < forest.probs[trackEmit[id]-1]) {
 				io.to(id).emit('tree'+trees[trackEmit[id]-1],1);
 				scores[id] += 1;
+			} else {
+				io.to(id).emit('tree'+trees[trackEmit[id]-1],0);
 			}
 		}
 	} else {
