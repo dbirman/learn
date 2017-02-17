@@ -53,8 +53,12 @@ function launch4() {
 	draw4();
 }
 
+function out4(val) {
+	$("#guess4out").html('Guess: ' + val);
+}
+
 function run4() {
-	for (var i=1;i<objects4.length;i++) {
+	for (var i=objects4.length-1;i>0;i--) {
 		objects4.pop();
 	}
 	for (var i=0;i<Math.round(Math.random()*10);i++) {
@@ -65,8 +69,10 @@ function run4() {
 	var diff = real4-guess;
 	if (diff>0) {
 		$("#out4").html('You guessed: ' + guess + ', RPE was +');
-	} else {
+	} else if (diff<0) {
 		$("#out4").html('You guessed: ' + guess + ', RPE was -');
+	} else {
+		$("#out4").html('Perfect!');
 	}
 }
 
