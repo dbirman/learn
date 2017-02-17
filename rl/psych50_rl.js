@@ -84,7 +84,7 @@ var to;
 
 function resetTraces5() {
 	rpe_trace = {x:[],y:[],mode:'line',line:{color:'blue'},type:'scatter',name:'RPE'};
-	av_trace = {x:[],y:[],mode:'line',line:{color:'red'},type:'scatter',name:'Av'};
+	av_trace = {x:[],y:[],mode:'line',line:{color:'red'},type:'scatter',name:'$A_{v}$'};
 }
 
 function learningrate5(val) {
@@ -111,12 +111,48 @@ function run5() {
 	visits++;
 
 	var layout2 = layout;
-	layout2.title = 'Apple estimate and RPE over time';
+	layout2.title = '$A_{v} \\text{and RPE over time}$';
 	layout.xaxis.title = 'Time (visits)';
-	layout.yaxis.title = 'Av (estimate of tree)';
+	layout.yaxis.title = '$A_{v} \\text{(estimate of tree)}$';
 	Plotly.newPlot('plot5',[rpe_trace, av_trace],layout);
 
 	to = setTimeout(run5,1000);
+}
+
+////////////////////////////////
+////////// BLOCK 6 /////////////
+////////////////////////////////
+
+var tick6;
+
+var objects = []; // trees and squirrels
+
+var exploit; // A/B/C for exploit model
+var explore;
+var fifty;
+
+var lr = 0.2;
+
+var A,B,C;
+
+function reset6() {
+	exploit = [0,0,0]; explore = [0,0,0]; fifty = [0,0,0];
+	A = Math.round(Math.random()*10+5);
+	B = Math.round(Math.random()*10+5);
+	C = Math.round(Math.random()*10+5);
+}
+
+function init6() {
+	reset6();
+}
+
+var time = 0;
+
+function run6() {
+	time += elapsed();
+	if (time>3000) {plot6(); }
+
+	tick6 = requestAnimationFrame(run6);
 }
 
 ////////////////////////////////
@@ -126,6 +162,7 @@ function run5() {
 function run(i) {	
 	$("#continue").show();
 	clearTimeout(to);
+	cancelAnimationFrame(tick6);
 	// Runs each time a block starts incase that block has to do startup
 	switch(i) {
 		case 2:
@@ -136,6 +173,9 @@ function run(i) {
 			break;
 		case 5:
 			run5();
+			break;
+		case 6:
+			run6();
 			break;
 	}
 }
@@ -151,6 +191,7 @@ function launch_local() {
 	katex.render("P(A)=\\dfrac{A_{v}}{A_{v}+B_{v}+C_{v}}",document.getElementById("katex6-3"),{displayMode:true});	
 	$("#end4").hide();
 	resetTraces5();
+	init6();
 }
 
 
