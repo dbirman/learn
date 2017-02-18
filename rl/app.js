@@ -182,16 +182,16 @@ function taForest() {
 		// get forest
 		forest = forests[talist[id]];
 		// send value updates
-		if (forest.drop=='prob') {
+		// if (forest.drop=='prob') {
 			io.to(id).emit('ta_tree','A,'+forest.probs[0]);
 			io.to(id).emit('ta_tree','B,'+forest.probs[1]);
 			io.to(id).emit('ta_tree','C,'+forest.probs[2]);
-		} else {
-			// return expected # of apples
-			io.to(id).emit('ta_tree','A,'+forest.apples[0]);
-			io.to(id).emit('ta_tree','B,'+forest.apples[1]);
-			io.to(id).emit('ta_tree','C,'+forest.apples[2]);
-		}
+		// } else {
+		// 	// return expected # of apples
+		// 	io.to(id).emit('ta_tree','A,'+forest.apples[0]);
+		// 	io.to(id).emit('ta_tree','B,'+forest.apples[1]);
+		// 	io.to(id).emit('ta_tree','C,'+forest.apples[2]);
+		// }
 		// send squirrel updates
 		// all student IDs with squirrels
 		ids = Object.keys(forest.emit);
@@ -227,27 +227,35 @@ function emitForest(forest) {
 		}
 	} else {
 		// competitive: trees don't always drop AND they drop limited apples
-		var apples = [0,0,0];
 		var count = [0,0,0];
-		// First check the apple count
+		// First check the count of squirrels at each tree
 		for (var id in trackEmit) {
 			count[trackEmit[id]-1]++;
 		}
+		// We'll count the total squirrels and set the # of apples
+		// to always be less than that
+		var apples = [0,0,0];
+		var N = 0;
+		for (var i=0;i<3;i++) {
+			N+=count[i];
+		}
 
 		for (var i=0;i<3;i++) {
-			apples[i] = forest.apples[i]/count[i];
+			apples[i] = count[i]<(Math.round(0.5*N)) ? 1 : (1-(count[i]/N));
 		}
 
 		for (var id in trackEmit) {
-			tree = trackEmit[id]-1;
 			var amt = 0;
-			if (apples[tree]>=1) {
-				amt = 1;
-			} else {
-				if (Math.random() < amt) {
+			var tree = trackEmit[id]-1;
+			if (Math.random() < forest.probs[tree]) {
+				// tree dropped: check if enough apples available
+				if (apples[tree]==1) {
+					amt = 1;
+				} else if (Math.random()<apples[tree]) {
 					amt = 1;
 				}
 			}
+
 			io.to(id).emit('tree'+trees[tree],amt);
 			if (!scores[id]) {scores[id]=0;}
 			scores[id] += amt;
@@ -261,16 +269,17 @@ function emitForest(forest) {
 	return forest;
 }
 
+var probOpts = [[0.8,0.5,0.2],[0.8,0.2,0.5],[0.5,0.8,0.2],[0.5,0.2,0.8],[0.2,0.5,0.8],[0.2,0.8,0.5]];
+
 function resetForest(forest) {
-	forest.apples = [getRandomInt(5,25),getRandomInt(5,25),getRandomInt(5,25)];
+	forest.probs = probOpts[getRandomInt(0,probOpts.length)];
 	return forest;
 }
 
 function initForest() {
 	// Build up a forest variable
 	forest = {};
-	forest.probs = [Math.random(),Math.random(),Math.random()];
-	forest.apples = [getRandomInt(3,13),getRandomInt(3,13),getRandomInt(3,13)];
+	forest.probs = probOpts[getRandomInt(0,probOpts.length)];
 	forest.alive = false;
 	forest.drop = 'prob'; // or COMP
 	forest['emit'] = {}; // dictionary to track who to emit to

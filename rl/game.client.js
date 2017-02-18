@@ -236,6 +236,7 @@ function now() {
 
 function drawProgress() {
 	progress += elapsed();
+	if (progress>=5000) {progress=5000;}
 	var time = progress/5000;
 	ctx.fillStyle = "#ffffff";
 	ctx.fillRect(0,0,400,30);
