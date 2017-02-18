@@ -249,7 +249,7 @@ function addApples(num,tree) {
 		score++;
 		objects.push(newApple(tree-1));
 	}
-	if (score>=1) {
+	if (score>=2) {
 		squirrels[0].width = Math.round(Math.log(score)*25/Math.log(2));
 		squirrels[0].height = squirrels[0].width;
 	}
@@ -317,8 +317,8 @@ function newSquirrel() {
 	squirrel.y = sqDefY;
 	squirrel.toX = squirrel.x;
 	squirrel.toY = squirrel.y;
-	squirrel.width = 25;
-	squirrel.height = 25;
+	squirrel.width = 20;
+	squirrel.height = 20;
 	squirrel.img = sqImg;
 	return squirrel;
 }
