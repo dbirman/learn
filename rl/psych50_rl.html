@@ -68,7 +68,7 @@
 	<h1>Learning goals</h1>
 	After this lab you should have a better understanding of the following:
 	<ul>
-		<li>How reinforcement learning and decision making are used together for action selection</li>
+		<li>How reinforcement learning provides an algorithm to solve </li>
 		<li>How the rescorla-wagner and softmax algorithms provide an algorithmic solution for reinforcement learning and decision making</li>
 		<li>When these simple algorithms are effective and when they fail</li>
 	</ul>
@@ -76,7 +76,7 @@
 
 <div id="block2">
 	<h2>Demo</h2>
-	<p>The first part of this tutorial is a live demonstration of reinforcement learning in action. You will take on the role of a squirrel, your goal is to fatten yourself up to survive the Palo Alto winter. We all know how bad it can get, so collect a lot of apples! There will be three trees, each of which drops apples. Click on a tree to visit it--every few seconds apples drop from the tree you are visiting. You'll have to search among all of the trees to find the best tree... good luck!</p>
+	<p>The first part of this tutorial is a live demonstration of reinforcement learning in action. You will take on the role of a squirrel. Your goal is to fatten yourself up to survive the Palo Alto winter. We all know how bad it can get, so collect a lot of apples! There will be three trees, each of which drops apples. Click on a tree to visit it--after a few seconds it will drop an apple (or a leaf, if you're unlucky). Some trees are better than others, so you'll have to search among all of the trees to find the best tree... good luck!</p>
 	<p>Head over to: <a href="http://gru.stanford.edu:8080" target="_blank">our local forest</a> to get started on the demo. Your TA will tell you which section to join.</p>
 </div>
 
@@ -88,7 +88,7 @@
 	<div id="katex1"></div>
 	<p>A should probably start at our best guess about trees (before we get any information), which you could call your prior knowledge. We'll start at zero for simplicity, which sort of implies we're pessimistic. The second part of the verbal model says, "I pick a tree and compare how many apples I get against what I expected". Let's call the number of apples you get on each visit R, for <b>reward</b>. We'll call the difference between your knowledge and the reward the <b>reward prediction error</b>:</p>
 	<div id="katex2"></div>
-	<p>Notice that we indexed A with a little <b>v</b>? That's because we're now talking about a specific visit. Your knowledge about how many apples a tree drops is going to change over time so we need to be specific about when exactly we're talking about. Before we go on let's think about the reward prediction error for a bit.</p>
+	<p>Notice that we indexed A with a little <b>v</b>? That's because we're talking about a specific visit. Your knowledge about how many apples a tree drops is going to change over time so we need to be specific about when exactly we're talking about.</p>
 </div>
 
 <div id="block4">
@@ -101,8 +101,20 @@
 	<span id="out4"></span>
 	<div id="end4">
 	<br>
-	<p>Nice work! Hopefully the reward prediction error makes sense. We're going to put everything together now and look at how the Rescorla-Wagner algorithm works.</p>
+	<p>Nice work! Hopefully the reward prediction error makes sense.</p>
 	</div>
+</div>
+
+<div id="block5">
+	<h2>Reward prediction error in the brain</h2>
+	<p>In lecture we learned about how neurons that produce dopamine encode the probability of rewards and their related uncertainty. Think back to your own experience: when you visited a tree you probably made a prediction about how many apples you would get--and then felt surprise or frustration when you got more or less than that amount. This is exactly the kind of information that we think dopamine neurons encode at different times. Take a look at the setup below. We have a squirrel who is going to imagine a tree (A, B, or C), you can click in the thought bubble to change which tree the squirrel is imagining. Tree A always drops an apple, tree B never drops an apple, and tree C drops an apple half of the time. On the right there's a recording of a dopamine neuron in the squirrel's ventral tegmental area. To see what happens when the squirrel actually visits a tree you can give the squirrel an apple, or not, by clicking on the apple or leaf at the bottom. In the neural trace you'll first see activity related to imagining, then a moment later, the squirrel will receive the apple or leaf, and you'll see the neuron's response.</p>
+	<!-- STUFF -->
+	<p>Before going on make sure you understand how this dopamine neuron circuit works:</p>
+	<ul>
+		<li>If the squirrel expects an apple and gets it, why doesn't the dopamine neuron fire for when the apple arrives?</li>
+		<li>If the squirrel doesn't expect an apple and gets it, why then does the dopamine neuron fire?</li>
+		<li>What happens in the intermediate conditions, when the squirrel believes that the tree only drops an occasional apple?</li>
+	</ul>
 </div>
 
 <div id="block5">
@@ -124,13 +136,17 @@
 </div>
 
 <div id="block6">
+	<h2>Exploit? Or explore?</h2>
+	<p>So far your life as a squirrel has been easy. You were all alone in the forest visiting trees by yourself and nobody bothered you. But what would happen if other squirrels were visiting the trees along with you, is it still always optimal to head for the tree that drops the most apples? If everybody were to choose that same strategy, which we call <b>exploiting</b>, then someone would lose out. This one of a few situations in which it can be advantageous to continue <b>exploring</b> the other options. Another situation in which this often comes up is when the value of a reward changes over time. Recall the wisconsin card sort task--if the rules suddenly change and you stop being rewarded for the rule you are holding in mind it becomes advantageous to search for a new rule.</p>
+</div>
+<!-- <div id="block6">
 	<h2>Multiple trees</h2>
 	<p>In the demo you kept in mind the values of three trees. We can do this just fine with Rescorla-Wagner. Each tree simply gets updated when it gets visited, and otherwise the value doesn't change. But there's a different problem with having multiple problems which goes beyond reinforcement learning. Reinforcement learning is about discovering the <b>value</b> of taking different actions in the world. But given different choices with known values, how should you pick between them? In other words you were doing two things during the task: determining values and then using those values to make decisions. This next section will be focused on <b>decision making</b>.</p>
 	<p>For today we want to contrast two ways of picking which tree to visit. Imagine that you believe that trees A, B, and C drop 1, 2, and 3 apples on average. Or as variables:</p>
 	<div id="katex6"></div>
 	<p>One rule you could use to decide where to go next is winner-take-all. Since tree C is worth the most you would go there. There are two possible outcomes for the <i>following</i> visit. If on this visit your belief about tree C improves or stays the same, you'll keep repeating this action. But if you were to get far less apples than expected, you might reduce your estimate of tree C's value enough to make tree B the best choice. In a winner-take-all rule the only way to change choices is for your current choice to get a lot worse. Formally we can represent winner take all by saying that the probability of visiting a tree is a binary value (0 or 1), based on whether it is the maximum:</p>
 	<!-- <div id="katex6-2"></div> -->
-	<p>Alternatively you could be choosing probabilistically. That is, how frequently you choose an option will depend on how you value it compared to other options. This rule is called <b>softmax</b>. Softmax sets the probability of going to a tree to be that trees value, divided by the total value available among all trees:</p>
+	<!-- <p>Alternatively you could be choosing probabilistically. That is, how frequently you choose an option will depend on how you value it compared to other options. This rule is called <b>softmax</b>. Softmax sets the probability of going to a tree to be that trees value, divided by the total value available among all trees:</p>
 	<div id="katex6-3"></div>
 	<p>The advantage of softmax over winner-take-all is that it allows you to continue <b>exploring</b> rather than <b>exploiting</b> the same tree over and over. If it turns out your estimates aren't perfect then exploring is often a better strategy than exploiting. Let's run a simulation to help you understand this idea. Let's call softmax an "explore" strategy and winner-take-all the "exploit" strategy. We're going to have three squirrels below, a red, purple, and blue squirrel. The red and blue squirrels will represent the exploit and explore strategies, respectively (in reality they spend 90% of their time in their preferred mode). The purple squirrel spends half of its time exploiting, and half of its time exploring. Which squirrel do you expect will gain the most apples?</p>
 	<p>Whatever your guess is we hope you realized that <i>it depends</i>! If the world is really noisy then you should explore more, if the world is very stable, then you should exploit. You can use the slider bar to control how noisy the world is, the noise is calculated for each visit by randomly adding or subtracting apples to the true value of each tree. The number of apples maxes out at the noise value. Try it out and then make sure you understand the questions at the bottom. Click anywhere in the forest to reset the simulation.</p>
@@ -140,11 +156,11 @@
 	<div id="plot6"></div>
 	<a class="button" onclick="fast();">Speed things up!</a>
 	<br>
-</div>
+</div> -->
 
 <div id="block7">
-	<h2>Other sources of information?</h2>
-	<p>You've now seen how reinforcement learning can be used to explain your behavior in the task you performed earlier. But what we hid from you in the task was that all the students in the room were doing the task together! What if you could all see each other? How would that additional social information change your behavior? We don't have to imagine this situation--we're just going to try it out live. Connect to <a href="http://gru.stanford.edu:8080" target="_blank">our local forest</a> again and follow your TAs instructions. You'll have to wait for other students to catch up, so this is a good time to ask questions.</p>
+	<h2>Competition</h2>
+	<p>We're going to repeat the demonstration now, but with two changes. First, you're now going to be able to see the other students on the TA's screen. Second, everybody is now competing. The trees still only drop apples on some visits (some trees still drop apples more frequently), but now the stock of apples is limited. Even when a tree drops apples you might still get nothing. Should you persist at the tree you think is best? Or should you explore other options when this happens. We'll see who can come up with the best strategy! Connect to <a href="http://gru.stanford.edu:8080" target="_blank">our local forest</a> again and follow your TAs instructions. You'll have to wait for other students to catch up, so this is a good time to ask questions.</p>
 </div>
 
 <div id="endblock">
