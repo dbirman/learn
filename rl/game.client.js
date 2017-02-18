@@ -133,7 +133,7 @@ function taLogin() {
 function studentLogin() {
 	section = Number(document.getElementById("section").value);
 
-	if (section<0 || section>=12) {
+	if (section<3 || section>13) {
 		alert('Nice try. This incident will be reported. See https://xkcd.com/838/');
 		return;
 	}
