@@ -198,7 +198,7 @@ function drawBrain() {
 			break;
 		case 1:
 			ctx_b.drawImage(apImg,treeAppleXY[0],treeAppleXY[1],40,40);
-			ctx_b.clearRect(treeAppleXY[0],treeAppleXY[1]+20,40,20);
+			ctx_b.clearRect(treeAppleXY[0],treeAppleXY[1],20,40);
 			break;
 		case 2:
 			ctx_b.drawImage(leafImg,treeAppleXY[0],treeAppleXY[1],40,40);
