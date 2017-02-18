@@ -107,7 +107,7 @@
 
 <div id="block5">
 	<h2>Reward prediction error in the brain</h2>
-	<p>In lecture we learned about how neurons that produce dopamine encode the probability of rewards and their related uncertainty. Think back to your own experience: when you visited a tree you probably made a prediction about how many apples you would get--and then felt surprise or frustration when you got more or less than that amount. This is exactly the kind of information that we think dopamine neurons encode at different times. Take a look at the setup below. We have a squirrel who is going to imagine a tree (A, B, or C), you can click in the thought bubble to change which tree the squirrel is imagining. Tree A always drops an apple, tree B never drops an apple, and tree C drops an apple half of the time. On the right there's a recording of a dopamine neuron in the squirrel's ventral tegmental area. To see what happens when the squirrel actually visits a tree you can give the squirrel an apple, or not, by clicking on the apple or leaf at the bottom. In the neural trace you'll first see activity related to imagining, then a moment later, the squirrel will receive the apple or leaf, and you'll see the neuron's response.</p>
+	<p>In lecture we learned about how neurons that produce dopamine encode the probability of rewards and their related uncertainty. Think back to your own experience: when you visited a tree you probably made a prediction about how many apples you would get--and then felt surprise or frustration when you got more or less than that amount. This is exactly the kind of information that we think dopamine neurons encode at different times. Take a look at the setup below. We have a squirrel who is going to imagine a tree (A, B, or C), you can click in the thought bubble to change which tree the squirrel is imagining. Tree A always drops an apple, tree B never drops an apple, and tree C drops an apple half of the time. On the right there's a recording of a dopamine neuron in the squirrel's ventral tegmental area. To see what happens when the squirrel actually visits a tree you can give the squirrel an apple, or not, by clicking on the apple or leaf at the bottom. In the neural trace you'll first see activity related to the squirrel predicting it's reward, then a moment later, the squirrel will receive the apple or leaf, and you'll see the neuron's response.</p>
 	<!-- STUFF -->
 	<p>Before going on make sure you understand how this dopamine neuron circuit works:</p>
 	<ul>
@@ -117,7 +117,7 @@
 	</ul>
 </div>
 
-<div id="block5">
+<div id="block6">
 	<h2>Rescorla-Wagner</h2>
 	<p>The last thing we need to think about is the <b>learning rate</b>. The intuition we want you to have for the learning rate is that it indexes how much you trust the reward prediction error. If there is a lot of variability in the world then you shouldn't trust it too much, you want a low learning rate to give yourself time to build up a good representation of the world. If the world is very stable and there isn't any noise then you can trust the reward prediction error precisely.</p>
 	<p>Adding the learning rate, the complete model that we've now built up looks as follows:</p>
@@ -136,7 +136,7 @@
 	</ul>
 </div>
 
-<div id="block6">
+<div id="block7">
 	<h2>Exploit? Or explore?</h2>
 	<p>So far your life as a squirrel has been easy. You were all alone in the forest visiting trees by yourself and nobody bothered you. But what would happen if other squirrels were visiting the trees along with you, is it still always optimal to head for the tree that drops the most apples? If everybody were to choose that same strategy, which we call <b>exploiting</b>, then someone would lose out. This one of a few situations in which it can be advantageous to continue <b>exploring</b> the other options. Another situation in which this often comes up is when the value of a reward changes over time. Recall the wisconsin card sort task--if the rules suddenly change and you stop being rewarded for the rule you are holding in mind it becomes advantageous to search for a new rule.</p>
 </div>
@@ -159,7 +159,7 @@
 	<br>
 </div> -->
 
-<div id="block7">
+<div id="block8">
 	<h2>Competition</h2>
 	<p>We're going to repeat the demonstration now, but with two changes. First, you're now going to be able to see the other students on the TA's screen. Second, everybody is now competing. The trees still only drop apples on some visits (some trees still drop apples more frequently), but now the stock of apples is limited. Even when a tree drops apples you might still get nothing. Should you persist at the tree you think is best? Or should you explore other options when this happens. We'll see who can come up with the best strategy! Connect to <a href="http://gru.stanford.edu:8080" target="_blank">our local forest</a> again and follow your TAs instructions. You'll have to wait for other students to catch up, so this is a good time to ask questions.</p>
 </div>

@@ -338,11 +338,14 @@ function run(i) {
 			if (!done4) {$("#continue").hide();launch4();}
 			break;
 		case 5:
+			// todo
+			break;
+		case 6:
 			run5();
 			break;
 		case 6:
-			init6();
-			run6();
+			// init6();
+			// run6();
 			break;
 	}
 }
