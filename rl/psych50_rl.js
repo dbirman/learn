@@ -31,8 +31,10 @@ var ctx4 = canvas4.getContext("2d");
 
 var treeImg = new Image();
 var apImg = new Image();
+var leafImg = new Image();
 treeImg.src = 'images/tree.png';
 apImg.src = 'images/apple.png';
+leafImg.src = 'images/leaf.png';
 
 var objects4 = [];
 
@@ -123,6 +125,91 @@ function run5() {
 	Plotly.newPlot('plot5',[rpe_trace, av_trace],layout);
 
 	to = setTimeout(run5,1000);
+}
+
+
+////////////////////////////////
+////////// BLOCK brain /////////////
+////////////////////////////////
+
+can_brain = document.getElementById("canvas_brain");
+ctx_b = can_brain.getContext("2d");
+
+var curTree = 0; // start with A
+
+var treeXY = [35,7.5];
+var treeAppleXY = [90,30];
+var bigAppleXY = [300,300];
+var bigLeafXY = [380,300];
+
+var	sqbrImg  = new Image();
+
+var tickBrain;
+
+function initBrain() {
+	sqbrImg.src = "images/squirrel-brain.png";
+	can_brain.addEventListener("click",updateCanvasClick,false);
+}
+
+function eventClick(x,y,shift) {
+	console.log(eventType(x,y));
+	switch (eventType(x,y)) {
+		case 0:
+			// clicked in thought bubble
+			curTree++;
+			if (curTree>2) {curTree=0;}
+			break;
+		case 1:
+			// click on apple
+			break;
+		case 2:
+			// click on leaf
+			break;
+	}
+}
+
+function eventType(x,y) {
+	if (x>treeXY[0] && x<(treeXY[0]+100) && y>treeXY[1] && y<(treeXY[1]+100)) {
+		return 0;
+	}
+	if (x>bigAppleXY[0] && x<(bigAppleXY[0]+50) && y>bigAppleXY[1] && y<(bigAppleXY[1]+50)) {
+		return 1;
+	}
+	if (x>bigLeafXY[0] && x<(bigLeafXY[0]+50) && y>bigLeafXY[1] && y<(bigLeafXY[1]+50)) {
+		return 2;
+	}
+	return -1;
+}
+
+function drawBrain() {
+	ctx_b.clearRect(0,0,can_brain.width,can_brain.height);
+	ctx_b.drawImage(sqbrImg,0,0,600,400);
+
+	ctx_b.drawImage(treeImg,treeXY[0],treeXY[1],40,40*treeImg.height/treeImg.width);
+
+	ctx_b.font = "30px Arial";
+	ctx_b.fillStyle = "#ffffff";
+	var trees = ['A','B','C'];
+	ctx_b.fillText(trees[curTree],treeXY[0]+30,treeXY[1]+60);
+	// draw an apple, half apple/leaf, or leaf depending which tree we're at
+	switch (curTree) {
+		case 0:
+			ctx_b.drawImage(apImg,treeAppleXY[0],treeAppleXY[1],40,40);
+			break;
+		case 1:
+			ctx_b.drawImage(apImg,treeAppleXY[0],treeAppleXY[1],40,40);
+			ctx_b.clearRect(treeAppleXY[0],treeAppleXY[1]+20,40,20);
+			break;
+		case 2:
+			ctx_b.drawImage(leafImg,treeAppleXY[0],treeAppleXY[1],40,40);
+			break;
+	}
+
+	// draw the bigApple/bigLeaf
+	ctx_b.drawImage(apImg,bigAppleXY[0],bigAppleXY[1],50,50);
+	ctx_b.drawImage(leafImg,bigLeafXY[0],bigLeafXY[1],50,50);
+
+	tickBrain = requestAnimationFrame(drawBrain);
 }
 
 ////////////////////////////////
@@ -328,6 +415,7 @@ function run(i) {
 	$("#continue").show();
 	clearTimeout(to);
 	cancelAnimationFrame(tick4);
+	cancelAnimationFrame(tickBrain);
 	// cancelAnimationFrame(tick6);
 	// Runs each time a block starts incase that block has to do startup
 	switch(i) {
@@ -339,11 +427,12 @@ function run(i) {
 			break;
 		case 5:
 			// todo
+			drawBrain();
 			break;
 		case 6:
 			run5();
 			break;
-		case 6:
+		case 7:
 			// init6();
 			// run6();
 			break;
@@ -359,6 +448,7 @@ function launch_local() {
 	// katex.render("P(A)=\\dfrac{A_{v}}{A_{v}+B_{v}+C_{v}}",document.getElementById("katex6-3"),{displayMode:true});	
 	$("#end4").hide();
 	resetTraces5();
+	initBrain();
 	// init6();
 	sqImg_red.src = 'images/squirrel_red.png';
 	sqImg_blue.src = 'images/squirrel_blue.png';
@@ -434,4 +524,22 @@ function indexOfMax(arr) {
     }
 
     return maxIndex;
+}
+
+
+function updateCanvasClick(evt) {
+  evt.preventDefault();
+  var canvas = evt.target;
+  var out = updateCanvas(evt,canvas);
+  eventClick(out[0],out[1],evt.shiftKey);
+}
+
+function updateCanvas(evt,canvas) {
+  var rect = canvas.getBoundingClientRect(), // abs. size of element
+    scaleX = canvas.width / rect.width,    // relationship bitmap vs. element for X
+    scaleY = canvas.height / rect.height;  // relationship bitmap vs. element for Y
+
+  var x =  (evt.clientX - rect.left) * scaleX,   // scale mouse coordinates after they have
+    y =  (evt.clientY - rect.top) * scaleY     // been adjusted to be relative to element
+  return [x,y];
 }
