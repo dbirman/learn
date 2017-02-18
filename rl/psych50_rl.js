@@ -129,196 +129,196 @@ function run5() {
 ////////// BLOCK 6 /////////////
 ////////////////////////////////
 
-var tick6;
+// var tick6;
 
-var objects6 = []; // trees and squirrels
+// var objects6 = []; // trees and squirrels
 
-var canvas6 = document.getElementById("canvas6");
-var ctx6 = canvas6.getContext("2d");
+// var canvas6 = document.getElementById("canvas6");
+// var ctx6 = canvas6.getContext("2d");
 
-var lr = 0.2;
+// var lr = 0.2;
 
-var reset_time = 2000;
+// var reset_time = 2000;
 
-var A,B,C;
-var treeX = [0,100,300], treeY = [200,0,100];
+// var A,B,C;
+// var treeX = [0,100,300], treeY = [200,0,100];
 
-var wins = [0,0,0];
+// var wins = [0,0,0];
 
-var noise = 1;
+// var noise = 1;
 
-function noise6(val) {
-	noise = val;
-	$("#noise6").html("Noise = "+val);
-}
+// function noise6(val) {
+// 	noise = val;
+// 	$("#noise6").html("Noise = "+val);
+// }
 
-function reset6() {
-	// check if we have a winner
-	if (steps>5) {
-		var svals = []
-		var sqs = [red_trace,blue_trace,purple_trace];
-		for (var i=0;i<2;i++) {
-			svals[i] = sqs[i].y[sqs[i].y.length-1];
-		}
-		wins[indexOfMax(svals)]++;
-		$("#win6").html("Number of wins. red/exploit: " + wins[0] +" blue/explore: "+ wins[1] +" purple/mix: " + wins[2]);
-	}
-	steps=0;
-	A = Math.round(Math.random()*6);
-	B = Math.round(Math.random()*6);
-	C = Math.round(Math.random()*6);
-	objects6 = [];
-	for (var i=0;i<3;i++) {
-		objects6.push(newTree());
-		objects6[i].x = treeX[i];
-		objects6[i].toX = objects6[i].x;
-		objects6[i].y = treeY[i];
-		objects6[i].toY = objects6[i].y;
-		objects6[i].width = 100;
-		objects6[i].height = 100*treeImg.height/treeImg.width;
-	}
-	for (var i=0;i<3;i++) {
-		objects6.push(newSquirrel());
-		objects6[i+3].toX = objects6[i+3].x+Math.random()*40-20;
-		objects6[i+3].toY = objects6[i+3].y+Math.random()*40-20;
-	}
-	objects6[3].img = sqImg_red;
-	objects6[4].img = sqImg_blue;
-	objects6[5].img = sqImg_purple;
-	// red: CD6155
-	// blue: 5DADE2
-	// purple: 6155cd
-	red = {pick:randint(0,2),vals:[3,3,3]}
-	blue = {pick:randint(0,2),vals:[3,3,3]}
-	purple = {pick:randint(0,2),vals:[3,3,3]}
-	red_trace = {x:[0],y:[0],mode:'line',line:{color:'red'},type:'scatter',name:'Red: exploit'};
-	blue_trace = {x:[0],y:[0],mode:'line',line:{color:'blue'},type:'scatter',name:'Blue: explore'};
-	purple_trace = {x:[0],y:[0],mode:'line',line:{color:'purple'},type:'scatter',name:'Purple: mix'};
-}
+// function reset6() {
+// 	// check if we have a winner
+// 	if (steps>5) {
+// 		var svals = []
+// 		var sqs = [red_trace,blue_trace,purple_trace];
+// 		for (var i=0;i<2;i++) {
+// 			svals[i] = sqs[i].y[sqs[i].y.length-1];
+// 		}
+// 		wins[indexOfMax(svals)]++;
+// 		$("#win6").html("Number of wins. red/exploit: " + wins[0] +" blue/explore: "+ wins[1] +" purple/mix: " + wins[2]);
+// 	}
+// 	steps=0;
+// 	A = Math.round(Math.random()*6);
+// 	B = Math.round(Math.random()*6);
+// 	C = Math.round(Math.random()*6);
+// 	objects6 = [];
+// 	for (var i=0;i<3;i++) {
+// 		objects6.push(newTree());
+// 		objects6[i].x = treeX[i];
+// 		objects6[i].toX = objects6[i].x;
+// 		objects6[i].y = treeY[i];
+// 		objects6[i].toY = objects6[i].y;
+// 		objects6[i].width = 100;
+// 		objects6[i].height = 100*treeImg.height/treeImg.width;
+// 	}
+// 	for (var i=0;i<3;i++) {
+// 		objects6.push(newSquirrel());
+// 		objects6[i+3].toX = objects6[i+3].x+Math.random()*40-20;
+// 		objects6[i+3].toY = objects6[i+3].y+Math.random()*40-20;
+// 	}
+// 	objects6[3].img = sqImg_red;
+// 	objects6[4].img = sqImg_blue;
+// 	objects6[5].img = sqImg_purple;
+// 	// red: CD6155
+// 	// blue: 5DADE2
+// 	// purple: 6155cd
+// 	red = {pick:randint(0,2),vals:[3,3,3]}
+// 	blue = {pick:randint(0,2),vals:[3,3,3]}
+// 	purple = {pick:randint(0,2),vals:[3,3,3]}
+// 	red_trace = {x:[0],y:[0],mode:'line',line:{color:'red'},type:'scatter',name:'Red: exploit'};
+// 	blue_trace = {x:[0],y:[0],mode:'line',line:{color:'blue'},type:'scatter',name:'Blue: explore'};
+// 	purple_trace = {x:[0],y:[0],mode:'line',line:{color:'purple'},type:'scatter',name:'Purple: mix'};
+// }
 
-function init6() {
-	elapsed();
-	reset6();
-}
+// function init6() {
+// 	elapsed();
+// 	reset6();
+// }
 
-var time = 0;
+// var time = 0;
 
-var sqDefX = 200, sqDefY = 300;
+// var sqDefX = 200, sqDefY = 300;
 
-function run6() {
-	time += elapsed();
-	if (time>reset_time) {visit6(); plot6();time=0;}
+// function run6() {
+// 	time += elapsed();
+// 	if (time>reset_time) {visit6(); plot6();time=0;}
 
-	ctx6.clearRect(0,0,canvas6.width,canvas6.height);
-	for (i in objects6) {
-		o = objects6[i];
-		ctx6.drawImage(o.img,o.x,o.y,o.width,o.height);
-		updateObject(o);
-	}
-	tick6 = requestAnimationFrame(run6);
-}
+// 	ctx6.clearRect(0,0,canvas6.width,canvas6.height);
+// 	for (i in objects6) {
+// 		o = objects6[i];
+// 		ctx6.drawImage(o.img,o.x,o.y,o.width,o.height);
+// 		updateObject(o);
+// 	}
+// 	tick6 = requestAnimationFrame(run6);
+// }
 
-var alpha = 0.2;
+// var alpha = 0.2;
 
-var steps = 0;
+// var steps = 0;
 
-var red = {},blue = {},purple = {}; // track the squirrel's values
+// var red = {},blue = {},purple = {}; // track the squirrel's values
 
-var red_trace, blue_trace, purple_trace;
+// var red_trace, blue_trace, purple_trace;
 
-function fast() {
-	reset_time=250;
-}
-function visit6() {
-	if (steps++>15) {
-		reset6(); return;
-	}
-	// remove all apples
-	for (var i=objects6.length-1;i>5;i--) {
-		objects6.pop();
-	}
-	// drop now apples
+// function fast() {
+// 	reset_time=250;
+// }
+// function visit6() {
+// 	if (steps++>15) {
+// 		reset6(); return;
+// 	}
+// 	// remove all apples
+// 	for (var i=objects6.length-1;i>5;i--) {
+// 		objects6.pop();
+// 	}
+// 	// drop now apples
 
-	var vals = [A,B,C];
-	for (var i=0;i<3;i++) {
-		vals[i] = vals[i]+randint(0,noise*2)-noise;
-		if (vals[i]<0) {vals[i]=0;}
-	}
+// 	var vals = [A,B,C];
+// 	for (var i=0;i<3;i++) {
+// 		vals[i] = vals[i]+randint(0,noise*2)-noise;
+// 		if (vals[i]<0) {vals[i]=0;}
+// 	}
 
-	for (var z=0;z<3;z++) {
-		for (var i=0;i<vals[z];i++) {
-			objects6.push(newApple());
-			objects6[objects6.length-1].x = treeX[z]+Math.random()*100;
-			objects6[objects6.length-1].y = treeY[z]+Math.random()*20;
-			objects6[objects6.length-1].toX = objects6[objects6.length-1].x;
-			objects6[objects6.length-1].toY = treeY[z]+objects6[z].height-Math.random()*20;
-		}
-	}
-	// update squirrel values
-	var red_got = vals[red.pick];
-	red_trace.x.push(steps);
-	red_trace.y.push(red_trace.y[red_trace.y.length-1]+red_got);
-	red.vals[red.pick] = red.vals[red.pick] + alpha * (red_got - red.vals[red.pick]);
-	if (Math.random() < 0.95) {
-		// exploit
-		red.pick = indexOfMax(red.vals);
-	} else {
-		// explore
-		red.pick = explore(red.vals);
-	}
+// 	for (var z=0;z<3;z++) {
+// 		for (var i=0;i<vals[z];i++) {
+// 			objects6.push(newApple());
+// 			objects6[objects6.length-1].x = treeX[z]+Math.random()*100;
+// 			objects6[objects6.length-1].y = treeY[z]+Math.random()*20;
+// 			objects6[objects6.length-1].toX = objects6[objects6.length-1].x;
+// 			objects6[objects6.length-1].toY = treeY[z]+objects6[z].height-Math.random()*20;
+// 		}
+// 	}
+// 	// update squirrel values
+// 	var red_got = vals[red.pick];
+// 	red_trace.x.push(steps);
+// 	red_trace.y.push(red_trace.y[red_trace.y.length-1]+red_got);
+// 	red.vals[red.pick] = red.vals[red.pick] + alpha * (red_got - red.vals[red.pick]);
+// 	if (Math.random() < 0.95) {
+// 		// exploit
+// 		red.pick = indexOfMax(red.vals);
+// 	} else {
+// 		// explore
+// 		red.pick = explore(red.vals);
+// 	}
 
-	var blue_got = vals[blue.pick];
-	blue_trace.x.push(steps);
-	blue_trace.y.push(blue_trace.y[blue_trace.y.length-1]+blue_got);
-	blue.vals[blue.pick] = blue.vals[blue.pick] + alpha * (blue_got - blue.vals[blue.pick]);
-	if (Math.random() < 0.95) {
-		// explore
-		blue.pick = explore(red.vals);
-	} else {
-		// exploit
-		blue.pick = indexOfMax(red.vals);
-	}
+// 	var blue_got = vals[blue.pick];
+// 	blue_trace.x.push(steps);
+// 	blue_trace.y.push(blue_trace.y[blue_trace.y.length-1]+blue_got);
+// 	blue.vals[blue.pick] = blue.vals[blue.pick] + alpha * (blue_got - blue.vals[blue.pick]);
+// 	if (Math.random() < 0.95) {
+// 		// explore
+// 		blue.pick = explore(red.vals);
+// 	} else {
+// 		// exploit
+// 		blue.pick = indexOfMax(red.vals);
+// 	}
 
-	var purple_got = vals[purple.pick];
-	purple_trace.x.push(steps);
-	purple_trace.y.push(purple_trace.y[purple_trace.y.length-1]+purple_got);
-	purple.vals[purple.pick] = purple.vals[purple.pick] + alpha * (purple_got - purple.vals[purple.pick]);
-	if (Math.random() < 0.5) {
-		// explore
-		purple.pick = explore(red.vals);
-	} else {
-		// exploit
-		purple.pick = indexOfMax(red.vals);
-	}
+// 	var purple_got = vals[purple.pick];
+// 	purple_trace.x.push(steps);
+// 	purple_trace.y.push(purple_trace.y[purple_trace.y.length-1]+purple_got);
+// 	purple.vals[purple.pick] = purple.vals[purple.pick] + alpha * (purple_got - purple.vals[purple.pick]);
+// 	if (Math.random() < 0.5) {
+// 		// explore
+// 		purple.pick = explore(red.vals);
+// 	} else {
+// 		// exploit
+// 		purple.pick = indexOfMax(red.vals);
+// 	}
 
-	// update squirrel to locations
-	var hold = [red,blue,purple];
-	for (var i=0;i<3;i++) {
-		objects6[i+3].toX = treeX[hold[i].pick]+Math.random()*100;
-		objects6[i+3].toY = treeY[hold[i].pick]+objects6[0].height-Math.random()*20;
-	}
-}
+// 	// update squirrel to locations
+// 	var hold = [red,blue,purple];
+// 	for (var i=0;i<3;i++) {
+// 		objects6[i+3].toX = treeX[hold[i].pick]+Math.random()*100;
+// 		objects6[i+3].toY = treeY[hold[i].pick]+objects6[0].height-Math.random()*20;
+// 	}
+// }
 
-function explore(vals) {
-	var r = Math.random();
-	 cvs = [0,0,1];
-	for (var i=0;i<2;i++) {
-		// convert location
-		cvs[i] = Math.exp(vals[i])/(Math.exp(vals[0])+Math.exp(vals[1])+Math.exp(vals[2]));
-	}
-	cvs[1] = cvs[0]+cvs[1];
-	for (var i=0;i<3; i++) {
-		if (r <= cvs[i]) {return i;}
-	}
-}
+// function explore(vals) {
+// 	var r = Math.random();
+// 	 cvs = [0,0,1];
+// 	for (var i=0;i<2;i++) {
+// 		// convert location
+// 		cvs[i] = Math.exp(vals[i])/(Math.exp(vals[0])+Math.exp(vals[1])+Math.exp(vals[2]));
+// 	}
+// 	cvs[1] = cvs[0]+cvs[1];
+// 	for (var i=0;i<3; i++) {
+// 		if (r <= cvs[i]) {return i;}
+// 	}
+// }
 
-function plot6() {
-	var layout2 = layout;
-	layout2.title = 'Apples collected';
-	layout.xaxis.title = 'Time (visits)';
-	layout.yaxis.title = 'Apples';
-	Plotly.newPlot('plot6',[red_trace,blue_trace,purple_trace],layout);
-}
+// function plot6() {
+// 	var layout2 = layout;
+// 	layout2.title = 'Apples collected';
+// 	layout.xaxis.title = 'Time (visits)';
+// 	layout.yaxis.title = 'Apples';
+// 	Plotly.newPlot('plot6',[red_trace,blue_trace,purple_trace],layout);
+// }
 
 ////////////////////////////////
 ////////// END CODE /////////////
@@ -328,7 +328,7 @@ function run(i) {
 	$("#continue").show();
 	clearTimeout(to);
 	cancelAnimationFrame(tick4);
-	cancelAnimationFrame(tick6);
+	// cancelAnimationFrame(tick6);
 	// Runs each time a block starts incase that block has to do startup
 	switch(i) {
 		case 2:
@@ -354,12 +354,12 @@ function launch_local() {
 	katex.render("A=0",document.getElementById("katex1"),{displayMode:true});	
 	katex.render("RPE=R-A_{v}",document.getElementById("katex2"),{displayMode:true});	
 	katex.render("A_{v+1}=A_{v} + \\alpha(R-A_{v})",document.getElementById("katex3"),{displayMode:true});	
-	katex.render("A_{v}=1,B_{v}=2,C_{v}=3",document.getElementById("katex6"),{displayMode:true});	
+	// katex.render("A_{v}=1,B_{v}=2,C_{v}=3",document.getElementById("katex6"),{displayMode:true});	
 	// katex.render("P(A)=A>B \\& B>C",document.getElementById("katex6-2"),{displayMode:true});	
-	katex.render("P(A)=\\dfrac{A_{v}}{A_{v}+B_{v}+C_{v}}",document.getElementById("katex6-3"),{displayMode:true});	
+	// katex.render("P(A)=\\dfrac{A_{v}}{A_{v}+B_{v}+C_{v}}",document.getElementById("katex6-3"),{displayMode:true});	
 	$("#end4").hide();
 	resetTraces5();
-	init6();
+	// init6();
 	sqImg_red.src = 'images/squirrel_red.png';
 	sqImg_blue.src = 'images/squirrel_blue.png';
 	sqImg_purple.src = 'images/squirrel_purple.png';
