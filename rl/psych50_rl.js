@@ -1,4 +1,9 @@
 
+// 	// red: CD6155
+// 	// blue: 5DADE2
+// 	// purple: 6155cd
+
+
 ////////////////////////////////
 ////////// BLOCK 2 /////////////
 ////////////////////////////////
@@ -152,18 +157,22 @@ function initBrain() {
 }
 
 function eventClick(x,y,shift) {
-	console.log(eventType(x,y));
 	switch (eventType(x,y)) {
 		case 0:
 			// clicked in thought bubble
 			curTree++;
 			if (curTree>2) {curTree=0;}
+			resetBrain();
 			break;
 		case 1:
 			// click on apple
+			resetBrain();
+			moving = 0; type = 1; elapsed();
 			break;
 		case 2:
 			// click on leaf
+			resetBrain();
+			moving = 0; type = 0; elapsed();
 			break;
 	}
 }
@@ -180,6 +189,35 @@ function eventType(x,y) {
 	}
 	return -1;
 }
+
+function resetBrain() {
+	moving = -1; type = -1;
+	trace = undefined; // setting trace to -1 relaunches it
+}
+
+var trace = undefined;
+var moving = -1;
+var type = -1;
+
+var stops = [50,100,200,250,300];
+function updateTrace() {
+	if (trace.length>stops[4]) {
+		moving = -1; type = -1;
+		return;
+	}
+	var val = [1, 0.5, 0];
+	// the trace jumps at 100 and 400
+	if (trace.length>stops[0] && trace.length<stops[1]) {
+		trace.push(40*val[curTree] + randn()*10);
+	} else if (trace.length>stops[2] && trace.length<stops[3]) {
+		trace.push(40*(type-val[curTree]) + randn()*10);
+	} else {
+		trace.push(randn()*10);
+	}
+}
+
+var sqMXY = [200,100];
+var mTime = 2500;
 
 function drawBrain() {
 	ctx_b.clearRect(0,0,can_brain.width,can_brain.height);
@@ -206,8 +244,51 @@ function drawBrain() {
 	}
 
 	// draw the bigApple/bigLeaf
-	ctx_b.drawImage(apImg,bigAppleXY[0],bigAppleXY[1],50,50);
-	ctx_b.drawImage(leafImg,bigLeafXY[0],bigLeafXY[1],50,50);
+	if (moving<0 && moving != -2) {
+		ctx_b.drawImage(apImg,bigAppleXY[0],bigAppleXY[1],50,50);
+		ctx_b.drawImage(leafImg,bigLeafXY[0],bigLeafXY[1],50,50);
+	} else {
+		if (moving>mTime) {
+			trace = [];
+			moving = -2;
+		} else if (moving>=0) {
+			moving+=elapsed();
+			// interpolate distance to squirrel mouth
+			if (type==0) {
+				//leaf moving
+				ctx_b.drawImage(apImg,bigAppleXY[0],bigAppleXY[1],50,50);
+				ctx_b.drawImage(leafImg,bigLeafXY[0]-70*moving/mTime,bigLeafXY[1]-150*moving/mTime,50,50);
+			} else {
+				ctx_b.drawImage(apImg,bigAppleXY[0]-(30*moving/mTime),bigAppleXY[1]-(150*moving/mTime),50,50);
+				ctx_b.drawImage(leafImg,bigLeafXY[0],bigLeafXY[1],50,50);
+			}
+		}
+	}
+
+	// draw trace
+	if (trace) {
+		updateTrace();
+		ctx_b.strokeStyle = "#CD6155";
+		ctx_b.beginPath();
+		ctx_b.moveTo(450,300);
+		for (var i=0;i<trace.length;i++) {
+			ctx_b.lineTo(450+i,300-trace[i]);
+		}
+		ctx_b.stroke();
+		ctx_b.font = "12px Arial";
+		ctx_b.fillStyle = "#5DADE2";
+		ctx_b.strokeStyle = "#5DADE2";
+		if (trace.length>45) {
+			ctx_b.fillText('Imagining',450+stops[0],230);
+			ctx_b.beginPath(); ctx_b.moveTo(450+stops[0]-2,230);
+			ctx_b.lineTo(450+stops[0]-2,350); ctx_b.stroke();
+		}
+		if (trace.length>195) {
+			ctx_b.fillText('Reward',450+stops[2],230);
+			ctx_b.beginPath(); ctx_b.moveTo(450+stops[2]-2,230);
+			ctx_b.lineTo(450+stops[2]-2,350); ctx_b.stroke();
+		}
+	}
 
 	tickBrain = requestAnimationFrame(drawBrain);
 }
@@ -427,6 +508,7 @@ function run(i) {
 			break;
 		case 5:
 			// todo
+			elapsed();
 			drawBrain();
 			break;
 		case 6:
