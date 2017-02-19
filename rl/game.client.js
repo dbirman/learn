@@ -7,12 +7,6 @@ function request(tree) {
 	socket.emit('request',tree);
 }
 
-function requestReset() {
-	if (TA) {
-		socket.emit('ta_reset','');
-	}
-}
-
 socket.on('tick', function() {
 	progress=0;
 });
@@ -91,8 +85,8 @@ function launch() {
 
 function ta_alive() {
 	if (TA) {
-		socket.emit('ta_reset');
 		socket.emit('ta_alive');
+		setTimeout(function() {socket.emit('ta_reset');},10);
 	}
 }
 

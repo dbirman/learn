@@ -102,9 +102,11 @@ io.on('connection', function(socket){
   	}
   });
 
-  socket.on('ta_reset', function(id) {
+  socket.on('ta_reset', function() {
   	try {
+  		var id = socket.id;
   		if (talist[id]!=undefined) {
+  			console.log('Reset for forest: ' + talist[id]);
   			forests[talist[id]] = resetForest(forests[talist[id]]);
   		}
   	} catch(err) {
@@ -236,13 +238,16 @@ function emitForest(forest) {
 		// to always be less than that
 		var apples = [0,0,0];
 		var N = 0;
-		for (var i=0;i<3;i++) {
-			N+=count[i];
+		for (var id in section) {
+			if (section[id]==forest.number) {N++;}
 		}
 
+		console.log(N);
+
 		for (var i=0;i<3;i++) {
-			apples[i] = count[i]<(Math.round(0.5*N)) ? 1 : (1-(count[i]/N));
+			apples[i] = (count[i]<(Math.round(0.3*N))) ? 1 : Math.max(0.25,(1-(count[i]/N)));
 		}
+		console.log(apples);
 
 		for (var id in trackEmit) {
 			var amt = 0;
@@ -276,12 +281,13 @@ function resetForest(forest) {
 	return forest;
 }
 
-function initForest() {
+function initForest(num) {
 	// Build up a forest variable
 	forest = {};
 	forest.probs = probOpts[getRandomInt(0,probOpts.length)];
 	forest.alive = false;
 	forest.drop = 'prob'; // or COMP
+	forest.number = num;
 	forest['emit'] = {}; // dictionary to track who to emit to
 
 	return forest;
@@ -290,7 +296,7 @@ function initForest() {
 function checkForest(num) {
 	if (!forests[num]) {
 		console.log('A new forest is growing: ' + num);
-		forests[num] = initForest();
+		forests[num] = initForest(num);
 	}
 }
 
