@@ -459,6 +459,7 @@ function plotScores_() {
 	}
 
 	var layout2 = layout;
+	layout2.title = 'Apples amassed over time';
 	layout2.xaxis.title = 'Time (ticks)';
 	// layout2.xaxis.range = [0,40];
 	layout2.yaxis.title = 'Apples';

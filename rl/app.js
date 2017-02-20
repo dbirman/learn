@@ -46,13 +46,13 @@ io.on('connection', function(socket){
 		  	if (group=='student') {
 		  		// add this student to the right section
 		  		section[socket.id] = sec;
+		  		scores[socket.id] = 0;
 
 		  		io.to(socket.id).emit('status','connected.student');
 		  		checkForest(sec); // check that this forest exists
 		  		success = true;
 		  	} else if (group=='ta') {
 		  		// check password
-		  		console.log(res[2]);
 		  		if (res[2]=='forest') {
 			  		section[socket.id] = sec;
 			  		talist[socket.id] = sec;
@@ -262,7 +262,6 @@ function emitForest(forest) {
 			}
 
 			io.to(id).emit('tree'+trees[tree],amt);
-			if (!scores[id]) {scores[id]=0;}
 			scores[id] += amt;
 		}
 	}
