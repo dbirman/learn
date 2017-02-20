@@ -525,6 +525,7 @@ function launch_local() {
 	katex.render("A=0",document.getElementById("katex1"),{displayMode:true});	
 	katex.render("RPE=R-A_{v}",document.getElementById("katex2"),{displayMode:true});	
 	katex.render("A_{v+1}=A_{v} + \\alpha(R-A_{v})",document.getElementById("katex3"),{displayMode:true});	
+	katex.render("A",document.getElementById("katex3-1"),{displayMode:false});
 	// katex.render("A_{v}=1,B_{v}=2,C_{v}=3",document.getElementById("katex6"),{displayMode:true});	
 	// katex.render("P(A)=A>B \\& B>C",document.getElementById("katex6-2"),{displayMode:true});	
 	// katex.render("P(A)=\\dfrac{A_{v}}{A_{v}+B_{v}+C_{v}}",document.getElementById("katex6-3"),{displayMode:true});	
