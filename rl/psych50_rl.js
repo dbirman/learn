@@ -28,11 +28,11 @@ function key2(event) {
 ////////////////////////////////
 
 var done4 = false;
-var real4 = Math.round(Math.random()*100)/10;
-var tick4;
+var real4 = Math.round(Math.random()*100);
+// var tick4;
 
-var canvas4 = document.getElementById("canvas4");
-var ctx4 = canvas4.getContext("2d");
+// var canvas4 = document.getElementById("canvas4");
+// var ctx4 = canvas4.getContext("2d");
 
 var treeImg = new Image();
 var apImg = new Image();
@@ -45,14 +45,14 @@ var objects4 = [];
 
 
 function draw4() {
-	ctx4.clearRect(0,0,canvas4.width,canvas4.height);
-	for (i in objects4) {
-		o = objects4[i];
-		ctx4.drawImage(o.img,o.x,o.y,o.width,o.height);
-		updateObject(o);
-	}
+	// ctx4.clearRect(0,0,canvas4.width,canvas4.height);
+	// for (i in objects4) {
+	// 	o = objects4[i];
+	// 	ctx4.drawImage(o.img,o.x,o.y,o.width,o.height);
+	// 	updateObject(o);
+	// }
 
-	tick4 = requestAnimationFrame(draw4);
+	// tick4 = requestAnimationFrame(draw4);
 }
 
 function launch4() {
@@ -65,19 +65,19 @@ function out4(val) {
 }
 
 function run4() {
-	for (var i=objects4.length-1;i>0;i--) {
-		objects4.pop();
-	}
-	for (var i=0;i<Math.round(Math.random()*10);i++) {
-		objects4.push(newApple());
-	}
+	// for (var i=objects4.length-1;i>0;i--) {
+	// 	objects4.pop();
+	// }
+	// for (var i=0;i<Math.round(Math.random()*10);i++) {
+	// 	objects4.push(newApple());
+	// }
 	var guess = document.getElementById("guess4v").value;
-	if (guess==real4) {done4=true; $("#continue").show();cancelAnimationFrame(tick4);$("#end4").show();}
+	if (guess==real4) {done4=true; $("#continue").show();$("#end4").show();}
 	var diff = real4-guess;
 	if (diff>0) {
-		$("#out4").html('You guessed: ' + guess + ', RPE was +');
+		$("#out4").html('You guessed: ' + guess + ', RPE was positive (reward > guess)');
 	} else if (diff<0) {
-		$("#out4").html('You guessed: ' + guess + ', RPE was -');
+		$("#out4").html('You guessed: ' + guess + ', RPE was negative (reward < guess)');
 	} else {
 		$("#out4").html('Perfect!');
 	}
@@ -495,7 +495,7 @@ function drawBrain() {
 function run(i) {	
 	$("#continue").show();
 	clearTimeout(to);
-	cancelAnimationFrame(tick4);
+	// cancelAnimationFrame(tick4);
 	cancelAnimationFrame(tickBrain);
 	// cancelAnimationFrame(tick6);
 	// Runs each time a block starts incase that block has to do startup

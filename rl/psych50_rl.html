@@ -93,10 +93,10 @@
 
 <div id="block4">
 	<h2>Reward prediction error</h2>
-	<p>To help you get a sense for how prediction error is useful let's imagine a world with a single tree. On each step we're going to let you make a guess of how many apples will fall and then check your answer. We won't tell you how many apples actually fell, we're just going to tell you whether the <b>prediction error</b> was positive (more apples fell than you expected) or negative. The point of this demo is to reinforce the idea that you don't need absolute knowledge to do well at estimating something's value, as long as you can integrate information over time. This should remind you of a similar story we heard about LIP neurons and MT! (The number of apples dropping is random... just for visualizing what's going on)</p>
-	<canvas id="canvas4" height=400 width=400></canvas>
-	<br>
-	<input id="guess4v" type="range" style="width:300px;" name="Guess" min="0" max="10" step="0.1" value="0" oninput="out4(this.value);"><span id="guess4out">Guess: 0</span>
+	<p>To help you get a sense for how prediction error is useful let's imagine a world with a single tree. On each step we're going to let you make a guess of how many apples will fall and then check your answer. We won't tell you how many apples actually fell, we're just going to tell you whether the <b>prediction error</b> was positive (more apples fell than you expected) or negative. The point of this demo is to reinforce the idea that you don't need absolute knowledge to do well at estimating something's value, as long as you can integrate information over time. This should remind you of a similar story we heard about LIP neurons and MT!</p>
+<!-- 	<canvas id="canvas4" height=400 width=400></canvas>
+ -->	<br>
+	<input id="guess4v" type="range" style="width:300px;" name="Guess" min="0" max="100" step="1" value="0" oninput="out4(this.value);"><span id="guess4out">Guess: 0</span>
 	<a class="button" id="guess4" onclick="run4();">Visit tree</a><br>
 	<span id="out4"></span>
 	<div id="end4">
