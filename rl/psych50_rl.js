@@ -558,6 +558,13 @@ function launch_local() {
 	katex.render("RPE=R-A_{v}",document.getElementById("katex2"),{displayMode:true});	
 	katex.render("A_{v+1}=A_{v} + \\alpha(R-A_{v})",document.getElementById("katex3"),{displayMode:true});	
 	katex.render("A",document.getElementById("katex3-1"),{displayMode:false});
+	katex.render("A",document.getElementById("katex3-2"),{displayMode:false});
+	katex.render("A",document.getElementById("katex3-4"),{displayMode:false});
+	katex.render("_{v}",document.getElementById("katex3-3"),{displayMode:false});
+	katex.render("A_{v}",document.getElementById("katex5-1"),{displayMode:false});
+	katex.render("A_{v}",document.getElementById("katex5-2"),{displayMode:false});
+	katex.render("A_{v}",document.getElementById("katex5-3"),{displayMode:false});
+	katex.render("A_{v}",document.getElementById("katex5-4"),{displayMode:false});
 	// katex.render("A_{v}=1,B_{v}=2,C_{v}=3",document.getElementById("katex6"),{displayMode:true});	
 	// katex.render("P(A)=A>B \\& B>C",document.getElementById("katex6-2"),{displayMode:true});	
 	// katex.render("P(A)=\\dfrac{A_{v}}{A_{v}+B_{v}+C_{v}}",document.getElementById("katex6-3"),{displayMode:true});	

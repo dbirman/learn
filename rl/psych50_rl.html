@@ -86,9 +86,9 @@
 	<p>We've done this before so we're now going to dig into more of the details than we have in past computational models. The first thing to do here is to take the computational goal we've described (the verbal model) and turn it into a mathematical equation. This is important: our goal as cognitive neuroscientists is to connect the dots between behavior and the brain. Formalizing learning will allow us to make specific predictions, both about what should be represented by the brain but also about future behaviors. These predictions are the key to testing whether reinforcement learning is how a squirrel might solve this particular task.</p>
 	<p>The first part of our verbal model was: <b>keep an estimate of how many apples each tree drops</b>. For now we're going to model a world in which you make decisions about only one tree. What this means is that there's some variable that is going to keep track of our <b>knowledge</b> for a particular tree. We'll call this variable <span id="katex3-1"></span>, for apples:</p>
 	<div id="katex1"></div>
-	<p>A should probably start at our best guess about trees (before we get any information), which you could call your prior knowledge. We'll start at zero for simplicity, which sort of implies we're pessimistic. The second part of the verbal model says, "I pick a tree and compare how many apples I get against what I expected". Let's call the number of apples you get on each visit R, for <b>reward</b>. We'll call the difference between your knowledge and the reward the <b>reward prediction error</b>:</p>
+	<p><span id="katex3-4"></span> should probably start at our best guess about trees (before we get any information), which you could call your prior knowledge. We'll start at zero for simplicity, which sort of implies we're pessimistic. The second part of the verbal model says, "I pick a tree and compare how many apples I get against what I expected". Let's call the number of apples you get on each visit R, for <b>reward</b>. We'll call the difference between your knowledge and the reward the <b>reward prediction error</b>:</p>
 	<div id="katex2"></div>
-	<p>Notice that we indexed A with a little <b>v</b>? That's because we're talking about a specific visit. Your knowledge about how many apples a tree drops is going to change over time so we need to be specific about when exactly we're talking about.</p>
+	<p>Notice that we indexed <span id="katex3-2"></span> with a little <span id="katex3-3"></span>? That's because we're talking about a specific <b>v</b>isit. Your knowledge about how many apples a tree drops is going to change over time so we need to be specific about when exactly we're talking about.</p>
 </div>
 
 <div id="block4">
@@ -132,8 +132,8 @@
 	<p>The last thing we need to think about is the <b>learning rate</b>. The intuition we want you to have for the learning rate is that it indexes how much you trust the reward prediction error. If there is a lot of variability in the world then you shouldn't trust it too much, you want a low learning rate to give yourself time to build up a good representation of the world. If the world is very stable and there isn't any noise then you can trust the reward prediction error precisely.</p>
 	<p>Adding the learning rate, the complete model that we've now built up looks as follows:</p>
 	<div id="katex3"></div>
-	<p>In English: to update our estimate of a tree's value (currently <b>v</b>, the next visit's predicted value will be <b>v+1</b>) we take our current prediction, <b>Av</b>, and add to it the reward prediction error, reduced by the learning rate which is shown as alpha.</p>
-	<p>Check out the graph below. It shows you the reward prediction error on each visit and the current estimate of the tree's value. We want you to get a sense for how the learning rate changes the evolution of Av over time--try tweaking the learning rate and then take a look at the examples we've put before.</p>
+	<p>In English: to update our estimate of a tree's value (currently <b>v</b>, the next visit's predicted value will be <b>v+1</b>) we take our current prediction, <span id="katex5-1"></span>, and add to it the reward prediction error, reduced by the learning rate which is shown as alpha.</p>
+	<p>Check out the graph below. It shows you the reward prediction error on each visit and the current estimate of the tree's value. We want you to get a sense for how the learning rate changes the evolution of <span id="katex5-2"></span> over time--try tweaking the learning rate and then take a look at the examples we've put before.</p>
 	<input type="range" style="width:200px;" min="0.01" max="1.00" step="0.01" value="0.50" oninput="learningrate5(this.value);"><span id="alpha5">Learning rate = 0.50</span><br>
 	<div id="plot5"></div>
 	<br>
@@ -141,8 +141,8 @@
 	<ul>
 		<li>Try setting the learning rate to a very small value. What verbal model would this translate to? What would your decisions at each time point rely on?</li>
 		<li>What if the learning rate is one? How then do your decisions change over time?</li>
-		<li>Why does the RPE decrease, whereas the Av value increases and then stabilizes?</li>
-		<li>What value does the learning rate need to be set to so that in the time span available the Av value stabilizes and the RPE goes to zero?</li>
+		<li>Why does the RPE decrease, whereas the <span id="katex5-3"></span> value increases and then stabilizes?</li>
+		<li>What value does the learning rate need to be set to so that in the time span available the <span id="katex5-4"></span> value stabilizes and the RPE goes to zero?</li>
 	</ul>
 </div>
 
