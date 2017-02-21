@@ -57,6 +57,7 @@ function draw4() {
 
 function launch4() {
 	objects4.push(newTree());
+	resetTraces4();
 	draw4();
 }
 
@@ -65,15 +66,27 @@ function out4(val) {
 }
 
 function run4() {
+	var guess = Number(document.getElementById("guess4v").value);
+	rpe_trace4.x.push(rpe_trace4.x[rpe_trace4.x.length-1]+1);
+	av_trace4.x.push(av_trace4.x[av_trace4.x.length-1]+1);
+
+	av_trace4.y.push(guess);
 	// for (var i=objects4.length-1;i>0;i--) {
 	// 	objects4.pop();
 	// }
 	// for (var i=0;i<Math.round(Math.random()*10);i++) {
 	// 	objects4.push(newApple());
 	// }
-	var guess = document.getElementById("guess4v").value;
-	if (guess==real4) {done4=true; $("#continue").show();$("#end4").show();}
+	if (guess==real4 && done4==0) {done4=1; $("#part24").show(); resetTraces4(); real4 = Math.round(Math.random()*100);updatePlot4();return;}
+	if (guess==real4 && done4==1) {done4=2; $("#part24").hide(); $("#continue").show();$("#end4").show();return;}
+	var real;
+	if (done4==1) {
+		real = real4 + randint(0,30)-15;
+	} else {
+		real = real4;
+	}
 	var diff = real4-guess;
+	rpe_trace4.y.push(diff);
 	if (diff>0) {
 		$("#out4").html('You guessed: ' + guess + ', RPE was positive (reward > guess)');
 	} else if (diff<0) {
@@ -81,6 +94,24 @@ function run4() {
 	} else {
 		$("#out4").html('Perfect!');
 	}
+
+	updatePlot4();
+}
+
+var rpe_trace4, av_trace4;
+
+function resetTraces4() {
+	rpe_trace4 = {x:[0],y:[0],mode:'line',line:{color:'blue'},type:'scatter',name:'RPE'};
+	av_trace4 = {x:[0],y:[0],mode:'line',line:{color:'red'},type:'scatter',name:'$A_{v}$'};
+}
+
+function updatePlot4() {
+
+	var layout2 = layout;
+	layout2.title = '$A_{v} \\text{and RPE over time}$';
+	layout2.xaxis.title = 'Time (visits)';
+	layout2.yaxis.title = '$A_{v} \\text{(estimate of tree)}$';
+	Plotly.newPlot('plot4',[rpe_trace4, av_trace4],layout2);
 }
 
 ////////////////////////////////
@@ -125,9 +156,9 @@ function run5() {
 
 	var layout2 = layout;
 	layout2.title = '$A_{v} \\text{and RPE over time}$';
-	layout.xaxis.title = 'Time (visits)';
-	layout.yaxis.title = '$A_{v} \\text{(estimate of tree)}$';
-	Plotly.newPlot('plot5',[rpe_trace, av_trace],layout);
+	layout2.xaxis.title = 'Time (visits)';
+	layout2.yaxis.title = '$A_{v} \\text{(estimate of tree)}$';
+	Plotly.newPlot('plot5',[rpe_trace, av_trace],layout2);
 
 	to = setTimeout(run5,1000);
 }
@@ -504,7 +535,8 @@ function run(i) {
 			if (!done2) {$("#continue").hide();run2();}
 			break;
 		case 4:
-			if (!done4) {$("#continue").hide();launch4();}
+			$("#part24").hide(); 
+			if (!(done4==2)) {$("#continue").hide();launch4();}
 			break;
 		case 5:
 			// todo

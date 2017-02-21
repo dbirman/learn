@@ -99,9 +99,15 @@
 	<input id="guess4v" type="range" style="width:300px;" name="Guess" min="0" max="100" step="1" value="0" oninput="out4(this.value);"><span id="guess4out">Guess: 0</span>
 	<a class="button" id="guess4" onclick="run4();">Visit tree</a><br>
 	<span id="out4"></span>
-	<div id="end4">
 	<br>
-	<p>Nice work! Hopefully the reward prediction error makes sense.</p>
+	<div id="part24">
+		<br>
+		<p>Nice work! During that last round you had absolute information with no noise. But in the real world the rewards you get are often noisy (on average the tree might drop an apple 50% of the time, but from moment to moment it will either drop one or not). We're now going to repeat what you just did, but with noise. </p>
+	</div>
+	<div id="plot4"></div>
+	<div id="end4">
+		<br>
+		<p>Nice work! Hopefully the reward prediction error makes sense.</p>
 	</div>
 </div>
 
