@@ -158,6 +158,7 @@ function run() {
 			forests[fi] = forest;
 		} else {
 			console.log('Forest ' + fi + ' is not alive.');
+			forests[fi].emit = {};
 		}
 	}
 
