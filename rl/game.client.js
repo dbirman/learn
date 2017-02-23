@@ -104,6 +104,14 @@ function ta_dropmode() {
 	}
 }
 
+function ta_removestudents() {
+	if (TA) {
+		// We'll just reset the student tracker (scores)
+		scores = {};
+		squirrels = {};
+	}
+}
+
 socket.on('ta_dropmode', function(dropmode) {
 	if (dropmode=='prob') {
 		$("#comp").text('Switch to competitive');
@@ -415,7 +423,7 @@ socket.on('ta_disconnect', function(msg) {
 	}
 });
 
-scores = {};
+var scores = {};
 
 function getScore(id) {
 	socket.emit('ta_score',id);
@@ -438,7 +446,7 @@ function plotScores() {
 		var id = ids[i];
 		getScore(id);
 	}
-	setTimeout(plotScores_,2000);
+	setTimeout(plotScores_,3000);
 }
 
 
