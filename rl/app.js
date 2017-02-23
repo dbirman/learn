@@ -242,12 +242,9 @@ function emitForest(forest) {
 			if (section[id]==forest.number) {N++;}
 		}
 
-		console.log(N);
-
 		for (var i=0;i<3;i++) {
 			apples[i] = (count[i]<(Math.round(0.3*N))) ? 1 : Math.max(0.25,(1-(count[i]/N)));
 		}
-		console.log(apples);
 
 		for (var id in trackEmit) {
 			var amt = 0;
