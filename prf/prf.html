@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<!--
+	Landed by HTML5 UP
+	html5up.net | @n33co
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+ -->
+<html>
+	<head>
+		<title>Reinforcement learning lab</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- [if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif] -->
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		
+		<!-- Generics -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/math.min.js"></script>
+			<script src="../assets/js/jquery.csv.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/jquery.dropotron.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>			
+
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="../assets/js/main.js"></script>
+		<!-- Math KaTeX -->
+			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+		<!-- Plotting: Plot.ly JS -->
+			<script type="text/javascript" src="../assets/js/mathjax/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+      <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	</head>
+	<body>
+
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header">
+
+					<h1 id="logo"><a href="../learn.html">Receptive field tutorial</a></h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="../learn.html">Learn</a></li>
+						</ul>
+					</nav>
+				</header>
+
+			<!-- Main -->
+				<div id="main" class="wrapper style1">
+					<div class="container">
+						<header class="major">
+							<h2>Receptive field tutorial</h2>
+							<p>Gardner Lab</p>
+						</header>
+
+						<!-- Content -->
+							<section id="content">
+
+<div id="block1">
+	<h2>Receptive field tutorial</h2>
+	<p>This tutorial is focused on helping you understand how receptive field mapping is performed today in fMRI experiments. Receptive field mapping is used to identify voxels in the brain that respond to stimuli in the visual field. In visual cortex there are a number of maps which can be drawn, which contain voxels selective for particular hemifields or partial hemifields. You'll be coding the models introduced in this tutorial yourselves as you go along--the tutorial is focused on helping you build an intuition about what kind of data you should expect to see.</p>
+	<h1>Learning goals</h1>
+	After this tutorial you should have a better understanding of the following:
+	<ul>
+		<li>How the receptive field of neurons in visual cortex is identified using high contrast visual stimuli.</li>
+		<li>Why visual cortex shows a topography of receptive fields and how we can use that to identify cortical regions.</li>
+		<li>How we can use the population receptive field encoding model to study the spatial distribution of information in cortex.</li>
+	</ul>
+</div>
+
+<div id="block2">
+	<h2>Part 1: Voxel responses to visual stimuli</h2>
+	<p>In visual cortex, like all sensory cortices, individual neurons show feature selecitivity preferring some input types over others. One peculiarity of in visual cortex is that neurons are not only feature selective but spatially selective: they have a <b>receptive field</b>, a region of the visual field that they respond to preferably. This selectivity is inherited from the retina where small groups of closely spaced retinal ganglion cells are pooled together as they send signals to the lateral geniculate nucleus and then to early visual cortex.</p>
+	<img src="placeholder:RGC->V1"/>
+	<p>This spatial organization is extremely compelling. Neurons in visual cortex turn out to be topographically laid out into maps, where each map covers a hemifield or half-hemifield. These maps have been named V1, V2, V3, and so on. It goes farther as well, as it turns out that there is some  consistency in feature sensitivity across each map, so for example area MT covers a complete hemifield and is largely selective to motion direction, speed, and coherence. In contrast, area V4 shows sensitivity to color. Finally visual cortex has a higher signal to noise ratio in fMRI because neurons within individual voxels tend to share overlapping receptive fields and similar feature selectivity. In sum these properties: topographic organization, feature selectivity, and a high signal-to-noise ratio, make visual cortex a great place to study sensory perception and cognitive functions.</p>
+	<img src="placeholder:MT/V4"/>
+	<p>In this first section we're going to explore how a neuron's receptive field changes its firing pattern and expected BOLD response. We've created a demonstration to help you gain an intuition for how this works where you'll use the three classic stimuli used during <b>retinotopic mapping</b>, the fMRI procedure of showing high contrast stimuli crossing the visual field to collect data usable to find receptive fields. You'll see a display like the one below and your goal will be to answer the following questions:</p>
+	<ul>
+		<li>In classic retinotopy Wandell and colleagues used 12-second periodic <b>wedges</b> and <b>rings</b> for mapping. They then used the phase to identify the angle and eccentricity that a given voxel preferred. They fit their data using sinusoids--try recreating this stimulus by hand, what positives and what negatives do you see to this approach?</li>
+		<li>In more modern retinotopy researchers now fit the population receptive field model using <b>bars</b>. Why are bars a good stimulus to use?</li>
+		<li>A common intuition among first-time retinotopy users is that it would be more efficient to show more bars at once, or display more things on the screen more quickly (note that usually bars take 24 seconds to cross the screen). Try showing faster moving bars to small and large receptive fields--which do you think you could still identify using the data?</li> 
+	</ul>
+</div>
+
+<div id="block3">
+	<h2>Part 1: Voxel responses to visual stimuli</h2>
+	<canvas id="canvas3"></canvas>
+</div>
+
+
+<div id="block4">
+	<h2>Part 2: Retinotopic maps in visual cortex</h2>
+</div>
+<div id="block6">
+	<h2>Part 2: Retinotopic maps in visual cortex</h2>
+</div>
+
+<div id="block6">
+	<h2>Part 3: 
+</div>
+
+<div id="endblock">
+	<h2>Tutorial complete!</h2>
+	<p>As a reminder the learning goals for this tutorial were to have a better understanding of:</p>
+	<ul>
+		<li>How high contrast stimuli are used to identify voxel receptive fields</li>
+		<li>Where in the visual cortex we find visual field maps</li>
+	</ul>
+</div>
+
+
+							</section>
+							<section id="continue">
+								<a class="button special" onclick="prev();">Go back</a>
+								<a class="button special" onclick="next();">Continue</a>
+							</section>
+						<!-- End Content -->
+					</div>
+				</div>
+
+			<!-- Footer -->
+				<footer id="footer">
+					<ul class="copyright">
+						<li>&copy; Dan Birman 2015-Present</li><li><a href="https://github.com/dbirman/web/" target="_blank">Code<a/></li>
+					</ul>
+				</footer>
+
+		</div>
+
+		<!-- Local CSS -->
+			<!-- <link rel="stylesheet" href="psych50.css" /> -->
+		<!-- Scripts -->
+			<script src="../assets/js/shared_code.js"></script>
+			<script src="psych50_rl.js"></script>
+
+			<script>launch();</script>
+	</body>
+</html>
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-34324563-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
