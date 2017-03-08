@@ -75,12 +75,13 @@
 <div id="block2">
 	<h2>Part 1: Voxel responses to visual stimuli</h2>
 	<p>In visual cortex, like all sensory cortices, individual neurons show feature selecitivity preferring some input types over others. One peculiarity of in visual cortex is that neurons are not only feature selective but spatially selective: they have a <b>receptive field</b>, a region of the visual field that they respond to preferably. This selectivity is inherited from the retina where small groups of closely spaced retinal ganglion cells are pooled together as they send signals to the lateral geniculate nucleus and then to early visual cortex.</p>
-	<img src="placeholder:RGC->V1"/>
+	<img src="images/rgc_v1.png"/>
 	<p>This spatial organization is extremely compelling. Neurons in visual cortex turn out to be topographically laid out into maps, where each map covers a hemifield or half-hemifield. These maps have been named V1, V2, V3, and so on. It goes farther as well, as it turns out that there is some  consistency in feature sensitivity across each map, so for example area MT covers a complete hemifield and is largely selective to motion direction, speed, and coherence. In contrast, area V4 shows sensitivity to color. Finally visual cortex has a higher signal to noise ratio in fMRI because neurons within individual voxels tend to share overlapping receptive fields and similar feature selectivity. In sum these properties: topographic organization, feature selectivity, and a high signal-to-noise ratio, make visual cortex a great place to study sensory perception and cognitive functions.</p>
-	<img src="placeholder:MT/V4"/>
-	<p>In this first section we're going to explore how a neuron's receptive field changes its firing pattern and expected BOLD response. We've created a demonstration to help you gain an intuition for how this works where you'll use the three classic stimuli used during <b>retinotopic mapping</b>, the fMRI procedure of showing high contrast stimuli crossing the visual field to collect data usable to find receptive fields. You'll see a display like the one below and your goal will be to answer the following questions:</p>
+	<img src="images/mt_v4.png"/>
+	<p>In this first section we're going to explore how a neuron's receptive field changes its firing pattern and expected BOLD response. We've created a demonstration to help you gain an intuition for how this works where you'll use the three classic stimuli used during <b>retinotopic mapping</b>, the fMRI procedure of showing high contrast stimuli crossing the visual field to collect data usable to find receptive fields. You'll see a display like the one below and your goal will be to answer the following questions.</p>
+	<img src="images/examples3.png"/>
 	<ul>
-		<li>In classic retinotopy Wandell and colleagues used 12-second periodic <b>wedges</b> and <b>rings</b> for mapping. They then used the phase to identify the angle and eccentricity that a given voxel preferred. They fit their data using sinusoids--try recreating this stimulus by hand, what positives and what negatives do you see to this approach?</li>
+		<li>In classic retinotopy Wandell and colleagues used 12-second (?) periodic <b>wedges</b> and <b>rings</b> for mapping. They then used the phase to identify the angle and eccentricity that a given voxel preferred. They fit their data using sinusoids--try recreating this stimulus by hand, what positives and what negatives do you see to this approach?</li>
 		<li>In more modern retinotopy researchers now fit the population receptive field model using <b>bars</b>. Why are bars a good stimulus to use?</li>
 		<li>A common intuition among first-time retinotopy users is that it would be more efficient to show more bars at once, or display more things on the screen more quickly (note that usually bars take 24 seconds to cross the screen). Try showing faster moving bars to small and large receptive fields--which do you think you could still identify using the data?</li> 
 	</ul>
@@ -88,14 +89,14 @@
 
 <div id="block3">
 	<h2>Part 1: Voxel responses to visual stimuli</h2>
-	<canvas id="canvas3"></canvas>
+	<canvas id="canvas3" width=1000 height=700></canvas>
 </div>
 
 
 <div id="block4">
 	<h2>Part 2: Retinotopic maps in visual cortex</h2>
 </div>
-<div id="block6">
+<div id="block5">
 	<h2>Part 2: Retinotopic maps in visual cortex</h2>
 </div>
 
@@ -135,7 +136,7 @@
 			<!-- <link rel="stylesheet" href="psych50.css" /> -->
 		<!-- Scripts -->
 			<script src="../assets/js/shared_code.js"></script>
-			<script src="psych50_rl.js"></script>
+			<script src="prf.js"></script>
 
 			<script>launch();</script>
 	</body>

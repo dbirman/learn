@@ -4,10 +4,104 @@
 // 	// purple: 6155cd
 
 ////////////////////////////////
-////////// BLOCK 2 /////////////
+////////// BLOCK 23 /////////////
 ////////////////////////////////
 
+canvas3 = document.getElementById("canvas3");
+ctx3 = canvas3.getContext("2d");
 
+var stimulus = 0; // 0 = wedges, 1 = rings, 2 = bars
+var stimPosX;
+var stimPosY;
+var stimPosTheta;
+
+var tick3;
+
+function run3() {
+	ctx3.clearRect(0,0,canvas3.width,canvas3.height);
+	// draw Images
+	drawStimOpts3();
+
+	// draw circle 
+	drawVF();
+
+	// draw pRF
+	drawRF();
+
+	// draw activity
+
+	// draw bold
+
+	tick3 = requestAnimationFrame(run3);
+}
+
+var activityY = 450;
+var activity = [];
+
+var boldY = 200;
+var bold = [];
+
+var boundX = [0,500];
+var boundY = [150,650];
+
+function drawVF() {
+	ctx3.strokeStyle = "#ffffff";
+	ctx3.beginPath();
+	ctx3.arc((boundX[1]-boundX[0])/2+boundX[0],(boundY[1]-boundY[0])/2+boundY[0],250,0,Math.PI*2);
+	ctx3.stroke();
+}
+
+var rf = {x:0,y:0,sd:1};
+
+function drawRF() {
+	ctx3.strokeStyle = "#ffffff";
+	ctx3.beginPath();
+	ctx3.arc(rf.x,rf.y,rf.sd,0,Math.PI*2);
+	ctx3.stroke();
+}
+
+var imgWedges = new Image(); imgWedges.src = "images/wedges.png";
+var imgRings = new Image(); imgRings.src = "images/rings.png";
+var imgBars = new Image(); imgBars.src = "images/bars.png";
+
+var imgX = [0,100,200];
+
+function drawStimOpts3() {
+	ctx3.fillStyle = "#CD6155";
+	ctx3.fillRect(imgX[stimulus],0,100,100);
+	ctx3.drawImage(imgWedges,imgX[0],0,100,100);
+	ctx3.drawImage(imgRings,imgX[1]+5,5,90,90);
+	ctx3.drawImage(imgBars,imgX[2]+5,5,90,90);
+}
+
+function eventClick3(x,y,shift) {
+	for (var i=0;i<imgX.length;i++) {
+		if (x>imgX[i]&&x<(imgX[i]+100)&&y<100) {
+			// we are overlapping img i
+			stimulus = i; return;
+		}
+	}	
+	var dist = Math.hypot(x-((boundX[1]-boundX[0])/2+boundX[0]),y-((boundY[1]-boundY[0])/2+boundY[0]));
+	if (dist<250) {
+		// we are inside the visual field
+		rf.x = x;
+		rf.y = y;
+		rf.sd = 0;
+		drag = true;
+	}
+}
+
+var drag = false;
+
+function mouseUp3() {
+	drag = false;
+}
+
+function eventMove3(x,y) {
+	if (drag) {
+		rf.sd = Math.hypot(x-rf.x,y-rf.y);
+	}
+}
 
 ////////////////////////////////
 ////////// END CODE /////////////
@@ -15,56 +109,22 @@
 
 function run(i) {	
 	$("#continue").show();
-	clearTimeout(to);
-	// cancelAnimationFrame(tick4);
-	cancelAnimationFrame(tickBrain);
-	// cancelAnimationFrame(tick6);
+	cancelAnimationFrame(tick3);
 	// Runs each time a block starts incase that block has to do startup
 	switch(i) {
-		case 2:
-			if (!done2) {$("#continue").hide();run2();}
-			break;
-		case 4:
-			$("#part24").hide(); 
-			if (!(done4==2)) {$("#continue").hide();launch4();}
-			break;
-		case 5:
-			// todo
-			elapsed();
-			drawBrain();
-			break;
-		case 6:
-			run5();
-			break;
-		case 7:
-			// init6();
-			// run6();
+		case 3:
+			eventClick = eventClick3;
+			eventMove = eventMove3;
+			curCanvas = canvas3;
+			canvas3.addEventListener("mousedown",updateCanvasClick,false);
+			canvas3.addEventListener("mouseup",mouseUp3,false);
+			canvas3.addEventListener("mousemove",updateCanvasMove,false);
+			run3();
 			break;
 	}
 }
 
 function launch_local() {
-	katex.render("A=0",document.getElementById("katex1"),{displayMode:true});	
-	katex.render("RPE=R-A_{v}",document.getElementById("katex2"),{displayMode:true});	
-	katex.render("A_{v+1}=A_{v} + \\alpha(R-A_{v})",document.getElementById("katex3"),{displayMode:true});	
-	katex.render("A",document.getElementById("katex3-1"),{displayMode:false});
-	katex.render("A",document.getElementById("katex3-2"),{displayMode:false});
-	katex.render("A",document.getElementById("katex3-4"),{displayMode:false});
-	katex.render("_{v}",document.getElementById("katex3-3"),{displayMode:false});
-	katex.render("A_{v}",document.getElementById("katex5-1"),{displayMode:false});
-	katex.render("A_{v}",document.getElementById("katex5-2"),{displayMode:false});
-	katex.render("A_{v}",document.getElementById("katex5-3"),{displayMode:false});
-	katex.render("A_{v}",document.getElementById("katex5-4"),{displayMode:false});
-	// katex.render("A_{v}=1,B_{v}=2,C_{v}=3",document.getElementById("katex6"),{displayMode:true});	
-	// katex.render("P(A)=A>B \\& B>C",document.getElementById("katex6-2"),{displayMode:true});	
-	// katex.render("P(A)=\\dfrac{A_{v}}{A_{v}+B_{v}+C_{v}}",document.getElementById("katex6-3"),{displayMode:true});	
-	$("#end4").hide();
-	resetTraces5();
-	initBrain();
-	// init6();
-	sqImg_red.src = 'images/squirrel_red.png';
-	sqImg_blue.src = 'images/squirrel_blue.png';
-	sqImg_purple.src = 'images/squirrel_purple.png';
 }
 
 
@@ -94,6 +154,13 @@ function indexOfMax(arr) {
 }
 
 var eventClick;
+var curCanvas;
+var eventMove;
+
+function updateCanvasMove(evt) {
+  var out = updateCanvas(evt,curCanvas);
+  eventMove(out[0],out[1]);
+}
 
 function updateCanvasClick(evt) {
   evt.preventDefault();
