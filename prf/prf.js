@@ -28,6 +28,9 @@ function run3() {
 	// draw pRF
 	drawRF();
 
+	// draw Stimulus
+	drawStim();
+
 	// draw activity
 
 	// draw bold
@@ -42,13 +45,48 @@ var boldY = 200;
 var bold = [];
 
 var boundX = [0,500];
+var centX = (boundX[1]-boundX[0])/2+boundX[0];
 var boundY = [150,650];
+var centY = (boundY[1]-boundY[0])/2+boundY[0];
 
 function drawVF() {
 	ctx3.strokeStyle = "#ffffff";
 	ctx3.beginPath();
-	ctx3.arc((boundX[1]-boundX[0])/2+boundX[0],(boundY[1]-boundY[0])/2+boundY[0],250,0,Math.PI*2);
+	ctx3.arc(centX,centY,250,0,Math.PI*2);
 	ctx3.stroke();
+}
+
+function drawStim() {
+	ctx3.save();
+	ctx3.beginPath();
+	switch (stimulus) {
+		case 0:
+			ctx3.arc(centX,centY,250,stimTheta-0.1,0.2);
+			break;
+		case 1:
+			ctx3.arc(centX,centY,stimEcc+10,0,Math.PI*2,false);
+			ctx3.arc(centX,centY,stimEcc-10,0,Math.PI*2,true);
+			break;
+		case 2:
+			// ctx
+			break;
+	}
+	ctx3.stroke();
+	ctx3.clip();
+	var stepX = (boundX[1]-boundX[0])/16,
+		stepY = (boundY[1]-boundY[0])/16;
+
+	for (var i=0;i<16;i++) {
+		for (var j=0;j<16;j++) {
+			if (i % 2 != j % 2) {
+				ctx3.fillStyle= '#ffffff';
+			} else {
+				ctx3.fillStyle = '#000000';
+			}
+			ctx3.fillRect(boundX[0]+i*stepX,boundY[0]+j*stepY,stepX,stepY);
+		}
+	}
+	ctx3.restore();
 }
 
 var rf = {x:0,y:0,sd:1};
@@ -97,10 +135,15 @@ function mouseUp3() {
 	drag = false;
 }
 
+var stimTheta = 0;
+var stimEcc = 0;
+
 function eventMove3(x,y) {
 	if (drag) {
 		rf.sd = Math.min(100,Math.hypot(x-rf.x,y-rf.y));
 	}
+	stimTheta = -Math.atan2(x-centX,y-centY);
+	stimEcc = Math.max(Math.min(240,Math.hypot(x-centX,y-centY)),10);
 }
 
 ////////////////////////////////
@@ -177,4 +220,12 @@ function updateCanvas(evt,canvas) {
   var x =  (evt.clientX - rect.left) * scaleX,   // scale mouse coordinates after they have
     y =  (evt.clientY - rect.top) * scaleY     // been adjusted to be relative to element
   return [x,y];
+}
+
+
+function clipCtx(ctx,canvas) {
+	ctx.save();
+	ctx.beginPath();
+	ctx.arc(canvas.width/2,canvas.height/2,canvas.width/2,0,2*Math.PI,false);
+	ctx.clip();
 }
