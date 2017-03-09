@@ -58,21 +58,26 @@ function drawVF() {
 
 function drawStim() {
 	ctx3.save();
-	ctx3.strokeStyle = "rgba(0,0,0,0);";
+	ctx3.strokeStyle = "rgba(0,0,0,0);";			
+	ctx3.beginPath();
+	ctx3.arc(centX,centY,250,0,Math.PI*2);
+	ctx3.stroke();
 	ctx3.beginPath();
 	switch (stimulus) {
 		case 0:
 			ctx3.arc(centX,centY,250,stimTheta-0.1,stimTheta+0.1);
 			ctx3.arc(centX,centY,0,stimTheta-0.1,stimTheta+0.1);
-			ctx3.fill();
 			break;
 		case 1:
 			ctx3.arc(centX,centY,stimEcc+10,0,Math.PI*2);
 			ctx3.arc(centX,centY,stimEcc-10,0,Math.PI*2,true);
-			ctx3.stroke();
 			break;
 		case 2:
-			// ctx
+			// bars horizontal
+			ctx3.rect(boundX[0],stimY-25,boundX[1]-boundX[0],50);
+			break;
+		case 3:
+			ctx3.rect(stimX-25,boundY[0],50,boundY[1]-boundY[0]);
 			break;
 	}
 	ctx3.clip();
@@ -114,9 +119,9 @@ function drawStimOpts3() {
 	ctx3.drawImage(imgRings,imgX[1]+5,5,90,90);
 	if (stimulus==3) {
 		ctx3.save();
-		ctx3.translate(-250,-50);
+		ctx3.translate(imgX[2]+50,50);
 		ctx3.rotate(Math.PI/2);
-		ctx3.drawImage(imgBars,imgX[2]+5,5,90,90);
+		ctx3.drawImage(imgBars,-45,-45,90,90);
 		ctx3.restore();
 	} else {
 		ctx3.drawImage(imgBars,imgX[2]+5,5,90,90);
@@ -127,7 +132,7 @@ function eventClick3(x,y,shift) {
 	for (var i=0;i<imgX.length;i++) {
 		if (x>imgX[i]&&x<(imgX[i]+100)&&y<100) {
 			// we are overlapping img i
-			if (stimulus==2) {
+			if (i==2 && stimulus==2) {
 				stimulus = 3;
 			} else {
 				stimulus = i;
@@ -152,8 +157,11 @@ function mouseUp3() {
 
 var stimTheta = 0;
 var stimEcc = 0;
+var stimX = 0;
+var stimY = 0;
 
 function eventMove3(x,y) {
+	stimX = x; stimY = y;
 	if (drag) {
 		rf.sd = Math.min(100,Math.hypot(x-rf.x,y-rf.y));
 	}
