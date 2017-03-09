@@ -45,36 +45,101 @@ function run3() {
 	tick3 = requestAnimationFrame(run3);
 }
 
-var activityY = 450;
-var activity = [];
 
 function computeActivity() {
 	// Uses the back canvas to draw the RF once, and then the stimulus, both at low resolution (50x50)
 	// it pulls each image using backcanvas.imageData and then computes the overlap
 
 	// step 1: draw the RF
-	backctx.clearRect(0,0,50,50);
+	var x=Math.round((rf.x-boundX[0])/10),
+		y = Math.round((rf.y-boundY[0])/10);
+	backctx.globalCompositeOperation = "source-over";
+	backctx.fillStyle = "#000000";
+	backctx.fillRect(0,0,50,50);
 	for (var i=0;i<50;i++) {
 		for (var j=0;j<50;j++) {
-			var x=Math.round((rf.x-boundX[0])/10),
-				y = Math.round((rf.y-boundY[0])/10);
-			var x = Math.hypot(i-x,j-y);
-			backctx.fillStyle = gsc2hex(normpdf(x,0,rf.sd/10)/normpdf(0,0,rf.sd/10));
-			backctx.fillRect(i,j,1,1);
+			var dist = Math.hypot(i-x,j-y);
+			var pixelValue = normpdf(dist,0,rf.sd/10)/normpdf(0,0,rf.sd/10);
+			// set to gaussian value
+			if (pixelValue>0.05) {
+				backctx.fillStyle = gsc2hex(pixelValue);
+				backctx.fillRect(i,j,1,1);
+			}
 		}
 	}
 	RFdata = backctx.getImageData(0,0,50,50);
+	// step 2: draw the stimulus using type "source-in"
+	backctx.fillRect(0,0,50,50);
+	backctx.fillStyle="#ffffff";
+	switch (stimulus) {
+		case 0:
+			backctx.beginPath();
+			backctx.arc(25,25,25,stimTheta-0.1,stimTheta+0.1);
+			backctx.arc(25,25,0,stimTheta-0.1,stimTheta+0.1);
+			backctx.fill();
+			break;
+		case 1:
+			backctx.beginPath();
+			backctx.arc(25,25,stimEcc/10+1,0,Math.PI*2);
+			backctx.arc(25,25,stimEcc/10-1,0,Math.PI*2,true);
+			backctx.fill();
+			break;
+		case 2:
+			// bars horizontal
+			backctx.fillRect(0,Math.round((stimY-boundY[0])/10)-2.5,50,5);
+			break;
+		case 3:
+			backctx.fillRect((Math.round(stimX)/10)-2.5,0,5,50);
+			break;
+	}
+	Sdata = backctx.getImageData(0,0,50,50);
+
+	// 
+	var effect = 0;
+	for (var i=0;i<2500;i++) {
+		effect+=RFdata.data[i*4]/255*Sdata.data[i*4]/255;
+	}
+	if (activity.length>400) {activity.shift();}
+	activity.push(effect);
+
+	bold.shift(); bold.push(0);
+	for (var i=0;i<hrf.length;i++) {
+		bold[activity.length+i]+=hrf[i]/1000*effect;
+	}
 }
 
-function drawActivity() {
+var activityY = 450;
+var activity = [];
 
+function drawActivity() {
+	ctx3.strokeStyle = "#6155CD";
+	ctx3.beginPath();
+	ctx3.moveTo(525,activityY-activity[0]);
+	for (var i=1;i<activity.length;i++) {
+		ctx3.lineTo(525+i,activityY-activity[i]);
+	}
+	ctx3.stroke();
+	// ctx3.font = "Arial 50px";
+	ctx3.fillStyle = "#6155CD";
+	ctx3.fillText("Neural activity",530,activityY+15);
 }
 
 var boldY = 200;
-var bold = [];
+var bold = zeros(500);
+
+var hrf = [0,0,0,0,0,0,0,1,2,4,8,25,80,250,260,265,260,240,100,0,-50,-70,-75,-77,-80,-79,-75,-70,-65,-61,-57,-54];
 
 function drawBold() {
-
+	ctx3.strokeStyle = "#5DADE2";
+	ctx3.beginPath();
+	ctx3.moveTo(525,boldY-bold[0]);
+	for (var i=1;i<activity.length;i++) {
+		ctx3.lineTo(525+i,boldY-bold[i]);
+	}
+	ctx3.stroke();
+	// ctx3.font = "Arial 50px";
+	ctx3.fillStyle = "#5DADE2";
+	ctx3.fillText("Bold activity",530,boldY+15);
 }
 
 var boundX = [0,500];
