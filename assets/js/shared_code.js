@@ -445,6 +445,10 @@ function nan(length) {
 	return fillArray(NaN, length);
 }
 
+function normpdf(x,mu,sd) {
+	return 1 / Math.sqrt(2*Math.PI*Math.pow(sd,2)) * Math.exp(-Math.pow(x-mu,2)/(2*Math.pow(sd,2)));
+}
+
 /**
  * Function to element wise add two arrays or an array with a scalar. 
  * Both first and second can be scalars or arrays.

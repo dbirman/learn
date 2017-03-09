@@ -2,6 +2,8 @@
 // 	// red: CD6155
 // 	// blue: 5DADE2
 // 	// purple: 6155cd
+backcanvas = document.getElementById("backcanvas");
+backctx = backcanvas.getContext("2d");
 
 ////////////////////////////////
 ////////// BLOCK 23 /////////////
@@ -31,9 +33,14 @@ function run3() {
 	// draw Stimulus
 	drawStim();
 
+	// compute
+	computeActivity();
+
 	// draw activity
+	drawActivity();
 
 	// draw bold
+	drawBold();
 
 	tick3 = requestAnimationFrame(run3);
 }
@@ -41,8 +48,34 @@ function run3() {
 var activityY = 450;
 var activity = [];
 
+function computeActivity() {
+	// Uses the back canvas to draw the RF once, and then the stimulus, both at low resolution (50x50)
+	// it pulls each image using backcanvas.imageData and then computes the overlap
+
+	// step 1: draw the RF
+	backctx.clearRect(0,0,50,50);
+	for (var i=0;i<50;i++) {
+		for (var j=0;j<50;j++) {
+			var x=Math.round((rf.x-boundX[0])/10),
+				y = Math.round((rf.y-boundY[0])/10);
+			var x = Math.hypot(i-x,j-y);
+			backctx.fillStyle = gsc2hex(normpdf(x,0,rf.sd/10)/normpdf(0,0,rf.sd/10));
+			backctx.fillRect(i,j,1,1);
+		}
+	}
+	RFdata = backctx.getImageData(0,0,50,50);
+}
+
+function drawActivity() {
+
+}
+
 var boldY = 200;
 var bold = [];
+
+function drawBold() {
+
+}
 
 var boundX = [0,500];
 var centX = (boundX[1]-boundX[0])/2+boundX[0];
@@ -166,7 +199,7 @@ function eventMove3(x,y) {
 		rf.sd = Math.min(100,Math.hypot(x-rf.x,y-rf.y));
 	}
 	stimTheta = -Math.atan2(x-centX,y-centY)+Math.PI/2;
-	stimEcc = Math.max(Math.min(240,Math.hypot(x-centX,y-centY)),10);
+	stimEcc = Math.max(10,Math.min(240,x%250));//Math.max(Math.min(240,Math.hypot(x-centX,y-centY)),10);
 }
 
 ////////////////////////////////
