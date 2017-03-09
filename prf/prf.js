@@ -99,7 +99,7 @@ function mouseUp3() {
 
 function eventMove3(x,y) {
 	if (drag) {
-		rf.sd = Math.hypot(x-rf.x,y-rf.y);
+		rf.sd = Math.min(100,Math.hypot(x-rf.x,y-rf.y));
 	}
 }
 
