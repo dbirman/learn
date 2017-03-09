@@ -103,6 +103,7 @@ function computeActivity() {
 	activity.push(effect);
 
 	bold.shift(); bold.push(0);
+	effect = Math.sqrt(effect*100);
 	for (var i=0;i<hrf.length;i++) {
 		bold[activity.length+i]+=hrf[i]*effect;
 	}
