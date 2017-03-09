@@ -58,20 +58,23 @@ function drawVF() {
 
 function drawStim() {
 	ctx3.save();
+	ctx3.strokeStyle = "rgba(0,0,0,0);";
 	ctx3.beginPath();
 	switch (stimulus) {
 		case 0:
-			ctx3.arc(centX,centY,250,stimTheta-0.1,0.2);
+			ctx3.arc(centX,centY,250,stimTheta-0.1,stimTheta+0.1);
+			ctx3.arc(centX,centY,0,stimTheta-0.1,stimTheta+0.1);
+			ctx3.fill();
 			break;
 		case 1:
-			ctx3.arc(centX,centY,stimEcc+10,0,Math.PI*2,false);
+			ctx3.arc(centX,centY,stimEcc+10,0,Math.PI*2);
 			ctx3.arc(centX,centY,stimEcc-10,0,Math.PI*2,true);
+			ctx3.stroke();
 			break;
 		case 2:
 			// ctx
 			break;
 	}
-	ctx3.stroke();
 	ctx3.clip();
 	var stepX = (boundX[1]-boundX[0])/16,
 		stepY = (boundY[1]-boundY[0])/16;
@@ -102,21 +105,33 @@ var imgWedges = new Image(); imgWedges.src = "images/wedges.png";
 var imgRings = new Image(); imgRings.src = "images/rings.png";
 var imgBars = new Image(); imgBars.src = "images/bars.png";
 
-var imgX = [0,100,200];
+var imgX = [0,100,200,200];
 
 function drawStimOpts3() {
 	ctx3.fillStyle = "#CD6155";
 	ctx3.fillRect(imgX[stimulus],0,100,100);
 	ctx3.drawImage(imgWedges,imgX[0],0,100,100);
 	ctx3.drawImage(imgRings,imgX[1]+5,5,90,90);
-	ctx3.drawImage(imgBars,imgX[2]+5,5,90,90);
+	if (stimulus==3) {
+		ctx3.save();
+		ctx3.translate(-250,-50);
+		ctx3.rotate(Math.PI/2);
+		ctx3.drawImage(imgBars,imgX[2]+5,5,90,90);
+		ctx3.restore();
+	} else {
+		ctx3.drawImage(imgBars,imgX[2]+5,5,90,90);
+	}
 }
 
 function eventClick3(x,y,shift) {
 	for (var i=0;i<imgX.length;i++) {
 		if (x>imgX[i]&&x<(imgX[i]+100)&&y<100) {
 			// we are overlapping img i
-			stimulus = i; return;
+			if (stimulus==2) {
+				stimulus = 3;
+			} else {
+				stimulus = i;
+			} return;
 		}
 	}	
 	var dist = Math.hypot(x-((boundX[1]-boundX[0])/2+boundX[0]),y-((boundY[1]-boundY[0])/2+boundY[0]));
@@ -142,7 +157,7 @@ function eventMove3(x,y) {
 	if (drag) {
 		rf.sd = Math.min(100,Math.hypot(x-rf.x,y-rf.y));
 	}
-	stimTheta = -Math.atan2(x-centX,y-centY);
+	stimTheta = -Math.atan2(x-centX,y-centY)+Math.PI/2;
 	stimEcc = Math.max(Math.min(240,Math.hypot(x-centX,y-centY)),10);
 }
 
