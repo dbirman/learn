@@ -100,16 +100,17 @@ function computeActivity() {
 		effect+=RFdata.data[i*4]/255*Sdata.data[i*4]/255;
 	}
 	if (activity.length>400) {activity.shift();}
+	// effect = activity[activity.length-1]>0 ? effect/Math.log(activity[activity.length-1]) : effect;
 	activity.push(effect);
 
 	bold.shift(); bold.push(0);
-	effect = Math.sqrt(effect*100);
+	effect = Math.sqrt(effect*50);
 	for (var i=0;i<hrf.length;i++) {
 		bold[activity.length+i]+=hrf[i]*effect;
 	}
 }
 
-var activityY = 450;
+var activityY = canvas3.height-25;
 var activity = [];
 
 function drawActivity() {
@@ -125,7 +126,7 @@ function drawActivity() {
 	ctx3.fillText("Neural activity",530,activityY+15);
 }
 
-var boldY = 200;
+var boldY = 500;
 var bold;
 
 function drawBold() {
@@ -152,6 +153,8 @@ function drawVF() {
 	ctx3.arc(centX,centY,250,0,Math.PI*2);
 	ctx3.stroke();
 }
+
+var offset = 0;
 
 function drawStim() {
 	ctx3.save();
@@ -181,14 +184,20 @@ function drawStim() {
 	var stepX = (boundX[1]-boundX[0])/16,
 		stepY = (boundY[1]-boundY[0])/16;
 
-	for (var i=0;i<16;i++) {
-		for (var j=0;j<16;j++) {
+
+	var loff = 0;
+	// offset++;
+	// offset = offset > stepY*2 ? 0 : offset;
+
+	for (var i=-2;i<18;i++) {
+		for (var j=-2;j<18;j++) {
 			if (i % 2 != j % 2) {
-				ctx3.fillStyle= '#ffffff';
+				ctx3.fillStyle= '#ffffff'
 			} else {
 				ctx3.fillStyle = '#000000';
 			}
-			ctx3.fillRect(boundX[0]+i*stepX,boundY[0]+j*stepY,stepX,stepY);
+			// var loff = (i%2)==0 ? -1 : 1;
+			ctx3.fillRect(boundX[0]+i*stepX,boundY[0]+j*stepY+loff*offset,stepX,stepY);
 		}
 	}
 	ctx3.restore();
