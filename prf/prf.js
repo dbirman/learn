@@ -2,15 +2,172 @@
 // 	// red: CD6155
 // 	// blue: 5DADE2
 // 	// purple: 6155cd
-backcanvas = document.getElementById("backcanvas");
-backctx = backcanvas.getContext("2d");
+
+var canvas3 = document.getElementById("canvas3");
+var ctx3 = canvas3.getContext("2d");
+var canvas5 = document.getElementById("canvas5");
+var ctx5 = canvas5.getContext("2d");
+var backcanvas = document.getElementById("backcanvas");
+var backctx = backcanvas.getContext("2d");
+
+////////////////////////////////
+////////// BLOCK 45 /////////////
+////////////////////////////////
+
+var tick5;
+
+var imgPA = new Image(); imgPA.src = "images/flat_pa.png";
+var imgECC = new Image(); imgECC.src = "images/flat_ecc.png";
+var imgBKG = new Image(); imgBKG.src = "images/flat_roi.png";
+
+var data;
+
+function loadData() {
+  // Print the images to the screen and copy them
+  ctx5.drawImage(imgPA,0,0,400,400);
+  data.pa = ctx5.getImageData(0,0,400,400);
+  ctx5.drawImage(imgECC,0,0,400,400);
+  data.ecc = ctx5.getImageData(0,0,400,400);
+}
+
+function run5() {
+  if (data===undefined) {loadData();}
+
+  ctx5.clearRect(0,0,canvas5.width,canvas5.height);
+  // draw Images
+  drawStimOpts(ctx5);
+
+  // draw circle 
+  drawVF(ctx5);
+
+  // draw pRF
+  drawRF(ctx5);
+
+  // draw Stimulus
+  drawStim(ctx5);
+
+  // compute
+  computeActivity();
+
+  tick5 = requestAnimationFrame(run5);
+}
+
+var boundX = [0,500];
+var centX = (boundX[1]-boundX[0])/2+boundX[0];
+var boundY = [150,650];
+var centY = (boundY[1]-boundY[0])/2+boundY[0];
+
+function drawVF(ctx) {
+  ctx.strokeStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.arc(centX,centY,250,0,Math.PI*2);
+  ctx.stroke();
+}
+
+var offset = 0;
+
+function drawStim(ctx) {
+  ctx.save();
+  ctx.strokeStyle = "rgba(0,0,0,0);";      
+  ctx.beginPath();
+  ctx.arc(centX,centY,250,0,Math.PI*2);
+  ctx.stroke();
+  ctx.beginPath();
+  switch (stimulus) {
+    case 0:
+      ctx.arc(centX,centY,250,stimTheta-0.1,stimTheta+0.1);
+      ctx.arc(centX,centY,0,stimTheta-0.1,stimTheta+0.1);
+      break;
+    case 1:
+      ctx.arc(centX,centY,stimEcc+10,0,Math.PI*2);
+      ctx.arc(centX,centY,stimEcc-10,0,Math.PI*2,true);
+      break;
+    case 2:
+      // bars horizontal
+      ctx.rect(boundX[0],stimY-25,boundX[1]-boundX[0],50);
+      break;
+    case 3:
+      ctx.rect(stimX-25,boundY[0],50,boundY[1]-boundY[0]);
+      break;
+  }
+  ctx.clip();
+  var stepX = (boundX[1]-boundX[0])/16,
+    stepY = (boundY[1]-boundY[0])/16;
+
+
+  var loff = 0;
+  // offset++;
+  // offset = offset > stepY*2 ? 0 : offset;
+
+  for (var i=-2;i<18;i++) {
+    for (var j=-2;j<18;j++) {
+      if (i % 2 != j % 2) {
+        ctx.fillStyle= '#ffffff'
+      } else {
+        ctx.fillStyle = '#000000';
+      }
+      // var loff = (i%2)==0 ? -1 : 1;
+      ctx.fillRect(boundX[0]+i*stepX,boundY[0]+j*stepY+loff*offset,stepX,stepY);
+    }
+  }
+  ctx.restore();
+}
+
+var rf = {x:0,y:0,sd:1};
+
+function drawRF(ctx) {
+  ctx.strokeStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.arc(rf.x,rf.y,rf.sd,0,Math.PI*2);
+  ctx.stroke();
+}
+
+var imgWedges = new Image(); imgWedges.src = "images/wedges.png";
+var imgRings = new Image(); imgRings.src = "images/rings.png";
+var imgBars = new Image(); imgBars.src = "images/bars.png";
+
+var imgX = [0,100,200,200];
+
+function drawStimOpts(ctx) {
+  ctx.fillStyle = "#CD6155";
+  ctx.fillRect(imgX[stimulus],0,100,100);
+  ctx.drawImage(imgWedges,imgX[0],0,100,100);
+  ctx.drawImage(imgRings,imgX[1]+5,5,90,90);
+  if (stimulus==3) {
+    ctx.save();
+    ctx.translate(imgX[2]+50,50);
+    ctx.rotate(Math.PI/2);
+    ctx.drawImage(imgBars,-45,-45,90,90);
+    ctx.restore();
+  } else {
+    ctx.drawImage(imgBars,imgX[2]+5,5,90,90);
+  }
+}
+
+function eventClick5(x,y,shift) {
+  for (var i=0;i<imgX.length;i++) {
+    if (x>imgX[i]&&x<(imgX[i]+100)&&y<100) {
+      // we are overlapping img i
+      if (i==2 && stimulus==2) {
+        stimulus = 3;
+      } else {
+        stimulus = i;
+      } return;
+    }
+  } 
+}
+
+
+function eventMove5(x,y) {
+  stimX = x; stimY = y;
+  stimTheta = -Math.atan2(x-centX,y-centY)+Math.PI/2;
+  stimEcc = Math.max(10,Math.min(240,x%250));//Math.max(Math.min(240,Math.hypot(x-centX,y-centY)),10);
+}
 
 ////////////////////////////////
 ////////// BLOCK 23 /////////////
 ////////////////////////////////
 
-canvas3 = document.getElementById("canvas3");
-ctx3 = canvas3.getContext("2d");
 
 var stimulus = 0; // 0 = wedges, 1 = rings, 2 = bars
 var stimPosX;
@@ -20,18 +177,19 @@ var stimPosTheta;
 var tick3;
 
 function run3() {
+
 	ctx3.clearRect(0,0,canvas3.width,canvas3.height);
 	// draw Images
-	drawStimOpts3();
+	drawStimOpts(ctx3);
 
 	// draw circle 
-	drawVF();
+	drawVF(ctx3);
 
 	// draw pRF
-	drawRF();
+	drawRF(ctx3);
 
 	// draw Stimulus
-	drawStim();
+	drawStim(ctx3);
 
 	// compute
 	computeActivity();
@@ -147,92 +305,13 @@ var centX = (boundX[1]-boundX[0])/2+boundX[0];
 var boundY = [150,650];
 var centY = (boundY[1]-boundY[0])/2+boundY[0];
 
-function drawVF() {
-	ctx3.strokeStyle = "#ffffff";
-	ctx3.beginPath();
-	ctx3.arc(centX,centY,250,0,Math.PI*2);
-	ctx3.stroke();
-}
-
 var offset = 0;
-
-function drawStim() {
-	ctx3.save();
-	ctx3.strokeStyle = "rgba(0,0,0,0);";			
-	ctx3.beginPath();
-	ctx3.arc(centX,centY,250,0,Math.PI*2);
-	ctx3.stroke();
-	ctx3.beginPath();
-	switch (stimulus) {
-		case 0:
-			ctx3.arc(centX,centY,250,stimTheta-0.1,stimTheta+0.1);
-			ctx3.arc(centX,centY,0,stimTheta-0.1,stimTheta+0.1);
-			break;
-		case 1:
-			ctx3.arc(centX,centY,stimEcc+10,0,Math.PI*2);
-			ctx3.arc(centX,centY,stimEcc-10,0,Math.PI*2,true);
-			break;
-		case 2:
-			// bars horizontal
-			ctx3.rect(boundX[0],stimY-25,boundX[1]-boundX[0],50);
-			break;
-		case 3:
-			ctx3.rect(stimX-25,boundY[0],50,boundY[1]-boundY[0]);
-			break;
-	}
-	ctx3.clip();
-	var stepX = (boundX[1]-boundX[0])/16,
-		stepY = (boundY[1]-boundY[0])/16;
-
-
-	var loff = 0;
-	// offset++;
-	// offset = offset > stepY*2 ? 0 : offset;
-
-	for (var i=-2;i<18;i++) {
-		for (var j=-2;j<18;j++) {
-			if (i % 2 != j % 2) {
-				ctx3.fillStyle= '#ffffff'
-			} else {
-				ctx3.fillStyle = '#000000';
-			}
-			// var loff = (i%2)==0 ? -1 : 1;
-			ctx3.fillRect(boundX[0]+i*stepX,boundY[0]+j*stepY+loff*offset,stepX,stepY);
-		}
-	}
-	ctx3.restore();
-}
-
-var rf = {x:0,y:0,sd:1};
-
-function drawRF() {
-	ctx3.strokeStyle = "#ffffff";
-	ctx3.beginPath();
-	ctx3.arc(rf.x,rf.y,rf.sd,0,Math.PI*2);
-	ctx3.stroke();
-}
 
 var imgWedges = new Image(); imgWedges.src = "images/wedges.png";
 var imgRings = new Image(); imgRings.src = "images/rings.png";
 var imgBars = new Image(); imgBars.src = "images/bars.png";
 
 var imgX = [0,100,200,200];
-
-function drawStimOpts3() {
-	ctx3.fillStyle = "#CD6155";
-	ctx3.fillRect(imgX[stimulus],0,100,100);
-	ctx3.drawImage(imgWedges,imgX[0],0,100,100);
-	ctx3.drawImage(imgRings,imgX[1]+5,5,90,90);
-	if (stimulus==3) {
-		ctx3.save();
-		ctx3.translate(imgX[2]+50,50);
-		ctx3.rotate(Math.PI/2);
-		ctx3.drawImage(imgBars,-45,-45,90,90);
-		ctx3.restore();
-	} else {
-		ctx3.drawImage(imgBars,imgX[2]+5,5,90,90);
-	}
-}
 
 function eventClick3(x,y,shift) {
 	for (var i=0;i<imgX.length;i++) {
@@ -293,6 +372,13 @@ function run(i) {
 			canvas3.addEventListener("mousemove",updateCanvasMove,false);
 			run3();
 			break;
+    case 5:
+      eventClick = eventClick5;
+      eventMove = eventMove5;
+      curCanvas = canvas5;
+      canvas5.addEventListener("mousemove",updateCanvasMove,false);
+      run5();
+      break;
 	}
 }
 
