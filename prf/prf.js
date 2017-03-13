@@ -52,14 +52,14 @@ function loadData() {
         cecc_g = data.ecc_.data[x*isize*4+y*4+1];
       // If the colors are all the same, this isn't a voxel
       if (!((cpa_r==cpa_g && cpa_g==cpa_b)||(cecc_r==cecc_g))) {
-        var ecc = cecc_r*15/255;
+        var ecc = cecc_g*30/255;
         data.ecc.push(ecc);
         var pa = rgb2pa(cpa_r,cpa_g,cpa_b);
         data.pa.push(pa);
         data.vx.push(x);
         data.vy.push(y);
-        data.x.push(ecc*100/15*Math.cos(pa));
-        data.y.push(ecc*100/15*Math.sin(pa));
+        data.x.push(ecc*100/30*Math.cos(pa));
+        data.y.push(ecc*100/30*Math.sin(pa));
       }
     }
   }
@@ -70,17 +70,8 @@ function rgb2pa(r,g,b) {
   // 100% R = -PI
   // 100% G = -PI + 2/3*PI
   // 100% B = -PI * 4/3*PI
-  var pa = -Math.PI;
-  if (r>0) {
-    pa+=(255-r)/255*2/3*Math.PI;
-  }
-  else if (g>0) {
-    pa+=2/3*Math.PI + (255-g)/255*2/3*Math.PI;
-  }
-  else if (b>0) {
-    pa+=4/3*Math.PI + (255-b)/255*2/3*Math.PI;
-  }
-  return pa;
+  
+  return 2*Math.PI*g/255-Math.PI;
 }
 
 function run5() {
@@ -134,7 +125,7 @@ function drawMap(ctx) {
         }
         break;
       case 1:
-        var dist = Math.abs(data.ecc[i]-stimEcc*15/115);
+        var dist = Math.abs(data.ecc[i]-stimEcc*30/115);
         if (dist<3) {
           draw = true;
           color = (Math.round(255-dist*255/3)).toString(16);
