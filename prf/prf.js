@@ -7,8 +7,155 @@ var canvas3 = document.getElementById("canvas3");
 var ctx3 = canvas3.getContext("2d");
 var canvas5 = document.getElementById("canvas5");
 var ctx5 = canvas5.getContext("2d");
+var canvas7 = document.getElementById("canvas7");
+var ctx7 = canvas7.getContext("2d");
 var backcanvas = document.getElementById("backcanvas");
 var backctx = backcanvas.getContext("2d");
+
+////////////////////////////////
+////////// BLOCK 67 /////////////
+////////////////////////////////
+
+var tick7;
+
+function run7() {
+  if (data===undefined) {
+    // first time
+    loadData();
+    boundX = [0,250];
+    centX = (boundX[1]-boundX[0])/2+boundX[0];
+    boundY = [150,400];
+    centY = (boundY[1]-boundY[0])/2+boundY[0];
+  }
+
+  ctx7.clearRect(0,0,canvas7.width,canvas7.height);
+  // draw Images
+  // drawStimOpts(ctx7);
+
+  // draw circle 
+  drawVF(ctx7);
+
+  //ddraw field
+  drawField(ctx7);
+
+  // draw pRF
+  // drawRF(ctx7);
+
+  // draw Stimulus
+  // drawStim(ctx7);
+
+  // draw the fucking maaaaaap
+  drawMap7(ctx7);
+
+  // compute
+  computeActivity();
+
+  tick7 = requestAnimationFrame(run7);
+}
+
+var mapPos = [300,150];
+var prev = 0;
+
+function drawMap7(ctx) {
+
+  ctx.drawImage(imgBKG,mapPos[0],mapPos[1],isize*2,isize*2);
+  // now do something slow and kind of stupid
+  for (var i=0;i<data.vx.length;i++) {
+    var draw = false; var color = 0;
+    switch (stimulus) {
+      case 0:
+        // check if stimulus is at our angle
+        var dist = Math.abs(stimTheta-data.pa[i]);
+        if (dist<(Math.PI/10)) {
+          draw = true;
+          color = (Math.round(255-dist*255/(Math.PI/10))).toString(16);
+        }
+        break;
+      case 1:
+        var dist = Math.abs(data.ecc[i]-stimEcc*30/115);
+        if (dist<3) {
+          draw = true;
+          color = (Math.round(255-dist*255/3)).toString(16);
+        }
+        break;
+      case 2:
+        var dist = Math.abs(data.y[i]-(stimY-mapPos[1]-boundX[1]/2)*200/250);
+        if (dist<10) {
+          draw = true;
+          color = (Math.round(255-dist*255/10)).toString(16);
+        }
+        break;
+      case 3:
+        var dist = Math.abs(data.x[i]-(stimX-boundX[1]/2)*200/250);
+        if (dist<10) {
+          draw = true;
+          color = (Math.round(255-dist*255/10)).toString(16);
+        }
+        break;
+    }
+    if (draw) {    
+      ctx.fillStyle = "#ff"+color+"00";
+      ctx.fillRect(mapPos[0]+data.vx[i]*2,mapPos[1]+data.vy[i]*2,2,2);
+    }
+  }
+}
+
+var fieldData = [];
+
+function eventClick7(x,y,shift) {
+  for (var i=0;i<imgX.length;i++) {
+    if (x>imgX[i]&&x<(imgX[i]+100)&&y<100) {
+      // we are overlapping img i
+      if (i==2 && stimulus==2) {
+        stimulus = 3;
+        return
+      } else {
+        stimulus = i;
+      } return;
+    }
+  }
+  var dist = Math.hypot(x-((boundX[1]-boundX[0])/2+boundX[0]),y-((boundY[1]-boundY[0])/2+boundY[0]));
+  if (dist<125) {
+    drag = true;
+    // if we shift-clicked, clear everything
+    if (shift) {clearField(); return;}
+    // otherwise, find our coordinate
+    field(x,y);
+  }
+}
+
+var fieldDim = 20;
+function clearField() {
+  fieldData = zeros(fieldDim*fieldDim);
+}
+function field(x,y) {
+  y = y-boundY[0];
+  // x y are the actual positions, convert to field dimensions
+  x = Math.floor(x*20/boundX[1]);
+  y = Math.floor(y*20/boundX[1]);
+  fieldData[x*fieldDim+y] = 1;
+}
+
+function drawField(ctx) {
+  ctx.fillStyle = "#ffffff";
+  var cv = boundX[1]/20;
+  for (var x=0;x<fieldDim;x++) {
+    for (var y=0;y<fieldDim;y++) {
+      if (fieldData[x*fieldDim+y]===1) {
+        ctx.fillRect(cv*x,cv*y+boundY[0],cv,cv);
+      }
+    }
+  }
+}
+
+function eventMove7(x,y) {
+  if (drag) {
+    field(x,y);
+  }
+  stimX = x; stimY = y;
+  stimTheta = -Math.atan2(x-centX,y-centY)+Math.PI/2;
+  stimEcc = Math.max(10,Math.min(115,x%125));//Math.max(Math.min(240,Math.hypot(x-centX,y-centY)),10);
+}
 
 ////////////////////////////////
 ////////// BLOCK 45 /////////////
@@ -92,7 +239,7 @@ function run5() {
   drawVF(ctx5);
 
   // draw pRF
-  drawRF(ctx5);
+  // drawRF(ctx5);
 
   // draw Stimulus
   drawStim(ctx5);
@@ -459,6 +606,8 @@ function eventMove3(x,y) {
 function run(i) {	
 	$("#continue").show();
 	cancelAnimationFrame(tick3);
+  cancelAnimationFrame(tick5);
+  cancelAnimationFrame(tick7);
 	// Runs each time a block starts incase that block has to do startup
 	switch(i) {
 		case 3:
@@ -469,6 +618,7 @@ function run(i) {
 			canvas3.addEventListener("mouseup",mouseUp3,false);
 			canvas3.addEventListener("mousemove",updateCanvasMove,false);
 			run3();
+      $("#continue").hide();
 			break;
     case 5:
       eventClick = eventClick5;
@@ -477,6 +627,17 @@ function run(i) {
       canvas5.addEventListener("mousedown",updateCanvasClick,false);
       canvas5.addEventListener("mousemove",updateCanvasMove,false);
       run5();
+      $("#continue").hide();
+      break;
+    case 7:
+      eventClick = eventClick7;
+      eventMove = eventMove7;
+      curCanvas = canvas7;
+      drag = false;
+      canvas7.addEventListener("mousedown",updateCanvasClick,false);
+      canvas3.addEventListener("mouseup",mouseUp3,false);
+      canvas7.addEventListener("mousemove",updateCanvasMove,false);
+      run7();
       break;
 	}
 }
