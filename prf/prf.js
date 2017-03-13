@@ -58,8 +58,8 @@ function loadData() {
         data.pa.push(pa);
         data.vx.push(x);
         data.vy.push(y);
-        data.x.push(ecc*Math.acos(pa));
-        data.y.push(ecc*Math.asin(pa));
+        data.x.push(ecc*100/15*Math.cos(pa));
+        data.y.push(ecc*100/15*Math.sin(pa));
       }
     }
   }
@@ -71,16 +71,16 @@ function rgb2pa(r,g,b) {
   // 100% G = -PI + 2/3*PI
   // 100% B = -PI * 4/3*PI
   var pa = -Math.PI;
-  if (r>0 && g>0) {
+  if (r>0) {
     pa+=(255-r)/255*2/3*Math.PI;
   }
-  if (g>0 && b>0) {
+  else if (g>0) {
     pa+=2/3*Math.PI + (255-g)/255*2/3*Math.PI;
   }
-  if (b>0 && r>0) {
+  else if (b>0) {
     pa+=4/3*Math.PI + (255-b)/255*2/3*Math.PI;
   }
-  return pa%(2*Math.PI);
+  return pa;
 }
 
 function run5() {
@@ -130,28 +130,33 @@ function drawMap(ctx) {
         var dist = Math.abs(stimTheta-data.pa[i]);
         if (dist<(Math.PI/10)) {
           draw = true;
-          color = (dist*255/10).toString(16);
+          color = (Math.round(255-dist*255/(Math.PI/10))).toString(16);
         }
         break;
       case 1:
         var dist = Math.abs(data.ecc[i]-stimEcc*15/115);
-        if (dist<2) {
+        if (dist<3) {
           draw = true;
-          color = (dist*255/2).toString(16);
+          color = (Math.round(255-dist*255/3)).toString(16);
         }
         break;
       case 2:
-        var dist = Math.abs(data.vy[i]-stimY*200/250);
+        var dist = Math.abs(data.y[i]-(stimY-mapPos[1]-boundX[1]/2)*200/250);
         if (dist<10) {
           draw = true;
-          color = (dist*255/10).toString(16);
+          color = (Math.round(255-dist*255/10)).toString(16);
         }
         break;
       case 3:
+        var dist = Math.abs(data.x[i]-(stimX-boundX[1]/2)*200/250);
+        if (dist<10) {
+          draw = true;
+          color = (Math.round(255-dist*255/10)).toString(16);
+        }
         break;
     }
-    if (draw) {      
-      ctx.fillStyle = "#ff"+color+color;
+    if (draw) {    
+      ctx.fillStyle = "#ff"+color+"00";
       ctx.fillRect(mapPos[0]+data.vx[i]*2,mapPos[1]+data.vy[i]*2,2,2);
     }
   }
