@@ -21,17 +21,77 @@ var imgECC = new Image(); imgECC.src = "images/flat_ecc.png";
 var imgBKG = new Image(); imgBKG.src = "images/flat_roi.png";
 
 var data;
+var isize = 200;
 
 function loadData() {
+  data = {};
   // Print the images to the screen and copy them
-  ctx5.drawImage(imgPA,0,0,400,400);
-  data.pa = ctx5.getImageData(0,0,400,400);
-  ctx5.drawImage(imgECC,0,0,400,400);
-  data.ecc = ctx5.getImageData(0,0,400,400);
+  ctx5.drawImage(imgPA,0,0,isize,isize);
+  data.pa_ = ctx5.getImageData(0,0,isize,isize);
+  ctx5.drawImage(imgECC,0,0,isize,isize);
+  data.ecc_ = ctx5.getImageData(0,0,isize,isize);
+  ctx5.clearRect(0,0,canvas5.width,canvas5.height);
+  console.log('here');
+  // We're going to do the slow loading option
+  // this is kind of dumb, but it saves us having to do a logical
+  // index later
+  data.vx = []; // 0 = not a voxel, 1 a voxel
+  data.vy = [];
+  data.x = [];
+  data.y = [];
+  data.ecc = [];
+  data.pa = [];
+  for (var x=0;x<isize;x++) { // COLUMNS
+    for (var y=0;y<isize;y++) { // ROWS
+      // For polar angle we need all three colors to resolve the type
+      var cpa_r = data.pa_.data[x*isize*4+y*4],
+        cpa_g = data.pa_.data[x*isize*4+y*4+1],
+        cpa_b = data.pa_.data[x*isize*4+y*4+2];
+      // For ecc we only need two colors to resolve the type
+      var cecc_r = data.ecc_.data[x*isize*4+y*4],
+        cecc_g = data.ecc_.data[x*isize*4+y*4+1];
+      // If the colors are all the same, this isn't a voxel
+      if (!((cpa_r==cpa_g && cpa_g==cpa_b)||(cecc_r==cecc_g))) {
+        var ecc = cecc_r*15/255;
+        data.ecc.push(ecc);
+        var pa = rgb2pa(cpa_r,cpa_g,cpa_b);
+        data.pa.push(pa);
+        data.vx.push(x);
+        data.vy.push(y);
+        data.x.push(ecc*Math.acos(pa));
+        data.y.push(ecc*Math.asin(pa));
+      }
+    }
+  }
+}
+
+function rgb2pa(r,g,b) {
+  // color space goes -PI->PI, where 0 is right
+  // 100% R = -PI
+  // 100% G = -PI + 2/3*PI
+  // 100% B = -PI * 4/3*PI
+  var pa = -Math.PI;
+  if (r>0 && g>0) {
+    pa+=(255-r)/255*2/3*Math.PI;
+  }
+  if (g>0 && b>0) {
+    pa+=2/3*Math.PI + (255-g)/255*2/3*Math.PI;
+  }
+  if (b>0 && r>0) {
+    pa+=4/3*Math.PI + (255-b)/255*2/3*Math.PI;
+  }
+  return pa%(2*Math.PI);
 }
 
 function run5() {
-  if (data===undefined) {loadData();}
+  if (data===undefined) {
+    // first time
+    loadData();
+    boundX = [0,250];
+    centX = (boundX[1]-boundX[0])/2+boundX[0];
+    boundY = [150,400];
+    centY = (boundY[1]-boundY[0])/2+boundY[0];
+  }
 
   ctx5.clearRect(0,0,canvas5.width,canvas5.height);
   // draw Images
@@ -46,21 +106,61 @@ function run5() {
   // draw Stimulus
   drawStim(ctx5);
 
+  // draw the fucking maaaaaap
+  drawMap(ctx5);
+
   // compute
   computeActivity();
 
   tick5 = requestAnimationFrame(run5);
 }
 
-var boundX = [0,500];
-var centX = (boundX[1]-boundX[0])/2+boundX[0];
-var boundY = [150,650];
-var centY = (boundY[1]-boundY[0])/2+boundY[0];
+var mapPos = [300,150];
+var prev = 0;
+
+function drawMap(ctx) {
+
+  ctx.drawImage(imgBKG,mapPos[0],mapPos[1],isize*2,isize*2);
+  // now do something slow and kind of stupid
+  for (var i=0;i<data.vx.length;i++) {
+    var draw = false; var color = 0;
+    switch (stimulus) {
+      case 0:
+        // check if stimulus is at our angle
+        var dist = Math.abs(stimTheta-data.pa[i]);
+        if (dist<(Math.PI/10)) {
+          draw = true;
+          color = (dist*255/10).toString(16);
+        }
+        break;
+      case 1:
+        var dist = Math.abs(data.ecc[i]-stimEcc*15/115);
+        if (dist<2) {
+          draw = true;
+          color = (dist*255/2).toString(16);
+        }
+        break;
+      case 2:
+        var dist = Math.abs(data.vy[i]-stimY*200/250);
+        if (dist<10) {
+          draw = true;
+          color = (dist*255/10).toString(16);
+        }
+        break;
+      case 3:
+        break;
+    }
+    if (draw) {      
+      ctx.fillStyle = "#ff"+color+color;
+      ctx.fillRect(mapPos[0]+data.vx[i]*2,mapPos[1]+data.vy[i]*2,2,2);
+    }
+  }
+}
 
 function drawVF(ctx) {
   ctx.strokeStyle = "#ffffff";
   ctx.beginPath();
-  ctx.arc(centX,centY,250,0,Math.PI*2);
+  ctx.arc(centX,centY,boundX[1]/2,0,Math.PI*2);
   ctx.stroke();
 }
 
@@ -70,12 +170,12 @@ function drawStim(ctx) {
   ctx.save();
   ctx.strokeStyle = "rgba(0,0,0,0);";      
   ctx.beginPath();
-  ctx.arc(centX,centY,250,0,Math.PI*2);
+  ctx.arc(centX,centY,boundX[1]/2,0,Math.PI*2);
   ctx.stroke();
   ctx.beginPath();
   switch (stimulus) {
     case 0:
-      ctx.arc(centX,centY,250,stimTheta-0.1,stimTheta+0.1);
+      ctx.arc(centX,centY,boundX[1]/2,stimTheta-0.1,stimTheta+0.1);
       ctx.arc(centX,centY,0,stimTheta-0.1,stimTheta+0.1);
       break;
     case 1:
@@ -150,6 +250,7 @@ function eventClick5(x,y,shift) {
       // we are overlapping img i
       if (i==2 && stimulus==2) {
         stimulus = 3;
+        return
       } else {
         stimulus = i;
       } return;
@@ -161,7 +262,7 @@ function eventClick5(x,y,shift) {
 function eventMove5(x,y) {
   stimX = x; stimY = y;
   stimTheta = -Math.atan2(x-centX,y-centY)+Math.PI/2;
-  stimEcc = Math.max(10,Math.min(240,x%250));//Math.max(Math.min(240,Math.hypot(x-centX,y-centY)),10);
+  stimEcc = Math.max(10,Math.min(115,x%125));//Math.max(Math.min(240,Math.hypot(x-centX,y-centY)),10);
 }
 
 ////////////////////////////////
@@ -319,6 +420,7 @@ function eventClick3(x,y,shift) {
 			// we are overlapping img i
 			if (i==2 && stimulus==2) {
 				stimulus = 3;
+        return;
 			} else {
 				stimulus = i;
 			} return;
@@ -376,6 +478,7 @@ function run(i) {
       eventClick = eventClick5;
       eventMove = eventMove5;
       curCanvas = canvas5;
+      canvas5.addEventListener("mousedown",updateCanvasClick,false);
       canvas5.addEventListener("mousemove",updateCanvasMove,false);
       run5();
       break;
