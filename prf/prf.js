@@ -61,8 +61,8 @@ function drawMap7(ctx) {
   ctx.drawImage(imgBKG,mapPos[0],mapPos[1],isize*2,isize*2);
   // now do something slow and kind of stupid
   for (var i=0;i<data.vx.length;i++) {
-    var vx = Math.floor((data.x[i]+100)/5),
-      vy = Math.floor((data.y[i]+100)/5),
+    var vx = Math.floor((data.x[i]+100)/10),
+      vy = Math.floor((data.y[i]+100)/10),
       draw = false,
       color = "00";
 
@@ -94,6 +94,7 @@ var fieldDim = 20;
 function clearField() {
   fieldData = zeros(fieldDim*fieldDim);
 }
+
 function field(x,y) {
   y = y-boundY[0];
   // x y are the actual positions, convert to field dimensions
@@ -600,8 +601,9 @@ function run(i) {
       eventMove = eventMove7;
       curCanvas = canvas7;
       drag = false;
+      clearField();
       canvas7.addEventListener("mousedown",updateCanvasClick,false);
-      canvas3.addEventListener("mouseup",mouseUp3,false);
+      canvas7.addEventListener("mouseup",mouseUp3,false);
       canvas7.addEventListener("mousemove",updateCanvasMove,false);
       run7();
       break;
