@@ -422,7 +422,7 @@ function computeActivity() {
 	// step 1: draw the RF
 	var x=Math.round((rf.x-boundX[0])/10),
 		y = Math.round((rf.y-boundY[0])/10);
-	backctx.globalCompositeOperation = "source-over";
+	// backctx.globalCompositeOperation = "source-over";
 	backctx.fillStyle = "#000000";
 	backctx.fillRect(0,0,50,50);
 	for (var i=0;i<50;i++) {
@@ -430,7 +430,7 @@ function computeActivity() {
 			var dist = Math.hypot(i-x,j-y);
 			var pixelValue = normpdf(dist,0,rf.sd/10)/normpdf(0,0,rf.sd/10);
 			// set to gaussian value
-			if (pixelValue>0.05) {
+			if (pixelValue>0.1) {
 				backctx.fillStyle = gsc2hex(pixelValue);
 				backctx.fillRect(i,j,1,1);
 			}
@@ -438,6 +438,7 @@ function computeActivity() {
 	}
 	RFdata = backctx.getImageData(0,0,50,50);
 	// step 2: draw the stimulus using type "source-in"
+  backctx.fillStyle = "#000000";
 	backctx.fillRect(0,0,50,50);
 	backctx.fillStyle="#ffffff";
 	switch (stimulus) {
@@ -471,12 +472,14 @@ function computeActivity() {
 	if (activity.length>400) {activity.shift();}
 	// effect = activity[activity.length-1]>0 ? effect/Math.log(activity[activity.length-1]) : effect;
 	activity.push(effect);
+  // console.log(effect);
 
 	bold.shift(); bold.push(0);
 	effect = Math.sqrt(effect*50);
 	for (var i=0;i<hrf.length;i++) {
 		bold[activity.length+i]+=hrf[i]*effect;
 	}
+
 }
 
 var activityY = canvas3.height-25;
