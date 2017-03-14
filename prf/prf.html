@@ -79,8 +79,8 @@
 	<img src="images/rgc_v1.png"/>
 	<p>This spatial organization is extremely compelling. Neurons in visual cortex turn out to be topographically laid out into maps, where each map covers a hemifield or half-hemifield. These maps have been named V1, V2, V3, and so on. It goes farther as well, as it turns out that there is some  consistency in feature sensitivity across each map, so for example area MT covers a complete hemifield and is largely selective to motion direction, speed, and coherence. In contrast, area V4 shows sensitivity to color. Finally visual cortex has a higher signal to noise ratio in fMRI because neurons within individual voxels tend to share overlapping receptive fields and similar feature selectivity. In sum these properties: topographic organization, feature selectivity, and a high signal-to-noise ratio, make visual cortex a great place to study sensory perception and cognitive functions.</p>
 	<img src="images/mt_v4.png"/>
-	<p>In this first section we're going to explore how a neuron's receptive field changes its firing pattern and expected BOLD response. We've created a demonstration to help you gain an intuition for how this works where you'll use the three classic stimuli used during <b>retinotopic mapping</b>, the fMRI procedure of showing high contrast stimuli crossing the visual field to collect data usable to find receptive fields. You'll see a display like the one below and your goal will be to answer the questions on the next page.</p>
-	<img src="images/examples3.png"/>
+	<p>In this first section we're going to explore how a neuron's receptive field changes its firing pattern and expected BOLD response. We've created a demonstration to help you gain an intuition for how this works where you'll use the three classic stimuli used during <b>retinotopic mapping</b>, the fMRI procedure of showing high contrast stimuli crossing the visual field to collect data usable to find receptive fields. You'll see a display like the one below and your goal will be to answer the questions on the next page. You'll be able to choose among the stimulus options and control them by moving your cursor around the visual field. Once you've created a receptive field (click and drag), you'll see that the encoding model will predict a certain amount of neural activity and BOLD response based on the overlap between the stimulus and the current receptive field.</p>
+	<img src="images/example1.png"/>
 </div>
 
 <div id="block3">
@@ -103,6 +103,8 @@
 	<h2>Part 2: Retinotopic maps in visual cortex</h2>
 	<p>In visual cortex voxels that respond to neighboring regions of the visual field tend to cluster together. These form <b>retinotopic maps</b> that can be uncovered using retinotopic stimuli. In the next demonstration we're going to show you examples of the retinotopic maps and how they respond to wedge, ring, and bar stimuli. This section is designed to help you gain an intuition about how these stimuli evoke responses across all of visual cortex.</p>
 	<p>Before going on it's worth taking a moment to consider why retinotopic mapping is important for cognitive neuroscience.</p>
+	<p>On the next screen you'll see the following. This is a "flat map", a flattened representation of the cortical surface.</p>
+	<img src="images/example2.png"/>
 </div>
 
 <div id="block5">
@@ -120,7 +122,10 @@
 
 <div id="block6">
 	<h2>Part 3: Encoding and decoding</h2>
-	<p>Stuff</p>
+	<p>The population receptive field model is an encoding model--it specifies how a stimulus will be encoded as a representation in the brain. One popular use of encoding models is their power to <b>decode</b>, from just the measures of brain representations, what stimulus might have been shown in the world. Decoding has become a powerful tool for cognitive neuroscience and is now being used as part of the standard set of paradigms to test and understand cognition.</p>
+	<p>One use of decoding in vision is to get an estimate of how the brain is representing the visual world. When cognitive changes occur, for example when we focus our attention on a spatial location, we might expect that the brain's representation of the world will change even though the stimulus input remains the same. Other experiments pit two alternative stimuli against each other and then use our ability to "read out" which stimulus was shown as a measure of the brain representation's fidelity.</p>
+	<p>In the next slide you'll be shown a screen like the one below. The circle on the left represents the visual field, the flat map on the right is the flattended cortical surface in the left visual cortex. You'll see activity appear in response to the stimulus, according to whether each voxel is activated y a particular stimulus. You can click and drag to draw a stimulus, shift+click will clear the screen. Remember that this is the <b>left visual cortex</b> so stimuli in only some parts of the visual field will have an effect.</p>
+	<img src="images/example3.png"/>
 </div>
 
 <div id="block7">
