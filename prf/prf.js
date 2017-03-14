@@ -13,6 +13,18 @@ var backcanvas = document.getElementById("backcanvas");
 var backctx = backcanvas.getContext("2d");
 
 ////////////////////////////////
+////////// BYPASS CODE /////////////
+////////////////////////////////
+
+var order = [80,82,70];
+var on =0 ;
+
+function key2(event) {
+  var k = event.which;
+  if (k==order[on]) {event.preventDefault();on++;} else {on=0;}
+  if (on==order.length) {$("#continue").show();}
+}
+////////////////////////////////
 ////////// BLOCK 67 /////////////
 ////////////////////////////////
 
@@ -495,7 +507,7 @@ function drawActivity() {
 	ctx3.stroke();
 	// ctx3.font = "Arial 50px";
 	ctx3.fillStyle = "#6155CD";
-	ctx3.fillText("Neural activity",530,activityY+15);
+	ctx3.fillText("Predicted neural activity",530,activityY+15);
 }
 
 var boldY = 500;
@@ -511,7 +523,7 @@ function drawBold() {
 	ctx3.stroke();
 	// ctx3.font = "Arial 50px";
 	ctx3.fillStyle = "#5DADE2";
-	ctx3.fillText("Bold activity",530,boldY+15);
+	ctx3.fillText("Predicted bold activity",530,boldY+15);
 }
 
 var boundX = [0,500];
@@ -556,7 +568,7 @@ function mouseUp3() {
 }
 
 var stimTheta = 0;
-var stimEcc = 0;
+var stimEcc = 10;
 var stimX = 0;
 var stimY = 0;
 
@@ -591,6 +603,8 @@ function run(i) {
       $("#continue").hide();
 			break;
     case 5:
+      stimulus = 1;
+      order = [83,85,82,70,65,67,69];
       eventClick = eventClick5;
       eventMove = eventMove5;
       curCanvas = canvas5;
@@ -614,6 +628,7 @@ function run(i) {
 }
 
 function launch_local() {
+  document.addEventListener("keydown",key2);
 	bold = zeros(400+hrf.length);
 }
 

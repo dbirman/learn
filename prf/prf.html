@@ -59,8 +59,8 @@
 
 						<!-- Content -->
 							<section id="content">
-	<canvas id="backcanvas" width=50 height=50></canvas> 
-<!-- style="display:none;"  -->
+	<canvas style="display:none;" id="backcanvas" width=50 height=50></canvas> 
+<!--   -->
 <div id="block1">
 	<h2>Receptive field tutorial</h2>
 	<p>This tutorial is focused on helping you understand how receptive field mapping is performed today in fMRI experiments. Receptive field mapping is used to identify voxels in the brain that respond to stimuli in the visual field. In visual cortex there are a number of maps which can be drawn, which contain voxels selective for particular hemifields or partial hemifields. You'll be coding the models introduced in this tutorial yourselves as you go along--the tutorial is focused on helping you build an intuition about what kind of data you should expect to see.</p>
@@ -79,45 +79,59 @@
 	<img src="images/rgc_v1.png"/>
 	<p>This spatial organization is extremely compelling. Neurons in visual cortex turn out to be topographically laid out into maps, where each map covers a hemifield or half-hemifield. These maps have been named V1, V2, V3, and so on. It goes farther as well, as it turns out that there is some  consistency in feature sensitivity across each map, so for example area MT covers a complete hemifield and is largely selective to motion direction, speed, and coherence. In contrast, area V4 shows sensitivity to color. Finally visual cortex has a higher signal to noise ratio in fMRI because neurons within individual voxels tend to share overlapping receptive fields and similar feature selectivity. In sum these properties: topographic organization, feature selectivity, and a high signal-to-noise ratio, make visual cortex a great place to study sensory perception and cognitive functions.</p>
 	<img src="images/mt_v4.png"/>
-	<p>In this first section we're going to explore how a neuron's receptive field changes its firing pattern and expected BOLD response. We've created a demonstration to help you gain an intuition for how this works where you'll use the three classic stimuli used during <b>retinotopic mapping</b>, the fMRI procedure of showing high contrast stimuli crossing the visual field to collect data usable to find receptive fields. You'll see a display like the one below and your goal will be to answer the following questions.</p>
+	<p>In this first section we're going to explore how a neuron's receptive field changes its firing pattern and expected BOLD response. We've created a demonstration to help you gain an intuition for how this works where you'll use the three classic stimuli used during <b>retinotopic mapping</b>, the fMRI procedure of showing high contrast stimuli crossing the visual field to collect data usable to find receptive fields. You'll see a display like the one below and your goal will be to answer the questions on the next page.</p>
 	<img src="images/examples3.png"/>
-	<ul>
-		<li>In classic retinotopy Wandell and colleagues used 12-second (?) periodic <b>wedges</b> and <b>rings</b> for mapping. They then used the phase to identify the angle and eccentricity that a given voxel preferred. They fit their data using sinusoids--try recreating this stimulus by hand, what positives and what negatives do you see to this approach?</li>
-		<li>In more modern retinotopy researchers now fit the population receptive field model using <b>bars</b>. Why are bars a good stimulus to use?</li>
-		<li>A common intuition among first-time retinotopy users is that it would be more efficient to show more bars at once, or display more things on the screen more quickly (note that usually bars take 24 seconds to cross the screen). Try showing faster moving bars to small and large receptive fields--which do you think you could still identify using the data?</li> 
-	</ul>
 </div>
 
 <div id="block3">
 	<h2>Part 1: Voxel responses to visual stimuli</h2>
+	<p>Use these questions to guide your exploration of the stimulus:</p>
+	<ul>
+	<li>In classic retinotopy Wandell and colleagues used 12-second (?) periodic <b>wedges</b> and <b>rings</b> for mapping. They then used the phase to identify the angle and eccentricity that a given voxel preferred. They fit their data using sinusoids--try recreating this stimulus by hand, what positives and what negatives do you see to this approach?</li>
+	<li>In more modern retinotopy researchers now fit the population receptive field model using <b>bars</b>. Why are bars a good stimulus to use?</li>
+	<li>A common intuition among first-time retinotopy users is that it would be more efficient to show more bars at once, or display more things on the screen more quickly (note that usually the bars take 24 seconds to cross the screen, because we've accelerated the HRF here by about 3x you can mimic this by taking about 8 seconds to cross the field). Try showing faster moving bars to small and large receptive fields--which do you think you could still identify using the data?</li> 
+</ul>
 	<canvas id="canvas3" width=1000 height=700></canvas>
 	<!-- this back canvas will be used to render the RF and stimulus at low resolution to calculate overlap -->
 	<br>
 	<!--   -->
+	<p>When you're finished exploring the questions at the top of the page, continue with the MATLAB tutorial.</p>
 </div>
 
 
 <div id="block4">
 	<h2>Part 2: Retinotopic maps in visual cortex</h2>
-	<p>Pictures and stuff</p>
+	<p>In visual cortex voxels that respond to neighboring regions of the visual field tend to cluster together. These form <b>retinotopic maps</b> that can be uncovered using retinotopic stimuli. In the next demonstration we're going to show you examples of the retinotopic maps and how they respond to wedge, ring, and bar stimuli. This section is designed to help you gain an intuition about how these stimuli evoke responses across all of visual cortex.</p>
+	<p>Before going on it's worth taking a moment to consider why retinotopic mapping is important for cognitive neuroscience.</p>
 </div>
+
 <div id="block5">
 	<h2>Part 2: Retinotopic maps in visual cortex</h2>
+	<ul>
+		<li>First, try using the ring stimulus. We've centered this flat map on the <b>fovea</b>, so you should see expanding responses leaving from that point and moving outwards. The first set of retinotopic maps in visual cortex (V1->V4) all spread out from this first fovea. Later retinotopic maps like MT, the ventral occipital maps, and the intraparietal maps have their own complete hemifields (fovea and periphery).</li>
+		<li>Next try using the wedge stimulus. Notice how near vertical and horizontal you can identify the <b>boundaries</b> between retinotopic maps, at these points the maps "flip" and reverse direction. If that's confusing try drawing a picture on the whiteboard. With the wedge stimulus you should be able to clearly identify V1 to V3, and the instructors/TAs can help you identify some of the other maps on this flat map.</li>
+		<li>Finally try the bar stimulus: notice that the bar stimulus doesn't make either the boundaries between regions or the fovea/periphery immediately obvious. The bar stimulus requires an encoding model to be useful--on its own it can't be used to map retinotopic cortex. In the next section of the tutorial you'll be focusing on building an encoding model that generates the kinds of maps we use to draw retinotopic maps.</li>
+	</ul>
 	<canvas id="canvas5" width=1000 height=700></canvas>
-	<!-- this back canvas will be used to render the RF and stimulus at low resolution to calculate overlap -->
 	<br>
 	<!--   -->
+	<p>When you're finished exploring the questions at the top of the page, continue with the MATLAB tutorial.</p>
 </div>
 
 <div id="block6">
 	<h2>Part 3: Encoding and decoding</h2>
 	<p>Stuff</p>
 </div>
+
 <div id="block7">
 	<h2>Part 3: Encoding and decoding</h2>
+	<p>To test out how the pRF encoding model can be used to predict the respones for different stimuli try out the following:</p>
+	<ul>
+		<li>With your neighbor, each draw an X in the right hemifield, take a screenshot of the responses, then draw an O, and take a screenshot (command+shift+4 on a mac). Hide the demo page and open just the screenshots, then take a look at your neighbor's screenshots, can you tell which is the O and which is the X? Despite the noise you each added by drawing slightly different shapes, it should be pretty clear. This is how we use an encoding model to perform <b>decoding</b>: we make predictions about what we expect and compare them to reality. The predicted response that best matches reality informs us about which stimulus was most likely to have been shown.</li>
+	</ul>
 	<canvas id="canvas7" width=1000 height=700></canvas>
-	<!-- this back canvas will be used to render the RF and stimulus at low resolution to calculate overlap -->
 	<br>
+	<p>When you're finished exploring the questions at the top of the page, continue with the MATLAB tutorial (this is the end of the demo).</p>
 </div>
 
 <div id="endblock">
