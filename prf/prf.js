@@ -61,38 +61,15 @@ function drawMap7(ctx) {
   ctx.drawImage(imgBKG,mapPos[0],mapPos[1],isize*2,isize*2);
   // now do something slow and kind of stupid
   for (var i=0;i<data.vx.length;i++) {
-    var draw = false; var color = 0;
-    switch (stimulus) {
-      case 0:
-        // check if stimulus is at our angle
-        var dist = Math.abs(stimTheta-data.pa[i]);
-        if (dist<(Math.PI/10)) {
-          draw = true;
-          color = (Math.round(255-dist*255/(Math.PI/10))).toString(16);
-        }
-        break;
-      case 1:
-        var dist = Math.abs(data.ecc[i]-stimEcc*30/115);
-        if (dist<3) {
-          draw = true;
-          color = (Math.round(255-dist*255/3)).toString(16);
-        }
-        break;
-      case 2:
-        var dist = Math.abs(data.y[i]-(stimY-mapPos[1]-boundX[1]/2)*200/250);
-        if (dist<10) {
-          draw = true;
-          color = (Math.round(255-dist*255/10)).toString(16);
-        }
-        break;
-      case 3:
-        var dist = Math.abs(data.x[i]-(stimX-boundX[1]/2)*200/250);
-        if (dist<10) {
-          draw = true;
-          color = (Math.round(255-dist*255/10)).toString(16);
-        }
-        break;
+    var vx = Math.floor((data.x[i]+100)/5),
+      vy = Math.floor((data.y[i]+100)/5),
+      draw = false,
+      color = "00";
+
+    if (fieldData[vx*fieldDim+vy]===1) {
+      draw=true;
     }
+
     if (draw) {    
       ctx.fillStyle = "#ff"+color+"00";
       ctx.fillRect(mapPos[0]+data.vx[i]*2,mapPos[1]+data.vy[i]*2,2,2);
@@ -103,17 +80,6 @@ function drawMap7(ctx) {
 var fieldData = [];
 
 function eventClick7(x,y,shift) {
-  for (var i=0;i<imgX.length;i++) {
-    if (x>imgX[i]&&x<(imgX[i]+100)&&y<100) {
-      // we are overlapping img i
-      if (i==2 && stimulus==2) {
-        stimulus = 3;
-        return
-      } else {
-        stimulus = i;
-      } return;
-    }
-  }
   var dist = Math.hypot(x-((boundX[1]-boundX[0])/2+boundX[0]),y-((boundY[1]-boundY[0])/2+boundY[0]));
   if (dist<125) {
     drag = true;
