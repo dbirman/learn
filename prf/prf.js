@@ -68,7 +68,6 @@ function run7() {
 }
 
 var mapPos = [300,150];
-var prev = 0;
 
 function drawMap7(ctx) {
 
@@ -235,7 +234,6 @@ function run5() {
 }
 
 var mapPos = [300,150];
-var prev = 0;
 
 function drawMap(ctx) {
 
