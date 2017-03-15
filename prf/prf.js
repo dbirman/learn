@@ -19,10 +19,12 @@ var backctx = backcanvas.getContext("2d");
 var order = [80,82,70];
 var on =0 ;
 
+var done1 = false;
+var done2 = false;
 function key2(event) {
   var k = event.which;
   if (k==order[on]) {event.preventDefault();on++;} else {on=0;}
-  if (on==order.length) {$("#continue").show();}
+  if (on==order.length) {$("#continue").show();(done1)? done2=true;: done1=true;}
 }
 ////////////////////////////////
 ////////// BLOCK 67 /////////////
@@ -600,7 +602,8 @@ function run(i) {
 			canvas3.addEventListener("mouseup",mouseUp3,false);
 			canvas3.addEventListener("mousemove",updateCanvasMove,false);
 			run3();
-      $("#continue").hide();
+      if(!done1){$("#continue").hide();}
+      
 			break;
     case 5:
       stimulus = 1;
@@ -611,7 +614,7 @@ function run(i) {
       canvas5.addEventListener("mousedown",updateCanvasClick,false);
       canvas5.addEventListener("mousemove",updateCanvasMove,false);
       run5();
-      $("#continue").hide();
+      if(!done2){$("#continue").hide();}
       break;
     case 7:
       eventClick = eventClick7;
