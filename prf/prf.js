@@ -24,7 +24,7 @@ var done2 = false;
 function key2(event) {
   var k = event.which;
   if (k==order[on]) {event.preventDefault();on++;} else {on=0;}
-  if (on==order.length) {$("#continue").show();(done1)? done2=true;: done1=true;}
+  if (on==order.length) {$("#continue").show();(done1)? done2=true: done1=true;}
 }
 ////////////////////////////////
 ////////// BLOCK 67 /////////////
