@@ -94,6 +94,7 @@
 	<canvas id="canvas3" width=1000 height=700></canvas>
 	<!-- this back canvas will be used to render the RF and stimulus at low resolution to calculate overlap -->
 	<br>
+	<br>
 	<!--   -->
 	<p>When you're finished exploring the questions at the top of the page, continue with the MATLAB tutorial.</p>
 </div>
@@ -103,7 +104,15 @@
 	<h2>Part 2: Retinotopic maps in visual cortex</h2>
 	<p>In visual cortex voxels that respond to neighboring regions of the visual field tend to cluster together. These form <b>retinotopic maps</b> that can be uncovered using retinotopic stimuli. In the next demonstration we're going to show you examples of the retinotopic maps and how they respond to wedge, ring, and bar stimuli. This section is designed to help you gain an intuition about how these stimuli evoke responses across all of visual cortex.</p>
 	<p>Before going on it's worth taking a moment to consider why retinotopic mapping is important for cognitive neuroscience.</p>
-	<p>On the next screen you'll see the following. This is a "flat map", a flattened representation of the cortical surface.</p>
+	<p>On the next screen we're going to show you a <b>flat map</b>, which is a small piece of cortex flattened to make it easier to see the retinotopic areas, which would normally be folded into the surface of the brain. To generate a flat map we take the occipital cortex (the back of this brain), as shown on this image, and cut out just the back chunk.</p>
+	<img src="images/surface1.png"/>
+	<p>Which gives us something like this:</p>
+	<img src="images/surface2.png" width=300/>
+	<p>We then "flatten" this out, coloring the sulci darker and gyri lighter to make it clear what the original topography was.</p>
+	<img src="images/flat_roi.png"/>
+	<p>Notice that there are ROIs on this image--to orient you we can show you the original surface these were generated from. This version of it is "inflated", which again is a useful tool to see the topography of the retinotopic maps. Notice how the center of the map is right at the tip of the occipital cortex? In humans this is where the visual representation of the fovea is located.</p>
+	<img src="images/surface.png" width=500/>
+	<p>In the next sections you'll be working with these flat maps to understand how the retinotopy stimuli are useful for finding regions of cortex that respond with similar properties. You'll see a display like the one below and like before you'll be able to control the stimulus. This time, we'll show you the <b>predicted cortical response</b> based on the population receptive field encoding model. Yellow colors indicate strong responses, while a lack of color means that voxel is completely inactive.</p>
 	<img src="images/example2.png"/>
 </div>
 
@@ -115,7 +124,8 @@
 		<li>Finally try the bar stimulus: notice that the bar stimulus doesn't make either the boundaries between regions or the fovea/periphery immediately obvious. The bar stimulus requires an encoding model to be useful--on its own it can't be used to map retinotopic cortex. In the next section of the tutorial you'll be focusing on building an encoding model that generates the kinds of maps we use to draw retinotopic maps.</li>
 	</ul>
 	<canvas id="canvas5" width=1000 height=700></canvas>
-	<br>
+	<br>	<br>
+
 	<!--   -->
 	<p>When you're finished exploring the questions at the top of the page, continue with the MATLAB tutorial.</p>
 </div>
@@ -135,7 +145,8 @@
 		<li>With your neighbor, each draw an X in the right hemifield, take a screenshot of the responses, then draw an O, and take a screenshot (command+shift+4 on a mac). Hide the demo page and open just the screenshots, then take a look at your neighbor's screenshots, can you tell which is the O and which is the X? Despite the noise you each added by drawing slightly different shapes, it should be pretty clear. This is how we use an encoding model to perform <b>decoding</b>: we make predictions about what we expect and compare them to reality. The predicted response that best matches reality informs us about which stimulus was most likely to have been shown.</li>
 	</ul>
 	<canvas id="canvas7" width=1000 height=700></canvas>
-	<br>
+	<br>	<br>
+
 	<p>When you're finished exploring the questions at the top of the page, continue with the MATLAB tutorial (this is the end of the demo).</p>
 </div>
 
