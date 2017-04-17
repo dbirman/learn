@@ -600,7 +600,7 @@ function run(i) {
 			canvas3.addEventListener("mouseup",mouseUp3,false);
 			canvas3.addEventListener("mousemove",updateCanvasMove,false);
 			run3();
-      if(!done1){$("#continue").hide();}
+      // if(!done1){$("#continue").hide();}
       
 			break;
     case 5:
@@ -612,7 +612,7 @@ function run(i) {
       canvas5.addEventListener("mousedown",updateCanvasClick,false);
       canvas5.addEventListener("mousemove",updateCanvasMove,false);
       run5();
-      if(!done2){$("#continue").hide();}
+      // if(!done2){$("#continue").hide();}
       break;
     case 7:
       eventClick = eventClick7;
