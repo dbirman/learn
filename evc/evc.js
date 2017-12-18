@@ -34,11 +34,17 @@ PIXI.loader.add('bunny', './images/bunny.png').load((loader, resources) => {
     });
 });
 
+var brain = PIXI.Sprite.fromImage('images/brain.png');
+brain.anchor.set(0);
+brain.scale = 100;
+brain.x = 0; brain.y = 0;
+app.stage.addChild(brain);
+
 function run(i) {   
     $("#continue").show();
     switch(i) {
         case 2:
-            console.log('meow');
+            // pass
             break;
     }
 }
