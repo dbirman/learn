@@ -77,6 +77,12 @@
 <div id="block2">
 	<div id="block2_canvas">
 	</div>
+	<div id="block2_stim">
+		<label>Stimulus:</label>
+		<img id="wedge" onclick="setStimulus(this);" src="images/wedges.png"/ style="width:10vw">
+		<img id="ring" onclick="setStimulus(this);" src="images/rings.png"/ style="width:10vw">
+		<img id="bar" onclick="setStimulus(this);" src="images/bars.png"/ style="width:10vw">
+	</div>
 	<div id="block2_controls">
 		<label>Electrodes:</label>
 		<form oninput="nelec = parseInt(nelectrodes.value); updateElectrodes(); ne_label.value = nelec;">

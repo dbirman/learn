@@ -6,20 +6,21 @@ var velec = nelec;
 // with a fallback to a canvas render. It will also setup the ticker
 // and the root stage PIXI.Container
 var rendererOptions = {
-  antialiasing: true,
+  antialiasing: false,
   transparent: true,
   resolution: window.devicePixelRatio,
   autoResize: true,
 }
 
-const app = new PIXI.Application(800,600, rendererOptions);
+var ORIGIN_WIDTH = 800, ORIGIN_HEIGHT = 600;
+const app = new PIXI.Application(ORIGIN_WIDTH,ORIGIN_HEIGHT, rendererOptions);
 var graphics = [];
 
 // The application will create a canvas element for you that you
 // can then insert into the DOM
 document.getElementById("block2_canvas").appendChild(app.view);
 
-var brain, e_gray, e_red, e_blue;
+var brain, e_gray = e_red = e_blue = {};
 function add_sprites() {
     brain = PIXI.Sprite.fromImage('images/brain.png');
     brain.anchor.set(0,0);
@@ -27,12 +28,9 @@ function add_sprites() {
     brain.x = 0; brain.y = 0;
     app.stage.addChild(brain);
 
-    e_gray = newElectrode('gray'),
-        e_red = newElectrode('red'),
-        e_blue = newElectrode('blue');
-    app.stage.addChild(e_gray);
-    app.stage.addChild(e_red);
-    app.stage.addChild(e_blue);
+    e_gray.sprite = newElectrode('gray'),
+        e_red.sprite = newElectrode('red'),
+        e_blue.sprite = newElectrode('blue');
 }
 
 function newElectrode(str) {
@@ -48,8 +46,12 @@ function newElectrode(str) {
         .on('pointermove', buttonMove)
         .on('pointerup', buttonUp)
         .on('pointerupoutside', buttonUp);
+    app.stage.addChild(elec);
     return elec;
 }
+
+var vf_g = rf_g = {};
+var rf_lines = [];
 
 function add_graphics() {
     // create circles for retina/lgn/evc
@@ -64,7 +66,24 @@ function add_graphics() {
     g = newInteractiveRegion(150,450,150,0xFFFFFF,vfDown);
     g.on('pointermove', vfMove)
         .on('pointerup', vfUp);
+    vf_g.graphics = g;
     // create circle for 
+    var g = new PIXI.Graphics();
+    g.lineStyle(2,0xFFFFFF,1);
+    g.drawCircle(460,450,150);
+    // no hitarea or callbacks
+    app.stage.addChild(g);
+    rf_g.graphics = g;
+    // add lines from each visual area to the RF circle
+    for (var ii=0;ii<xs.length;ii++) {
+        var g = new PIXI.Graphics();
+        g.lineStyle(2,0xFF0000,1);
+        g.moveTo(xs[ii]+r[ii],ys[ii]);
+        g.lineTo(460,270)
+        g.visible = false;
+        rf_lines.push(g);
+        app.stage.addChild(g);
+    }
 }
 
 var vf_text, area_text;
@@ -79,7 +98,7 @@ function add_text() {
     vf_text.anchor.set(0.5,1);
     app.stage.addChild(vf_text);
     area_text = new PIXI.Text('Click a region to record', style);
-    area_text.x = 450;
+    area_text.x = 460;
     area_text.y = 300;
     area_text.anchor.set(0.5,1);
     app.stage.addChild(area_text);
@@ -115,25 +134,43 @@ function vfUp() {
 }
 
 
+// stimulus functions
+var stimTypes = ['wedge','ring','bar'];
+var cStim = -1;
 
+function setStimulus(button) {
+    for (var i=0;i<stimTypes.length;i++) {
+        button.id==stimTypes[i] ? cStim=i : cStim=cStim;
+        document.getElementById(stimTypes[i]).style.border = button.id==stimTypes[i] ? 'solid #ffffff' : 'solid #32333b';
+    }
+}
 
 // switch functions
 
 function retinaCallback() {
     area_text.setText('Recording from: Retina');
+    updateLineVisibility(0);
+    rf_lines[0].visible = true;
     resetRecord();
 }
 
 function lgnCallback() {
     area_text.setText('Recording from: LGN');
+    updateLineVisibility(1);
     resetRecord();
 }
 
 function v1Callback() {
     area_text.setText('Recording from: EVC');
+    updateLineVisibility(2);
     resetRecord();
 }
 
+function updateLineVisibility(c) {
+    for (var i=0;i<rf_lines.length;i++) {
+        rf_lines[i].visible = i == c;
+    }
+}
 
 //////////////////////////////////////////////////////////////////////
 ///////////// reset //////////////////////////////
@@ -154,6 +191,14 @@ var tick;
 function render() {
     //pass 
     // tick = requestAnimationFrame(render);
+}
+
+function resize() {
+  var ratio = Math.min(window.innerWidth/ORIGIN_WIDTH,
+                   window.innerHeight/ORIGIN_HEIGHT);
+  app.stage.scale.set(ratio);
+  app.renderer.resize(Math.ceil(ORIGIN_WIDTH * ratio),
+                  Math.ceil(ORIGIN_HEIGHT * ratio));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -183,9 +228,9 @@ function buttonMove(event) {
 
 function updateElectrodes() {
     velec = nelec;
-    e_gray.visible = velec > 0;
-    e_red.visible = velec > 1;
-    e_blue.visible = velec > 2;
+    e_gray.sprite.visible = velec > 0;
+    e_red.sprite.visible = velec > 1;
+    e_blue.sprite.visible = velec > 2;
 }
 
 function run(i) {   
@@ -199,8 +244,10 @@ function run(i) {
 }
 
 function launch_local() {
+    resize();
     add_sprites();
     add_graphics(); 
     add_text();
     updateElectrodes(0);
+    setStimulus({});
 }
