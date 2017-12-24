@@ -12,10 +12,16 @@
 // Global variables
 var ocoords = [0,0,0,0],
 	icoords = [0,0,50,50],
-	num_rfs = icoords[2]*icoords[3];
+	center = [(icoords[2]/2),icoords[3]/2],
+	rf_length = icoords[2]*icoords[3];
 
+// Track the actual receptive fields for each location
 var rfs = [],
 	rf_inits = [rf_gauss, rf_mexhat, rf_wavelet2d];
+
+// Track the mouse position and current stimulus
+var mouse = {},
+	stim = {};
 
 // Create a grid 
 function rf_init() {
@@ -39,12 +45,20 @@ function rf_init() {
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 
-// Each receptive field defines a mask (to reduce dot product)
+// Each receptive field defines a rectangular mask (to reduce dot product)
 // and a set of values that control the RF strength
-// at each location. The RF sum is normalized to 1. 
+// at each location. The RF sum is normalized to 1.
 
+// Each actual receptive field can be jittered slightly 
+
+// RETINA
+// Receptive fields are spatiotopic, gaussian, on/off, and sustained/transient
 function rf_gauss(xi,yi) {
 	// xi, yi control the center
+	var rf = rf_default();
+
+
+	return rf;
 }
 
 function rf_mexhat(xi,yi) {
@@ -53,4 +67,18 @@ function rf_mexhat(xi,yi) {
 
 function rf_wavelet2d(xi,yi) {
 
+}
+
+function rf_default() {
+	var rf = {};
+	rf.mask = icoords;
+	rf.field = zeros(rf_length);
+	rf.props = {}; // special properties (e.g. on/off, transient/sustained)
+}
+
+// Calculate the mask and normalize
+function rf_finalize() {
+	// Mask calculation
+
+	// Normalization
 }

@@ -29,15 +29,15 @@ function add_sprites() {
     brain.x = 0; brain.y = 0;
     app.stage.addChild(brain);
 
-    e_gray.sprite = newElectrode('gray'),
-        e_red.sprite = newElectrode('red'),
-        e_blue.sprite = newElectrode('blue');
+    e_gray.sprite = newElectrode('gray');
+    e_red.sprite = newElectrode('red');
+    e_blue.sprite = newElectrode('blue');
 }
 
 function newElectrode(str) {
     elec = PIXI.Sprite.fromImage('images/electrode_' + str + '.png');
     elec.anchor.set(0.5,0.5);
-    elec.position.set(500,200);
+    elec.position.set(420,125);
     elec.scale.set(0.075);
     elec.alpha = 0.8;
     elec.visible = false;
@@ -85,6 +85,14 @@ function add_graphics() {
         rf_lines.push(g);
         app.stage.addChild(g);
     }
+}
+
+var trace_container;
+
+function add_traces() {
+    trace_container = new PIXI.Container();
+
+    app.stage.addChild(trace_container);
 }
 
 var vf_text, area_text;
@@ -136,7 +144,7 @@ function vfUp() {
 
 
 // stimulus functions
-var stimTypes = ['wedge','ring','bar'];
+var stimTypes = ['point','wedge','ring','bar'];
 var cStim = -1;
 
 function setStimulus(button) {
@@ -187,11 +195,38 @@ function resetRecord() {
 ///////////// render loop //////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+function renderTraces() {
+    if (velec>0) {_rTrace(e_gray);}
+    if (velec>1) {_rTrace(e_red);}
+    if (velec>2) {_rTrace(e_blue);}
+}
+
+function _rTrace(ctrace) {
+    if (ctrace.trace.g!=undefined) {
+        ctrace.trace.g.destroy();
+    }
+    ctrace.trace.g = new PIXI.Graphics();
+    ctrace.trace.g.lineStyle(1,ctrace.trace.color,1);
+    if (ctrace.trace.silent) {
+        ctrace.trace.g.moveTo(ctrace.trace.startX,ctrace.trace.startY);
+        ctrace.trace.g.lineTo(ctrace.trace.startX+ctrace.trace.spk.length,ctrace.trace.startY);
+    } else {
+        ctrace.trace.g.moveTo(ctrace.trace.startX,ctrace.trace.startY-ctrace.trace.spk[0]);
+        for (var i=1;i<ctrace.trace.spk.length;i++) {
+            ctrace.trace.g.lineTo(ctrace.trace.startX+i,ctrace.trace.startY-ctrace.trace.spk[i]);
+        }
+        trace_container.addChild(ctrace.trace.g);
+    }
+}
+
 var tick;
 
 function render() {
-    //pass 
-    // tick = requestAnimationFrame(render);
+    renderTraces();
+
+    tick = requestAnimationFrame(render);
+
+    app.renderer.render(app.stage);
 }
 
 function local_resize() {
@@ -204,7 +239,7 @@ function local_resize() {
 
 //////////////////////////////////////////////////////////////////////
 ///////////// interactive functionality //////////////////////////////
-//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////0////////////////////////////////
 
 function buttonDown(event) {
     this.isdown = true;
@@ -232,6 +267,11 @@ function updateElectrodes() {
     e_gray.sprite.visible = velec > 0;
     e_red.sprite.visible = velec > 1;
     e_blue.sprite.visible = velec > 2;
+    if (e_gray.trace!=undefined) {
+        e_gray.trace.silent = (curBlock==1) || !(velec > 0);
+        e_red.trace.silent = (curBlock==1) || !(velec > 1);
+        e_blue.trace.silent = (curBlock==1) || !(velec > 2);
+    } 
 }
 
 function run(i) {   
@@ -239,6 +279,7 @@ function run(i) {
     switch(i) {
         case 2:
             // pass
+            updateElectrodes(0);
             render();
             break;
     }
@@ -253,7 +294,6 @@ function launch_local() {
     add_sprites();
     add_graphics(); 
     add_text();
-    updateElectrodes(0);
     setStimulus({});  
 
     // get and save session informaiton
@@ -263,8 +303,19 @@ function launch_local() {
 
     // generate the three spike traces
     e_gray.trace = spk_addTrace();
+    e_gray.trace.startX = 605;
+    e_gray.trace.startY = 100;
+    e_gray.trace.color = 0xBEBEBE;
     e_red.trace = spk_addTrace();
+    e_red.trace.startX = 605;
+    e_red.trace.startY = 300;
+    e_red.trace.color = 0xCD6155;
     e_blue.trace = spk_addTrace();
+    e_blue.trace.startX = 605;
+    e_blue.trace.startY = 500;
+    e_blue.trace.color = 0x5DADE2;
+    add_traces();
+    updateElectrodes(0);
 
     // set the current step correctly (which stimulus and areas are accessible)
 

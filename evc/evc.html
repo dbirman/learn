@@ -79,6 +79,7 @@
 	</div>
 	<div id="block2_stim">
 		<label>Stimulus:</label>
+		<img id="point" onclick="setStimulus(this);" src="images/point.png"/ style="width:10vw">
 		<img id="wedge" onclick="setStimulus(this);" src="images/wedges.png"/ style="width:10vw">
 		<img id="ring" onclick="setStimulus(this);" src="images/rings.png"/ style="width:10vw">
 		<img id="bar" onclick="setStimulus(this);" src="images/bars.png"/ style="width:10vw">
@@ -120,6 +121,7 @@
 		<!-- Scripts -->
 			<script src="../assets/js/shared_code.js"></script>
 			<script src="../assets/js/shared_spikes.js"></script>
+			<script src="../assets/js/shared_rf.js"></script>
 			<script src="evc.js"></script>
 
 			<script>launch();</script>
