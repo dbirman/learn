@@ -1,6 +1,7 @@
 // GLOBAL VARIABLES
 var nelec = 1;
 var velec = nelec;
+var step = 0;
 
 // The application will create a renderer using WebGL, if possible,
 // with a fallback to a canvas render. It will also setup the ticker
@@ -20,7 +21,7 @@ var graphics = [];
 // can then insert into the DOM
 document.getElementById("block2_canvas").appendChild(app.view);
 
-var brain, e_gray = e_red = e_blue = {};
+var brain, e_gray = {}, e_red = {}, e_blue = {};
 function add_sprites() {
     brain = PIXI.Sprite.fromImage('images/brain.png');
     brain.anchor.set(0,0);
@@ -193,7 +194,7 @@ function render() {
     // tick = requestAnimationFrame(render);
 }
 
-function resize() {
+function local_resize() {
   var ratio = Math.min(window.innerWidth/ORIGIN_WIDTH,
                    window.innerHeight/ORIGIN_HEIGHT);
   app.stage.scale.set(ratio);
@@ -244,10 +245,39 @@ function run(i) {
 }
 
 function launch_local() {
-    resize();
+    // global inits
+    spk_init();
+
+    // local graphic inits
+    local_resize();
     add_sprites();
     add_graphics(); 
     add_text();
     updateElectrodes(0);
-    setStimulus({});
+    setStimulus({});  
+
+    // get and save session informaiton
+    if (localStorage.evc_step != undefined) {
+        step = localStorage.evc_step;
+    }
+
+    // generate the three spike traces
+    e_gray.trace = spk_addTrace();
+    e_red.trace = spk_addTrace();
+    e_blue.trace = spk_addTrace();
+
+    // set the current step correctly (which stimulus and areas are accessible)
+
+    // after the tutorials, this will default to the final step
+    setStep(false);
+}
+
+function setStep(override) {
+    if (override) {
+        step = Infinity;
+    }
+
+    if (step>=0) {
+
+    } 
 }
