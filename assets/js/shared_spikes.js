@@ -15,7 +15,7 @@ function spk_init() {
 // Add a new spike trace
 function spk_addTrace() {
   trace = {};
-  trace.rate = 0; // average firing rate per second
+  trace.rate = 3; // average firing rate per second
   trace.spk = zeros(190);
   trace.tick;
   trace.dying = 0;
