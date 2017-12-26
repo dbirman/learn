@@ -1,0 +1,17 @@
+{
+	"retina": {
+		"radius": 1,
+		"transText": [
+			"Sustained",
+			"Transient"
+		],
+		"typeText": [
+			"Off",
+			"On"
+		]
+	},
+	"dot": {
+		"radius": 2
+	},
+	"max_fire": 25
+}
