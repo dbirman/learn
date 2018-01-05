@@ -21,13 +21,19 @@ function dataReceived(dat) {
     data[dat.stim][dat.area][dat.x][dat.y] = dat.data;
 }
 
-function requestElectrodeData() {
+function requestElectrodeDataAll() {
+    if (velec>0) {requestElectrodeData(e_gray);}
+    if (velec>1) {requestElectrodeData(e_red);}
+    if (velec>2) {requestElectrodeData(e_blue);}
+}
+
+function requestElectrodeData(electrode) {
     var req = {};
     if (cStim==-1) {return;}
     req.stim = stimTypes[cStim];
     if (cArea==undefined) {return;}
     req.area = cArea;
-    var ePos = getElecPos();
+    var ePos = getElecPos(electrode);
     if (ePos==undefined) {return;}
     req.x = ePos.x;
     req.y = ePos.y;
@@ -259,7 +265,7 @@ function setStimulus(button) {
     for (var i=0;i<stimTypes.length;i++) {
         cStim = button.id==stimTypes[i] ? i : cStim;
         document.getElementById(stimTypes[i]).style.border = button.id==stimTypes[i] ? 'solid #ffffff' : 'solid #32333b';
-        requestElectrodeData();
+        requestElectrodeDataAll();
     }
 }
 
@@ -273,7 +279,7 @@ function retinaCallback() {
     updateLineVisibility(0);
     rf_lines[0].visible = true;
     resetMarkers();
-    requestElectrodeData();
+    requestElectrodeDataAll();
 }
 
 function lgnCallback() {
@@ -281,7 +287,7 @@ function lgnCallback() {
     cArea = 'lgn';
     updateLineVisibility(1);
     resetMarkers();
-    requestElectrodeData();
+    requestElectrodeDataAll();
 }
 
 function v1Callback() {
@@ -289,7 +295,7 @@ function v1Callback() {
     cArea = 'evc';
     updateLineVisibility(2);
     resetMarkers();
-    requestElectrodeData();
+    requestElectrodeDataAll();
 }
 
 function updateLineVisibility(c) {
@@ -318,19 +324,19 @@ function resetMarkers() {
 
 var stimPos;
 
-function updateFiringRates() {
+function updateFiringRates(electrode) {
     if (frChecksFail()) {return;}
     // Use the stimulus position (passed) and the electrode position (saved: elecPos);
-    var ePos = getElecPos();
+    var ePos = getElecPos(electrode);
     var sPos = getStimPos();
     if ((ePos==undefined)||(sPos==undefined)) {
-        if (e_gray.sprite.visible) {
-            spk_setRate(e_gray.trace,0);
+        if (electrode.sprite.visible) {
+            spk_setRate(electrode.trace,0);
         }
     } else {
         var idx = sPos.x*51+sPos.y+1; 
-        if (e_gray.sprite.visible) {
-            spk_setRate(e_gray.trace,data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx]);
+        if (electrode.sprite.visible) {
+            spk_setRate(electrode.trace,data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx]);
         }
     }
 }
@@ -343,7 +349,7 @@ function frChecksFail() {
 }
 
 function getElecPos(electrode) {
-    var elecPos = electrode.pos;
+    var elecPos = electrode.sprite.elecPos;
 
     if (elecPos==undefined) {return(undefined);}
 
@@ -372,8 +378,9 @@ var stimMoved = false;
 
 function renderStimulus() {
     if (stimMoved) {
-        updateFiringRates();
-
+        if (velec>0) {updateFiringRates(e_gray);}
+        if (velec>1) {updateFiringRates(e_red);}
+        if (velec>2) {updateFiringRates(e_blue);}
         stimMoved = false;
     }
 }
@@ -437,16 +444,15 @@ function buttonDown(event) {
 function buttonUp() {
     this.isdown = false;
     this.alpha = 0.8;
-    requestElectrodeData();
+    requestElectrodeDataAll();
 }
 
 function buttonMove(event) {
-    console.log(this);
     if (this.isdown) {
         var pos = event.data.getLocalPosition(this.parent);
-        elecPos = Object.assign({},pos);
-        elecPos.x = elecPos.x-this.offX-e_gray.sprite.width/2+6-rf_pos[0];
-        elecPos.y = elecPos.y-this.offY+e_gray.sprite.height/2-rf_pos[1];
+        this.elecPos = Object.assign({},pos);
+        this.elecPos.x = this.elecPos.x-this.offX-e_gray.sprite.width/2+6-rf_pos[0];
+        this.elecPos.y = this.elecPos.y-this.offY+e_gray.sprite.height/2-rf_pos[1];
         this.position.set(pos.x-this.offX,pos.y-this.offY);
     }
 }
