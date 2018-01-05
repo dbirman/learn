@@ -34,6 +34,7 @@ settings = struct;
 
 %% Generate receptive fields
 settings.max_fire = 25; % normalize all RFs to this sum(abs(rf))
+settings.def_fire = 2.5;
 
 % RETINA
 

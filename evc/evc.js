@@ -368,9 +368,8 @@ function getStimPos() {
     var req = {};
     req.x = Math.floor(stimPos.x/(vf_pos[2]*2)*51);
     req.y = Math.floor(stimPos.y/(vf_pos[2]*2)*51);
-    
-    if ((req.x<0)||(req.y<0)) {return(undefined);}
-    if ((req.x>50)||(req.y>50)) {return(undefined);}
+    var dist = Math.hypot(req.x-25,req.y-25)
+    if ((dist>25)) {return(undefined);}
     return(req);
 }
 
@@ -386,9 +385,20 @@ function renderStimulus() {
 }
 
 function renderTraces() {
-    if (velec>0) {_rTrace(e_gray);}
-    if (velec>1) {_rTrace(e_red);}
-    if (velec>2) {_rTrace(e_blue);}
+    if (velec>0) {
+        _rTrace(e_gray);
+    } else if (e_gray.trace.g!=undefined) {
+        e_gray.trace.g.destroy();
+        e_gray.trace.g = undefined;
+    }
+    if (velec>1) {_rTrace(e_red);} else if (e_red.trace.g!=undefined) {
+        e_red.trace.g.destroy();
+        e_red.trace.g = undefined;
+    }
+    if (velec>2) {_rTrace(e_blue);} else if (e_blue.trace.g!=undefined) {
+        e_blue.trace.g.destroy();
+        e_blue.trace.g = undefined;
+    }
 }
 
 function _rTrace(ctrace) {
