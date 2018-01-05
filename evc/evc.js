@@ -89,6 +89,7 @@ function add_sprites() {
     app.stage.addChild(brain);
 
     e_gray.sprite = newElectrode('gray');
+    e_gray.sprite.cursor = 'pointer';
     e_red.sprite = newElectrode('red');
     e_blue.sprite = newElectrode('blue');
 }
@@ -117,14 +118,16 @@ function add_graphics() {
     // create circles for retina/lgn/evc
         cs = [retinaCallback,lgnCallback,v1Callback];
     for (var xi=0;xi<xs.length;xi++) {
-        newInteractiveRegion(xs[xi],ys[xi],r[xi],0xFF0000,cs[xi]);
+        var g = newInteractiveRegion(xs[xi],ys[xi],r[xi],0xFF0000,cs[xi]);
+        g.cursor = 'pointer';
     }
     // create ellipse for visual field
-    g = newInteractiveRegion(vf_pos[0],vf_pos[1],vf_pos[2],0xFFFFFF,vfDown);
+    var g = newInteractiveRegion(vf_pos[0],vf_pos[1],vf_pos[2],0xFFFFFF,vfDown);
     g.on('pointermove', vfMove)
         .on('pointerup', vfUp);
+    g.cursor = 'crosshair'; // todo: swap to none when rendering stimulus
     vf_g.graphics = g;
-    // create circle for recording area 
+    // create rectangle for recording area 
     var g = new PIXI.Graphics();
     g.lineStyle(2,0xFFFFFF,1);
     g.drawRect(rf_pos[0],rf_pos[1],rf_pos[2],rf_pos[3]);
@@ -258,7 +261,7 @@ function addMarker(list,x,y,c,v) {
 
 
 // stimulus functions
-var stimTypes = ['dot','wedge','ring','bar'];
+var stimTypes = ['dotpos','dotneg','wedge','ring','bar'];
 var cStim = -1;
 
 function setStimulus(button) {
@@ -494,6 +497,12 @@ function run(i) {
 function launch_local() {
     // global inits
     spk_init();
+
+    // set renderer stuff
+    app.renderer.plugins.interaction.cursorStyles.crosshair = 'crosshair';
+    app.renderer.plugins.interaction.cursorStyles.none = 'none';
+    app.renderer.plugins.interaction.cursorStyles.grab = 'grab';
+    app.renderer.plugins.interaction.cursorStyles.grabbing= 'grabbing';
 
     // local graphic inits
     local_resize();

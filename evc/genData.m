@@ -36,6 +36,9 @@ settings = struct;
 settings.max_fire = 25; % normalize all RFs to this sum(abs(rf))
 settings.def_fire = 2.5;
 
+% remove default from max
+settings.max_fire = settings.max_fire - settings.def_fire;
+
 % RETINA
 
 settings.retina = struct;
@@ -63,53 +66,93 @@ for ni = 1:n
     dat = data_retina(ni,:);
     dist = hypot(X-dat(1),Y-dat(2));
     resp = normpdf(dist,0,dat(3));
-    resp = settings.max_fire * resp./sum(resp(:));
-    resp_retina(ni,:,:) = resp;
+    resp = settings.max_fire * resp./sum(abs(resp(:)));
+    if dat(5)
+        resp_retina(ni,:,:) = resp;
+    else
+        resp_retina(ni,:,:) = -resp;
+    end
+end
+
+% LGN
+
+settings.lgn = struct;
+settings.lgn.radiusPos = 2;
+settings.lgn.radiusNeg = 3;
+settings.lgn.relative = 1; % relative strength of the negative component
+
+% generate receptive field properties
+% x pos, y pos, radius (constant), transient (0/1), off/on (for transient) 
+data_lgn = zeros(n,5);
+for xi = 1:length(x)
+    for yi = 1:length(y)
+        data_lgn((xi-1)*length(x)+yi,:) = [x(xi) y(yi) settings.retina.radius transient ontype];
+    end
+end
+% now generate the normalized receptive fields
+resp_lgn = zeros(n,length(x),length(y));
+for ni = 1:n
+    dat = data_retina(ni,:);
+    dist = hypot(X-dat(1),Y-dat(2));
+    resp = normpdf(dist,0,settings.lgn.radiusPos)-settings.lgn.relative*normpdf(dist,0,settings.lgn.radiusNeg);
+    resp = settings.max_fire * resp./sum(abs(resp(:)));
+    if dat(5)
+        resp_lgn(ni,:,:) = resp;
+    else
+        resp_lgn(ni,:,:) = -resp;
+    end
 end
 
 %% Pass each stimulus across the entire image
 
-% DOT STIMULUS
-% Dot stimulus is a gaussian of radius 2x2, normalized to sum=25 (so that
+%% dotpos STIMULUS
+% dotpos stimulus is a gaussian of radius 2x2, normalized to sum=25 (so that
 % max firing rate is 25 since the receptive fields are set to sum = 1)
-dot = zeros(length(x),length(y),length(x),length(y));
-settings.dot.radius = 2;
+dotpos = zeros(length(x),length(y),length(x),length(y));
+settings.dotpos.radius = 2;
 for xi = 1:length(x)
     for yi = 1:length(x)
         % get stim
         dist = hypot(X-x(xi),Y-y(yi));
-        stim = normpdf(dist,0,settings.dot.radius);
+        stim = normpdf(dist,0,settings.dotpos.radius);
         stim = stim ./ sum(stim(:)) > .01;
-        dot(xi,yi,:,:) = stim;
+        dotpos(xi,yi,:,:) = stim;
     end
 end
 
-% Retina
-% for each retina RF
-firing_rate.dot.retina = zeros(n*length(x)*length(y),1);
-for ni = 1:n
-    % get RF
-    rf = squeeze(resp_retina(ni,:,:));
-            
-    % for each stimulus position
-    for xi = 1:length(x)
-        for yi = 1:length(x)
-            % get stim
-            stim = squeeze(dot(xi,yi,:,:));
-            
-            dat = settings.def_fire + rf(:)'*stim(:);
-            
-            idx = (ni-1)*2601+(xi-1)*51+yi;
-            firing_rate.dot.retina(idx) = dat(:);
-        end
+% Firing rates
+disp('POSITIVE DOT STIMULUS');
+firing_rate.dotpos.retina = computeRate(resp_retina,dotpos,settings,n,x,y);
+firing_rate.dotpos.lgn = computeRate(resp_lgn,dotpos,settings,n,x,y);
+
+%% dotneg stimulus
+dotneg = zeros(length(x),length(y),length(x),length(y));
+settings.dotpos.radius = 2;
+for xi = 1:length(x)
+    for yi = 1:length(x)
+        % get stim
+        dist = hypot(X-x(xi),Y-y(yi));
+        stim = normpdf(dist,0,settings.dotpos.radius);
+        stim = stim ./ sum(stim(:)) > .01;
+        dotneg(xi,yi,:,:) = -stim;
     end
-    if mod(ni,100)==0, disp(ni); end
 end
+
+disp('NEGATIVE DOT STIMULUS');
+firing_rate.dotneg.retina = computeRate(resp_retina,dotpos,settings,n,x,y);
+firing_rate.dotneg.lgn = computeRate(resp_lgn,dotpos,settings,n,x,y);
 
 %% Round to 1 digit and collapse
-%firing_rate.dot.retina = round(firing_rate.dot.retina*10)/10;
-firing_rate.dot.retina(firing_rate.dot.retina<0) = 0;
-firing_rate.dot.retina = (round(firing_rate.dot.retina*10)/10)';
+stims = {'dotpos','dotneg'};
+areas = {'retina','lgn'};
+
+for si = 1:length(stims)
+    for ai = 1:length(areas)
+        dat = firing_rate.(stims{si}).(areas{ai});
+        dat(dat<0) = 0;
+        firing_rate.(stims{si}).(areas{ai}) = (round(dat*10)/10)';
+    end
+end
 
 %% Save information
 
@@ -128,4 +171,10 @@ for i = 1:n
     dist = hypot(X-dat(1),Y-dat(2));
     imagesc(normpdf(dist,0,dat(3)));
     pause(0.01);
+end
+%% Display lgn
+h = figure;
+for i = 1:n
+    imagesc(squeeze(resp_lgn(i,:,:)));
+    pause(0.1);
 end
