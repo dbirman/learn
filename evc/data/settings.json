@@ -1,4 +1,5 @@
 {
+	"max_fire": 25,
 	"retina": {
 		"radius": 1,
 		"transText": [
@@ -12,6 +13,5 @@
 	},
 	"dot": {
 		"radius": 2
-	},
-	"max_fire": 25
+	}
 }

@@ -34,7 +34,6 @@ settings = struct;
 
 %% Generate receptive fields
 settings.max_fire = 25; % normalize all RFs to this sum(abs(rf))
-settings.def_fire = 3;
 
 % RETINA
 
@@ -97,13 +96,13 @@ for ni = 1:n
             % get stim
             stim = squeeze(dot(xi,yi,:,:));
             
-            dat = settings.def_fire + rf(:)'*stim(:);
+            dat = 3 + rf(:)'*stim(:);
             
-            idx = (ni-1)*2601+(xi-1)*51+yi;
+            idx = (ni-1)*2601+(xi-1);
             firing_rate.dot.retina(idx) = dat(:);
         end
     end
-    if mod(ni,100)==0, disp(ni); end
+    disp(ni);
 end
 
 %% Round to 1 digit and collapse

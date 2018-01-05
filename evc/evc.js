@@ -1,3 +1,42 @@
+// Socket
+var socket = io();
+
+socket.on('data', function(dat) {
+    dataReceived(dat);
+});
+
+var data = {};
+
+function dataReceived(dat) {
+    console.log('received data');
+    if (data[dat.stim]==undefined) {
+        data[dat.stim] = {};
+    }
+    if (data[dat.stim][dat.area]==undefined) {
+        data[dat.stim][dat.area] = [];
+    }
+    if (data[dat.stim][dat.area][dat.x]==undefined) {
+        data[dat.stim][dat.area][dat.x] = [];
+    }
+    data[dat.stim][dat.area][dat.x][dat.y] = dat.data;
+}
+
+function requestElectrodeData() {
+    var req = {};
+    if (cStim==-1) {return;}
+    req.stim = stimTypes[cStim];
+    if (cArea==undefined) {return;}
+    req.area = cArea;
+    var ePos = getElecPos();
+    if (ePos==undefined) {return;}
+    req.x = ePos.x;
+    req.y = ePos.y;
+    // check whether we have the data already
+    var doRequest = (data[req.stim]==undefined) || (data[req.stim][req.area]==undefined) || (data[req.stim][req.area][req.x]==undefined) || (data[req.stim][req.area][req.x][req.y]==undefined);
+    
+    if (doRequest) {socket.emit('request',req);}
+}
+
 // GLOBAL VARIABLES
 var nelec = 1;
 var velec = nelec;
@@ -13,7 +52,21 @@ var rendererOptions = {
   autoResize: true,
 }
 
-var ORIGIN_WIDTH = 800, ORIGIN_HEIGHT = 600;
+// trace starting points (they extend 190)
+var trace_posx = [705,705,705];
+var trace_posy = [100,300,500];
+// position of the brain region circles
+var xs = [93,170,300],
+    ys = [203,175,145],
+    r = [20,15,30];
+// electrode and brain scale
+var e_scale = 0.075;
+var b_scale = 0.25;
+// visual field
+var vf_pos = [150,450,150]; // x (center) y (center), radius
+var rf_pos = [310,300,300,300];
+
+var ORIGIN_WIDTH = 1024, ORIGIN_HEIGHT = 768;
 const app = new PIXI.Application(ORIGIN_WIDTH,ORIGIN_HEIGHT, rendererOptions);
 var graphics = [];
 
@@ -25,7 +78,7 @@ var brain, e_gray = {}, e_red = {}, e_blue = {};
 function add_sprites() {
     brain = PIXI.Sprite.fromImage('images/brain.png');
     brain.anchor.set(0,0);
-    brain.scale.set(0.25);
+    brain.scale.set(b_scale);
     brain.x = 0; brain.y = 0;
     app.stage.addChild(brain);
 
@@ -38,7 +91,7 @@ function newElectrode(str) {
     elec = PIXI.Sprite.fromImage('images/electrode_' + str + '.png');
     elec.anchor.set(0.5,0.5);
     elec.position.set(420,125);
-    elec.scale.set(0.075);
+    elec.scale.set(e_scale);
     elec.alpha = 0.8;
     elec.visible = false;
     elec.interactive = true;
@@ -56,22 +109,19 @@ var rf_lines = [];
 
 function add_graphics() {
     // create circles for retina/lgn/evc
-    var xs = [93,170,300],
-        ys = [203,175,145],
-        r = [20,15,30];
         cs = [retinaCallback,lgnCallback,v1Callback];
     for (var xi=0;xi<xs.length;xi++) {
         newInteractiveRegion(xs[xi],ys[xi],r[xi],0xFF0000,cs[xi]);
     }
     // create ellipse for visual field
-    g = newInteractiveRegion(150,450,150,0xFFFFFF,vfDown);
+    g = newInteractiveRegion(vf_pos[0],vf_pos[1],vf_pos[2],0xFFFFFF,vfDown);
     g.on('pointermove', vfMove)
         .on('pointerup', vfUp);
     vf_g.graphics = g;
-    // create circle for 
+    // create circle for recording area 
     var g = new PIXI.Graphics();
     g.lineStyle(2,0xFFFFFF,1);
-    g.drawCircle(460,450,150);
+    g.drawRect(rf_pos[0],rf_pos[1],rf_pos[2],rf_pos[3]);
     // no hitarea or callbacks
     app.stage.addChild(g);
     rf_g.graphics = g;
@@ -106,11 +156,37 @@ function add_text() {
     vf_text.y = 300;
     vf_text.anchor.set(0.5,1);
     app.stage.addChild(vf_text);
-    area_text = new PIXI.Text('Click a region to record', style);
+    area_text = new PIXI.Text('Click a brain region to record', style);
     area_text.x = 460;
     area_text.y = 300;
     area_text.anchor.set(0.5,1);
     app.stage.addChild(area_text);
+
+    // add up/down designations for each area
+    var style = new PIXI.TextStyle({
+        fill: '#ffffff',
+        fontSize: '10pt',
+    });
+    var text = new PIXI.Text('Dorsal (up)', style);
+    text.x = 460;
+    text.y = 320;
+    text.anchor.set(0.5,1);
+    app.stage.addChild(text);
+    var text = new PIXI.Text('Ventral (down)', style);
+    text.x = 460;
+    text.y = 590;
+    text.anchor.set(0.5,1);
+    app.stage.addChild(text);
+    var text = new PIXI.Text('Anterior (left)', style);
+    text.x = 320;
+    text.y = 450;
+    text.anchor.set(0,1);
+    app.stage.addChild(text);
+    var text = new PIXI.Text('Posterior (right)', style);
+    text.x = 600;
+    text.y = 450;
+    text.anchor.set(1,1);
+    app.stage.addChild(text);
 }
 
 function newInteractiveRegion(x,y,r,c,callback) {
@@ -130,49 +206,90 @@ function newInteractiveRegion(x,y,r,c,callback) {
 ///////////// CALLBACKS //////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-function vfMove() {
-    // 
+var markerPos = [],
+    markerNeg = [];
+function vfMove(event) {
+    var pos = event.data.getLocalPosition(this.parent);
+    // move the stimulus
+    // remove vf position
+    pos.x -= vf_pos[0]-vf_pos[2];
+    pos.y -= vf_pos[1]-vf_pos[2];
+    stimPos = pos;
+    stimMoved = stimPos!=undefined;
 }
 
-function vfDown() {
+var markerLists = [markerPos,markerNeg];
+var markerColors = [0x00FF00,0xFF0000];
+var markerVert = [true,false];
+
+function vfDown(event) {
     this.down = true;
+    if (event.data.originalEvent.ctrlKey) {
+        resetMarkers(); return;
+    }
+    var shift = Number(event.data.originalEvent.shiftKey);    
+    var pos = event.data.getLocalPosition(this.parent);
+    // add marker (before removing vf position);
+    addMarker(markerLists[shift],pos.x,pos.y,markerColors[shift],markerVert[shift])
 }
 
 function vfUp() {
     this.down = false;
 }
 
+function addMarker(list,x,y,c,v) {
+    var g = new PIXI.Graphics();
+    g.lineStyle(1,c,1);
+    g.moveTo(x-5,y);
+    g.lineTo(x+5,y);
+    if (v) {
+        g.moveTo(x,y-5);
+        g.lineTo(x,y+5);
+    }
+    list.push(g);
+    markerContainer.addChild(g);
+}
+
 
 // stimulus functions
-var stimTypes = ['point','wedge','ring','bar'];
+var stimTypes = ['dot','wedge','ring','bar'];
 var cStim = -1;
 
 function setStimulus(button) {
     for (var i=0;i<stimTypes.length;i++) {
-        button.id==stimTypes[i] ? cStim=i : cStim=cStim;
+        cStim = button.id==stimTypes[i] ? i : cStim;
         document.getElementById(stimTypes[i]).style.border = button.id==stimTypes[i] ? 'solid #ffffff' : 'solid #32333b';
+        requestElectrodeData();
     }
 }
 
 // switch functions
 
+var cArea;
+
 function retinaCallback() {
     area_text.setText('Recording from: Retina');
+    cArea = 'retina';
     updateLineVisibility(0);
     rf_lines[0].visible = true;
-    resetRecord();
+    resetMarkers();
+    requestElectrodeData();
 }
 
 function lgnCallback() {
     area_text.setText('Recording from: LGN');
+    cArea = 'lgn';
     updateLineVisibility(1);
-    resetRecord();
+    resetMarkers();
+    requestElectrodeData();
 }
 
 function v1Callback() {
     area_text.setText('Recording from: EVC');
+    cArea = 'evc';
     updateLineVisibility(2);
-    resetRecord();
+    resetMarkers();
+    requestElectrodeData();
 }
 
 function updateLineVisibility(c) {
@@ -185,15 +302,81 @@ function updateLineVisibility(c) {
 ///////////// reset //////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-var pMarks = [], nMarks = [];
+var markerContainer;
 
-function resetRecord() {
-    pMarks = []; nMarks = [];
+function resetMarkers() {
+    if (markerContainer!=undefined) {markerContainer.destroy();}
+    markerContainer = new PIXI.Container();
+    app.stage.addChild(markerContainer);
+
+    markerPos = []; markerNeg = [];
 }
 
 //////////////////////////////////////////////////////////////////////
 ///////////// render loop //////////////////////////////
 //////////////////////////////////////////////////////////////////////
+
+var stimPos;
+
+function updateFiringRates() {
+    if (frChecksFail()) {return;}
+    // Use the stimulus position (passed) and the electrode position (saved: elecPos);
+    var ePos = getElecPos();
+    var sPos = getStimPos();
+    if ((ePos==undefined)||(sPos==undefined)) {
+        if (e_gray.sprite.visible) {
+            spk_setRate(e_gray.trace,0);
+        }
+    } else {
+        var idx = sPos.x*51+sPos.y+1; 
+        if (e_gray.sprite.visible) {
+            spk_setRate(e_gray.trace,data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx]);
+        }
+    }
+}
+
+function frChecksFail() {
+    return ((data==undefined) || 
+        (data[stimTypes[cStim]]==undefined) ||
+        (data[stimTypes[cStim]][cArea]==undefined)
+        );
+}
+
+function getElecPos(electrode) {
+    var elecPos = electrode.pos;
+
+    if (elecPos==undefined) {return(undefined);}
+
+    var req = {};
+    req.x = Math.floor(elecPos.x/rf_pos[2]*51);
+    req.y = Math.floor(elecPos.y/rf_pos[3]*51);
+
+    if ((req.x<0)||(req.y<0)) {return(undefined);}
+    if ((req.x>50)||(req.y>50)) {return(undefined);}
+    return(req);
+}
+
+function getStimPos() {
+    if (stimPos==undefined) {return(undefined);}
+
+    var req = {};
+    req.x = Math.floor(stimPos.x/(vf_pos[2]*2)*51);
+    req.y = Math.floor(stimPos.y/(vf_pos[2]*2)*51);
+    
+    if ((req.x<0)||(req.y<0)) {return(undefined);}
+    if ((req.x>50)||(req.y>50)) {return(undefined);}
+    return(req);
+}
+
+var stimMoved = false;
+
+function renderStimulus() {
+    if (stimMoved) {
+        updateFiringRates();
+
+        stimMoved = false;
+    }
+}
 
 function renderTraces() {
     if (velec>0) {_rTrace(e_gray);}
@@ -223,6 +406,7 @@ var tick;
 
 function render() {
     renderTraces();
+    renderStimulus();
 
     tick = requestAnimationFrame(render);
 
@@ -253,12 +437,17 @@ function buttonDown(event) {
 function buttonUp() {
     this.isdown = false;
     this.alpha = 0.8;
+    requestElectrodeData();
 }
 
 function buttonMove(event) {
+    console.log(this);
     if (this.isdown) {
         var pos = event.data.getLocalPosition(this.parent);
-        this.position.set(pos.x-this.offX,pos.y-this.offY); 
+        elecPos = Object.assign({},pos);
+        elecPos.x = elecPos.x-this.offX-e_gray.sprite.width/2+6-rf_pos[0];
+        elecPos.y = elecPos.y-this.offY+e_gray.sprite.height/2-rf_pos[1];
+        this.position.set(pos.x-this.offX,pos.y-this.offY);
     }
 }
 
@@ -280,6 +469,7 @@ function run(i) {
         case 2:
             // pass
             updateElectrodes(0);
+            resetMarkers();
             render();
             break;
     }
@@ -294,7 +484,7 @@ function launch_local() {
     add_sprites();
     add_graphics(); 
     add_text();
-    setStimulus({});  
+    setStimulus({});
 
     // get and save session informaiton
     if (localStorage.evc_step != undefined) {
@@ -303,16 +493,16 @@ function launch_local() {
 
     // generate the three spike traces
     e_gray.trace = spk_addTrace();
-    e_gray.trace.startX = 605;
-    e_gray.trace.startY = 100;
+    e_gray.trace.startX = trace_posx[0];
+    e_gray.trace.startY = trace_posy[0];
     e_gray.trace.color = 0xBEBEBE;
     e_red.trace = spk_addTrace();
-    e_red.trace.startX = 605;
-    e_red.trace.startY = 300;
+    e_red.trace.startX = trace_posx[1];
+    e_red.trace.startY = trace_posy[1];
     e_red.trace.color = 0xCD6155;
     e_blue.trace = spk_addTrace();
-    e_blue.trace.startX = 605;
-    e_blue.trace.startY = 500;
+    e_blue.trace.startX = trace_posx[2];
+    e_blue.trace.startY = trace_posy[2];
     e_blue.trace.color = 0x5DADE2;
     add_traces();
     updateElectrodes(0);

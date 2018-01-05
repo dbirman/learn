@@ -1,4 +1,4 @@
-function saveJSONfile(data, jsonFileName)
+function jsonencode(data, jsonFileName)
 % saves the values in the structure 'data' to a file in JSON format.
 %
 % Example:
