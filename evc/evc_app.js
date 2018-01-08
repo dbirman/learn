@@ -18,6 +18,10 @@ io.on('connection', function(socket){
   	console.log('disconnect');
   });
 
+  socket.on('settings', function() {
+    io.to(socket.id).emit('settings',settings);
+  })
+
   socket.on('request', function(req) {
   	console.log('Request made');
   	console.log('Stimulus: ' + req.stim); // one of dot, 

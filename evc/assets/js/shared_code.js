@@ -55,7 +55,29 @@ function next() {
 	$("body").scrollTop(0);
 }
 
+function checkBrowser(){
+    c = navigator.userAgent.search("Chrome");
+    f = navigator.userAgent.search("Firefox");
+    m8 = navigator.userAgent.search("MSIE 8.0");
+    m9 = navigator.userAgent.search("MSIE 9.0");
+    if (c > -1) {
+        browser = "Chrome";
+    } else if (f > -1) {
+        browser = "Firefox";
+    } else if (m9 > -1) {
+        browser ="MSIE 9.0";
+    } else if (m8 > -1) {
+        browser ="MSIE 8.0";
+    }
+    return browser;
+}
+
 function launch() {
+	var browser = checkBrowser();
+
+	if (browser=="Firefox") {
+		alert('The tutorials do not function properly with Firefox. Please switch to Chrome.');
+	}
 	// if (!window.chrome) {
 	// 	alert('Switch to Google Chrome! The tutorials are not tested in other browsers.');
 	// }
