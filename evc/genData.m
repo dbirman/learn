@@ -111,14 +111,16 @@ for ni = 1:n
 end
 
 
-% LGN
+%% EVC
 
 settings.evc = struct;
-settings.evc.theta = 0.25;
+settings.evc.theta = 0.3;
 settings.evc.radius = 8;
+settings.evc.trunc = 0.04;
 settings.evc.maxMult = 3;
 
 angleOpts = [0,pi/2,pi,pi*3/2];
+
 
 % generate receptive field properties
 % x pos, y pos, radius (constant), transient (0/1), off/on (for transient) 
@@ -139,13 +141,13 @@ for ni = 1:n
     dist = hypot(X-dat(1),Y-dat(2));
     % distance along one axis
     rotDist = abs((X-dat(1))*sin(dat(3))-(Y-dat(2))*cos(dat(3)));
-    resp = cos(settings.evc.theta*rotDist) .* normpdf(dist,0,settings.evc.radius);
+    resp = cos(settings.evc.theta*rotDist) .* min(normpdf(dist,0,settings.evc.radius),settings.evc.trunc);
     resp = settings.evc.maxMult * settings.max_fire * resp./sum(abs(resp(:)));
     resp_evc(ni,:,:) = resp;
 end
 
-% r = squeeze(resp_evc(1000,:,:));
-% figure; imagesc(r); colormap('gray'); colorbar;
+r = squeeze(resp_evc(1000,:,:));
+figure; imagesc(r); colormap('gray'); colorbar;
 
 %% Pass each stimulus across the entire image
 
