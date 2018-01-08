@@ -59,6 +59,7 @@ for xi = 1:length(x)
 %             ontype = randi(2)-1;
 %         end
         ontype = 1;
+        transient = 0;
         data_retina((xi-1)*length(x)+yi,:) = [x(xi)+settings.xyrand*randn...
                                               y(yi)+settings.xyrand*randn...
                                               settings.retina.radius ...
@@ -81,13 +82,13 @@ for ni = 1:n
     end
 end
 
-% LGN
+%% LGN
 
 settings.lgn = struct;
 settings.lgn.radiusPos = 3;
 settings.lgn.radiusNeg = 5;
-settings.lgn.relative = 1; % relative strength of the negative component
-settings.lgn.maxMult = 2;
+settings.lgn.relative = 0.75; % relative strength of the negative component
+settings.lgn.maxMult = 2.5;
 
 % generate receptive field properties
 % x pos, y pos, radius (constant), transient (0/1), off/on (for transient) 
@@ -110,6 +111,9 @@ for ni = 1:n
     resp_lgn(ni,:,:) = resp;
 end
 
+% r = squeeze(resp_lgn(1000,:,:));
+% figure; plot(normpdf(x,0,settings.lgn.radiusPos)-settings.lgn.relative*normpdf(x,0,settings.lgn.radiusNeg));
+% figure; imagesc(r); colormap('gray'); colorbar;
 
 %% EVC
 
@@ -146,8 +150,8 @@ for ni = 1:n
     resp_evc(ni,:,:) = resp;
 end
 
-r = squeeze(resp_evc(1000,:,:));
-figure; imagesc(r); colormap('gray'); colorbar;
+% r = squeeze(resp_evc(1000,:,:));
+% figure; imagesc(r); colormap('gray'); colorbar;
 
 %% Pass each stimulus across the entire image
 

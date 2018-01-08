@@ -1,3 +1,10 @@
+// TODO:
+// Fix LGN (stronger firing) and clear on stimulus change
+// Pictures for Guillaume
+// Error in shared_spikes - 59
+// 
+
+
 // Socket
 var socket = io();
 
@@ -123,25 +130,25 @@ function add_graphics() {
     // create circles for retina/lgn/evc
         cs = [retinaCallback,lgnCallback,v1Callback];
     for (var xi=0;xi<xs.length;xi++) {
-        var g = newInteractiveRegion(xs[xi],ys[xi],r[xi],0xFF0000,cs[xi]);
+        var g = newInteractiveRegion(xs[xi],ys[xi],r[xi],0xFF0000,cs[xi],true);
         g.cursor = 'pointer';
     }
     // create ellipse for visual field
-    var g = newInteractiveRegion(vf_pos[0],vf_pos[1],vf_pos[2],0xFFFFFF,vfDown);
+    var g = newInteractiveRegion(vf_pos[0],vf_pos[1],vf_pos[2],0xFFFFFF,vfDown,false);
     g.on('pointermove', vfMove)
         .on('pointerup', vfUp);
     g.cursor = 'crosshair'; // todo: swap to none when rendering stimulus
     vf_g.graphics = g;
     // create rectangle for recording area 
     var g = new PIXI.Graphics();
-    g.lineStyle(2,0xFFFFFF,1);
+    g.lineStyle(2,0xFF0000,1);
     g.drawRect(rf_pos[0],rf_pos[1],rf_pos[2],rf_pos[3]);
     // no hitarea or callbacks
     app.stage.addChild(g);
     rf_g.graphics = g;
     // add lines from each visual area to the RF circle
     for (var ii=0;ii<xs.length;ii++) {
-        var g = new PIXI.Graphics();
+        var g = new PIXI.Graphics();0x5DADE2;0xCD6155
         g.lineStyle(2,0xFF0000,1);
         g.moveTo(xs[ii]+r[ii],ys[ii]);
         g.lineTo(460,270)
@@ -175,6 +182,31 @@ function add_text() {
     area_text.y = 300;
     area_text.anchor.set(0.5,1);
     app.stage.addChild(area_text);
+    // add up/down designations for visual field
+    var style = new PIXI.TextStyle({
+        fill: '#ffffff',
+        fontSize: '10pt',
+    });
+    var text = new PIXI.Text('Left', style);
+    text.x = 20;
+    text.y = 450;
+    text.anchor.set(0.5,1);
+    app.stage.addChild(text);
+    var text = new PIXI.Text('Right', style);
+    text.x = 290;
+    text.y = 450;
+    text.anchor.set(1,1);
+    app.stage.addChild(text);
+    var text = new PIXI.Text('Up', style);
+    text.x = 150;
+    text.y = 320;
+    text.anchor.set(0.5,1);
+    app.stage.addChild(text);
+    var text = new PIXI.Text('Down', style);
+    text.x = 150;
+    text.y = 590;
+    text.anchor.set(0.5,1);
+    app.stage.addChild(text);
 
     // add up/down designations for each area
     var style = new PIXI.TextStyle({
@@ -203,11 +235,15 @@ function add_text() {
     app.stage.addChild(text);
 }
 
-function newInteractiveRegion(x,y,r,c,callback) {
+function newInteractiveRegion(x,y,r,c,callback,square) {
     var g = new PIXI.Graphics();
     g.interactive = true;
     g.lineStyle(2,c,1);
-    g.drawCircle(x,y,r);
+    if (square) {
+        g.drawRect(x-r,y-r,r*2,r*2);
+    } else {
+        g.drawCircle(x,y,r);
+    }
     g.hitArea = g.getBounds();
     g.on('pointerdown', callback);
     // add to trackers
@@ -289,7 +325,7 @@ function setStimulus(button) {
 var cArea;
 
 function retinaCallback() {
-    area_text.setText('Recording from: Retina');
+    area_text.setText('Recording: Retina (Cones)');
     cArea = 'retina';
     updateLineVisibility(0);
     rf_lines[0].visible = true;
@@ -298,7 +334,7 @@ function retinaCallback() {
 }
 
 function lgnCallback() {
-    area_text.setText('Recording from: LGN');
+    area_text.setText('Recording: LGN (Center/surround)');
     cArea = 'lgn';
     updateLineVisibility(1);
     resetMarkers();
@@ -306,7 +342,7 @@ function lgnCallback() {
 }
 
 function v1Callback() {
-    area_text.setText('Recording from: EVC');
+    area_text.setText('Recording: V1 (Simple cells)');
     cArea = 'evc';
     updateLineVisibility(2);
     resetMarkers();
@@ -400,7 +436,6 @@ function debug() {
             var idx = x*51+y+1;
             var cval = Math.round(dat[idx]/40*255);
             var col = Math.pow(cval,3); //rgb2hex(cval,cval,cval);
-            console.log(col,);
             debug_g.beginFill(col,0.5);
             debug_g.drawRect(x*pix_per_sq,300+y*pix_per_sq,pix_per_sq,pix_per_sq);
         }
@@ -555,8 +590,10 @@ function render() {
 }
 
 function local_resize() {
-  var ratio = Math.min(window.innerWidth/ORIGIN_WIDTH,
-                   window.innerHeight/ORIGIN_HEIGHT);
+  var ratio = window.innerHeight/ORIGIN_HEIGHT*0.75;
+
+  // var ratio = Math.min(window.innerWidth/ORIGIN_WIDTH,
+                   // window.innerHeight/ORIGIN_HEIGHT);
   app.stage.scale.set(ratio);
   app.renderer.resize(Math.ceil(ORIGIN_WIDTH * ratio),
                   Math.ceil(ORIGIN_HEIGHT * ratio));

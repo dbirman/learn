@@ -19,7 +19,12 @@ io.on('connection', function(socket){
   });
 
   socket.on('settings', function() {
-    io.to(socket.id).emit('settings',settings);
+    try {
+      io.to(socket.id).emit('settings',settings);
+
+    } catch (e) {
+
+    }
   })
 
   socket.on('request', function(req) {
@@ -29,11 +34,11 @@ io.on('connection', function(socket){
   	console.log('X: ' + req.x);
   	console.log('Y: ' + req.y);
   	// request also includes sizeX and sizeY which are the rectangular area
-  	// try {
+  	try {
   		reqRespond(socket.id,req);
-  	// } catch (e) {
+  	} catch (e) {
 
-  	// }
+  	}
   })
 });
 
