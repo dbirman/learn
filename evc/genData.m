@@ -264,8 +264,8 @@ for xi = 1:length(x)
 end
 
 % disp('RING STIMULUS');
-% firing_rate.vertbar.retina = computeRate(resp_retina,vertbar,settings);
-% firing_rate.vertbar.lgn = computeRate(resp_lgn,vertbar,settings);
+firing_rate.vertbar.retina = computeRate(resp_retina,vertbar,settings);
+firing_rate.vertbar.lgn = computeRate(resp_lgn,vertbar,settings);
 firing_rate.vertbar.evc = computeRate(resp_evc,vertbar,settings);
 clear vertbar
 %% Horiz bar stimulus
@@ -293,9 +293,9 @@ for xi = 1:length(x)
 end
 
 % disp('RING STIMULUS');
-% firing_rate.horizbar.retina = computeRate(resp_retina,horizbar,settings);
+firing_rate.horizbar.retina = computeRate(resp_retina,horizbar,settings);
 firing_rate.horizbar.lgn = computeRate(resp_lgn,horizbar,settings);
-% firing_rate.horizbar.evc = computeRate(resp_evc,horizbar,settings);
+firing_rate.horizbar.evc = computeRate(resp_evc,horizbar,settings);
 
 %% List stims and areas
 stims = {'dotpos','dotneg','wedge','ring','vertbar','horizbar'};
