@@ -25,11 +25,11 @@ io.on('connection', function(socket){
   	console.log('X: ' + req.x);
   	console.log('Y: ' + req.y);
   	// request also includes sizeX and sizeY which are the rectangular area
-  	try {
+  	// try {
   		reqRespond(socket.id,req);
-  	} catch (e) {
+  	// } catch (e) {
 
-  	}
+  	// }
   })
 });
 
@@ -38,19 +38,27 @@ io.on('connection', function(socket){
 function reqRespond(id,req) {
 	var datapack = req;
 	// this is the ELECTRODE position: turn it into an index
-	var idx = req.x*51+req.y+1;
+	var idx = 2601*(req.x*51+req.y)+1; // in 1:2601 space
 	datapack.idx = [idx,idx+2601];
 	datapack.data = data[req.stim][req.area].slice(idx,idx+2601);
 
 	io.to(id).emit('data',datapack);
+  console.log('Request complete');
 }
 
-var data = require('./data/firing_rate.json');
+var data = {};
+var load = require('./data/data.js');
 var settings = require('./data/settings.json');
 
 var port = 8080;
 http.listen(port, function(){
   console.log('listening on *: ' + port);
-
-  console.log(data.dot.retina.length);
+  var lkeys = Object.keys(load);
+  for (var i=0;i<lkeys.length;i++) {
+    console.log('Found stimulus: ' + load[lkeys[i]].stim);
+    console.log('Found region data for: ' + load[lkeys[i]].area);
+    if (data[load[lkeys[i]].stim]==undefined) {data[load[lkeys[i]].stim]={};}
+    data[load[lkeys[i]].stim][load[lkeys[i]].area] = load[lkeys[i]].data;
+  }
+  load = {};
 });

@@ -56,9 +56,9 @@ function next() {
 }
 
 function launch() {
-	if (!window.chrome) {
-		alert('Switch to Google Chrome! The tutorials are not tested in other browsers.');
-	}
+	// if (!window.chrome) {
+	// 	alert('Switch to Google Chrome! The tutorials are not tested in other browsers.');
+	// }
 	var i = 2;
   document.getElementById("endblock").style.display="none";
 	var block = document.getElementById("block"+i);

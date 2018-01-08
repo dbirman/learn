@@ -59,8 +59,8 @@ var rendererOptions = {
 }
 
 // trace starting points (they extend 190)
-var trace_posx = [705,705,705];
-var trace_posy = [100,300,500];
+var trace_posx = [625,625,625];
+var trace_posy = [200,350,500];
 // position of the brain region circles
 var xs = [93,170,300],
     ys = [203,175,145],
@@ -72,7 +72,7 @@ var b_scale = 0.25;
 var vf_pos = [150,450,150]; // x (center) y (center), radius
 var rf_pos = [310,300,300,300];
 
-var ORIGIN_WIDTH = 1024, ORIGIN_HEIGHT = 768;
+var ORIGIN_WIDTH = 900, ORIGIN_HEIGHT = 600;
 const app = new PIXI.Application(ORIGIN_WIDTH,ORIGIN_HEIGHT, rendererOptions);
 var graphics = [];
 
@@ -261,7 +261,7 @@ function addMarker(list,x,y,c,v) {
 
 
 // stimulus functions
-var stimTypes = ['dotpos','dotneg','wedge','ring','bar'];
+var stimTypes = ['dotpos','dotneg','wedge','ring','vertbar','horizbar'];
 var cStim = -1;
 
 function setStimulus(button) {
@@ -376,6 +376,26 @@ function getStimPos() {
     return(req);
 }
 
+var debug_g;
+
+function debug() {
+    if (debug_g!=undefined) {debug_g.destroy();}
+    debug_g = new PIXI.Graphics();
+    var pix_per_sq = 6 // Math.floor(vf_pos[2]*2/51);
+    var dat = data[stimTypes[cStim]][cArea][getElecPos(e_gray).x][getElecPos(e_gray).y];
+    for (var x=0;x<51;x++) {
+        for (var y=0;y<51;y++) {
+            var idx = x*51+y+1;
+            var cval = Math.round(dat[idx]/40*255);
+            var col = Math.pow(cval,3); //rgb2hex(cval,cval,cval);
+            console.log(col,);
+            debug_g.beginFill(col,0.5);
+            debug_g.drawRect(x*pix_per_sq,300+y*pix_per_sq,pix_per_sq,pix_per_sq);
+        }
+    }
+    app.stage.addChild(debug_g);
+}
+
 var stimMoved = false;
 
 function renderStimulus() {
@@ -405,7 +425,7 @@ function renderTraces() {
 }
 
 function _rTrace(ctrace) {
-    if (ctrace.trace.g!=undefined) {
+    if ((ctrace.trace!=undefined)&&(ctrace.trace.g!=undefined)) {
         ctrace.trace.g.destroy();
     }
     ctrace.trace.g = new PIXI.Graphics();
