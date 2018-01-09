@@ -25,13 +25,30 @@ var key = false; // tracks key situtation
 
 var state = false; // false = waiting incoherent, true = currne trial
 
-var tstart = NaN; // trial start tracker (for RT)
+var tstart = undefined, // trial start tracker (for RT)
+		rtstart = undefined;
 
 function draw() {
 	t = elapsed();
 	ctx.clearRect(0,0,canvas.width,canvas.height);
 
-	(state) ? dots[cdots] = updateDots(dots[cdots],coherences[trial],directions[trial],t) : dots[cdots] = updateDots(dots[cdots],0,0,t);
+	// Update dots after the initial waiting period
+	if (state && (now()-tstart>200)) {
+		if (option<2) {
+			dots[cdots] = updateDots(dots[cdots],coherences[trial],directions[trial],t);
+		} else {
+			// option 3 -- 25% of the time, do the other direction
+			if (Math.random()<0.40) {
+				dots[cdots] = updateDots(dots[cdots],coherences[trial],Math.PI + directions[trial],t);
+			} else {
+				dots[cdots] = updateDots(dots[cdots],coherences[trial],directions[trial],t);
+			}
+		}
+	} else {
+		if (rtstart==undefined) {rtstart = now();}
+		dots[cdots] = updateDots(dots[cdots],0,0,t);
+	}
+
 	if (onscreen) {
 		clipCtx(ctx,canvas);
 		drawDots(dots[cdots],ctx);
@@ -96,9 +113,9 @@ var RTc = [];
 var correct = [];
 var correctc = [];
 
-var option = 1;
+var option = 0;
 
-var cohOpts = [0.15, 0.65];
+var cohOpts = [0.25, 0.05, 0.25];
 var dirOpts = [0, Math.PI];
 
 function setup() {
@@ -109,16 +126,21 @@ function setup() {
 }
 
 function toggleCoherence() {
-	option = (option+1)%2;
-	if (option==1) {
-		document.getElementById("toggle").innerHTML = "High coherence";
-	} else {
-		document.getElementById("toggle").innerHTML = "Low coherence";
+	option = (option+1)%3;
+	console.log(option);
+	if (option==0) {
+		document.getElementById("toggle").innerHTML = "Mode: High coherence";
+	} else if (option==1) {
+		document.getElementById("toggle").innerHTML = "Mode: Low coherence";
+	} else if (option==2) {
+		document.getElementById("toggle").innerHTML = "Mode: Noisy";
 	}
 }
 
 function calcVals(corr) {
-	RT.push(now()-tstart);
+	RT.push(now()-rtstart);
+	rtstart = undefined;
+	tstart = undefined;
 	correct.push(corr);
 	// if (coherences[trial-1]==cohOpts[0]) {
 	// 	// incoherent condition

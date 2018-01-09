@@ -55,6 +55,8 @@ function next() {
 	$("body").scrollTop(0);
 }
 
+var browser;
+
 function checkBrowser(){
     c = navigator.userAgent.search("Chrome");
     f = navigator.userAgent.search("Firefox");
@@ -73,10 +75,10 @@ function checkBrowser(){
 }
 
 function launch() {
-	var browser = checkBrowser();
+	browser = checkBrowser();
 
-	if (browser=="Firefox") {
-		alert('The tutorials do not function properly with Firefox. Please switch to Chrome.');
+	if (browser!="Chrome") {
+		alert('Please change browsers to Chrome! Firefox and Safari do not play well with the simulation--sorry about that.');
 	}
 	// if (!window.chrome) {
 	// 	alert('Switch to Google Chrome! The tutorials are not tested in other browsers.');
