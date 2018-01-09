@@ -25,7 +25,9 @@ cd /Users/dan/proj/learn/evc
 
 %% Coordinates
 x = -25:25;
+fx = fliplr(x);
 y = -25:25;
+fy = fliplr(y);
 [X,Y] = meshgrid(x,y);
 
 n = length(x)*length(y);
@@ -60,8 +62,8 @@ for xi = 1:length(x)
 %         end
         ontype = 1;
         transient = 0;
-        data_retina((xi-1)*length(x)+yi,:) = [x(xi)+settings.xyrand*randn...
-                                              y(yi)+settings.xyrand*randn...
+        data_retina((xi-1)*length(x)+yi,:) = [fx(xi)+settings.xyrand*randn...
+                                              fy(yi)+settings.xyrand*randn...
                                               settings.retina.radius ...
                                               transient ...
                                               ontype];
@@ -82,7 +84,7 @@ for ni = 1:n
     end
 end
 
-%% LGN
+% LGN
 
 settings.lgn = struct;
 settings.lgn.radiusPos = 3;
@@ -115,7 +117,7 @@ end
 % figure; plot(normpdf(x,0,settings.lgn.radiusPos)-settings.lgn.relative*normpdf(x,0,settings.lgn.radiusNeg));
 % figure; imagesc(r); colormap('gray'); colorbar;
 
-%% EVC
+% EVC
 
 settings.evc = struct;
 settings.evc.theta = 0.3;
@@ -132,7 +134,7 @@ data_evc = zeros(n,5);
 for xi = 1:length(x)
     for yi = 1:length(y)
         data_evc((xi-1)*length(x)+yi,:) = [x(xi)+settings.xyrand*randn ...
-                                              y(yi)+settings.xyrand*randn ...
+                                              fy(yi)+settings.xyrand*randn ...
                                               angleOpts(randi(length(angleOpts))) ... % rotation
                                               settings.evc.theta ...
                                               settings.evc.radius];

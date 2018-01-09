@@ -168,6 +168,8 @@ function add_traces() {
 
 var vf_text, area_text;
 
+var area_text_list = {};
+
 function add_text() {
     var style = new PIXI.TextStyle({
         fill: '#ffffff',
@@ -213,26 +215,30 @@ function add_text() {
         fill: '#ffffff',
         fontSize: '10pt',
     });
-    var text = new PIXI.Text('Dorsal (up)', style);
+    var text = new PIXI.Text('', style);
     text.x = 460;
     text.y = 320;
     text.anchor.set(0.5,1);
     app.stage.addChild(text);
-    var text = new PIXI.Text('Ventral (down)', style);
+    area_text_list.up = text;
+    var text = new PIXI.Text('', style);
     text.x = 460;
     text.y = 590;
     text.anchor.set(0.5,1);
     app.stage.addChild(text);
-    var text = new PIXI.Text('Anterior (left)', style);
+    area_text_list.down = text;
+    var text = new PIXI.Text('', style);
     text.x = 320;
     text.y = 450;
     text.anchor.set(0,1);
     app.stage.addChild(text);
-    var text = new PIXI.Text('Posterior (right)', style);
+    area_text_list.left = text;
+    var text = new PIXI.Text('', style);
     text.x = 600;
     text.y = 450;
     text.anchor.set(1,1);
     app.stage.addChild(text);
+    area_text_list.right = text;
 }
 
 function newInteractiveRegion(x,y,r,c,callback,square) {
@@ -331,6 +337,10 @@ function retinaCallback() {
     rf_lines[0].visible = true;
     resetMarkers();
     requestElectrodeDataAll();
+    area_text_list.up.setText('Dorsal');
+    area_text_list.down.setText('Ventral');
+    area_text_list.left.setText('Lateral');
+    area_text_list.right.setText('Medial');
 }
 
 function lgnCallback() {
@@ -339,6 +349,10 @@ function lgnCallback() {
     updateLineVisibility(1);
     resetMarkers();
     requestElectrodeDataAll();
+    area_text_list.up.setText('Top of LGN');
+    area_text_list.down.setText('Bottom of LGN');
+    area_text_list.left.setText('');
+    area_text_list.right.setText('');
 }
 
 function v1Callback() {
@@ -347,6 +361,10 @@ function v1Callback() {
     updateLineVisibility(2);
     resetMarkers();
     requestElectrodeDataAll();
+    area_text_list.up.setText('Dorsal');
+    area_text_list.down.setText('Ventral');
+    area_text_list.left.setText('Anterior');
+    area_text_list.right.setText('Posterior');
 }
 
 function updateLineVisibility(c) {
