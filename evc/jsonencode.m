@@ -1,4 +1,4 @@
-function saveJSONfile(data, jsonFileName)
+function jsonencode(data, jsonFileName)
 % saves the values in the structure 'data' to a file in JSON format.
 %
 % Example:
@@ -45,7 +45,7 @@ end
 %     end
 
 function writeElement(fid, data,tabs)
-    namesOfFields = fieldnames(data);
+    namesOfFields = fields(data);
     numFields = length(namesOfFields);
     tabs = sprintf('%s\t',tabs);
     fprintf(fid,'{\n%s',tabs);
