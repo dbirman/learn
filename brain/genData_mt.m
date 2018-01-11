@@ -10,10 +10,10 @@
 %   location. 
 
 %%
-addpath(genpath('/Users/dan/proj/gru'));
 addpath(genpath('/Users/dan/proj/learn'))
 cd /Users/dan/proj/learn/brain
 
+if ~isdir(fullfile(pwd,'data')), mkdir(fullfile(pwd,'data')); end
 %% Coordinates
 x = -25:25;
 fx = fliplr(x);
@@ -81,6 +81,7 @@ directions = {'left','right','up','down'};
 dirDegrees = [180,0,90,270];
 
 for di = 1:4
+    disp(sprintf('Running: %s',directions{di}));
     dat = zeros(length(x)*length(y),length(x),length(y));
     settings.(directions{di}).radius = 5;
     settings.(directions{di}).direction = dirDegrees(di);

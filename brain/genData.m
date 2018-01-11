@@ -23,6 +23,8 @@
 addpath(genpath('/Users/dan/proj/learn'))
 cd /Users/dan/proj/learn/brain
 
+if ~isdir(fullfile(pwd,'data')), mkdir(fullfile(pwd,'data')); end
+
 %% Coordinates
 x = -25:25;
 fx = fliplr(x);
