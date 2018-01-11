@@ -491,6 +491,8 @@ function renderStimulus() {
         // update position
         stimFuncs[cStim]();
 
+        // make sure to disable chagne
+        stimChanged = false;
     }
 }
 
