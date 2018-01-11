@@ -153,6 +153,21 @@ function add_graphics() {
         rf_lines.push(g);
         app.stage.addChild(g);
     }
+    // create ellipse for record button
+    createRecordButton();
+}
+
+function createRecordButton() {
+    if (recordGraphic!=undefined) {recordGraphic.destroy();}
+    var g = newInteractiveRegion(800,100,50,0xFF0000,recordButton,false);
+    var style = new PIXI.TextStyle({fill:recording ? '#00ff00' : '#ffffff'});
+    var t = new PIXI.Text('REC',style);
+    t.x = 800; t.y = 100;
+    t.anchor.set(0.5,0.5);
+    app.stage.addChild(g);
+    g.addChild(t);
+    recordGraphic = g;
+    recordGraphic.cursor = 'pointer';
 }
 
 var trace_container;
@@ -336,8 +351,12 @@ function mtCallback() {
     area_text_list.down.setText('Ventral');
     area_text_list.left.setText('Anterior');
     area_text_list.right.setText('Posterior');
+    recordGraphic.visible = true;
+    recording = pLipRecording;
+    createRecordButton();
 }
 
+var lip = false;
 function lipCallback() {
     area_text.setText('Recording: LIP');
     cArea = 'mt';
@@ -348,8 +367,11 @@ function lipCallback() {
     area_text_list.down.setText('Ventral');
     area_text_list.left.setText('');
     area_text_list.right.setText('');
+    pLipRecording = recording;
+    recording = true;
+    lip = true;
+    recordGraphic.visible = false;
 }
-
 
 function updateLineVisibility(c) {
     for (var i=0;i<rf_lines.length;i++) {
@@ -372,6 +394,51 @@ function resetMarkers() {
 }
 
 //////////////////////////////////////////////////////////////////////
+///////////// RECORD MODE //////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+// Record mode
+var recording = false,
+    pLipRecording,
+    recordingMode = 'integrate'; // 'integrate' or 'continuous' -- for LIP or MT 
+
+var recordGraphic;
+
+function recordButton() {
+    recording = !recording;
+    createRecordButton();
+    console.log('recording: ' + recording);
+
+    if (recording) {resetRecording();}
+}
+
+function resetRecording() {
+
+}
+
+function updateRecordings(electrode) {
+    // init
+    if (electrode.recording==undefined) {
+        electrode.rec = {};
+        electrode.rec;
+    }
+}
+
+function renderRecordings() {
+
+}
+
+function _rRec() {
+
+}
+
+function updateRecordingsAll() {
+    if (velec>0) {updateRecordings(e_gray);}
+    if (velec>1) {updateRecordings(e_red);}
+    if (velec>2) {updateRecordings(e_blue);}
+}
+
+//////////////////////////////////////////////////////////////////////
 ///////////// render loop //////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
@@ -379,6 +446,7 @@ var stimPos;
 
 function updateFiringRates(electrode) {
     if (frChecksFail()) {return;}
+
     // Use the stimulus position (passed) and the electrode position (saved: elecPos);
     var ePos = getElecPos(electrode);
     var sPos = getStimPos();
@@ -388,9 +456,9 @@ function updateFiringRates(electrode) {
         }
     } else {
         var idx = sPos.x*51+sPos.y+1; 
+        electrode.firingRate = coherence/100*data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx];
         if (electrode.sprite.visible) {
-            console.log(coherence/100*data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx]);
-            spk_setRate(electrode.trace,coherence/100*data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx]);
+            spk_setRate(electrode.trace,electrode.firingRate);
         }
     }
 }
@@ -457,11 +525,15 @@ var dotGraphic,
     dotContainer,
     dots;
 
+function updateFiringRatesAll() {
+    if (velec>0) {updateFiringRates(e_gray);}
+    if (velec>1) {updateFiringRates(e_red);}
+    if (velec>2) {updateFiringRates(e_blue);}
+}
+
 function renderStimulus() {
     if (cStim>=0) {
-        if (velec>0) {updateFiringRates(e_gray);}
-        if (velec>1) {updateFiringRates(e_red);}
-        if (velec>2) {updateFiringRates(e_blue);}
+        updateFiringRatesAll();
 
         // request new graphics object 
         if (stimChanged && (stimContainer != undefined)) {

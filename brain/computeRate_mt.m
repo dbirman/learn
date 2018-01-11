@@ -1,5 +1,7 @@
 function firing_rate = computeRate_mt(resp,stim,cdir,data,settings)
 
+
+
 % use the direction of each cell as a multiplier on this stimulus
 fireScale = normpdf(abs(data(:,4)-cdir),0,settings.mt.dirSigma)/settings.mt.maxFire;
 
