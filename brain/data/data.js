@@ -1,1 +1,0 @@
-module.exports = {  A: require('./data_mt1.json'),  B: require('./data_mt2.json'),  C: require('./data_mt3.json'),  D: require('./data_mt4.json'),}
