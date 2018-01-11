@@ -38,31 +38,29 @@ settings.max_fire = settings.max_fire - settings.def_fire;
 settings.mt = struct;
 settings.mt.radius = 8;
 settings.mt.dirOpts = [0 90 180 270];
+settings.mt.dirSigma = 60; % sigma for computing direction sensitivity
+settings.mt.maxFire = normpdf(0,0,settings.mt.dirSigma);
+settings.mt.maxMult = 4;
 
 % generate receptive field properties
 % x pos, y pos, radius (constant), transient (0/1), off/on (for transient) 
-data_mt = zeros(n,5);
+data_mt = zeros(n,4);
 for xi = 1:length(x)
     for yi = 1:length(y)
         data_mt((xi-1)*length(x)+yi,:) = [fx(xi)+settings.xyrand*randn...
                                               fy(yi)+settings.xyrand*randn...
-                                              settings.retina.radius...
-                                              dirOpts(randi(length(dirOpts)))];
+                                              settings.mt.radius...
+                                              settings.mt.dirOpts(randi(length(settings.mt.dirOpts)))];
     end
 end
 
 % now generate the normalized receptive fields
-resp_retina = zeros(n,length(x),length(y));
+resp_mt = zeros(n,length(x),length(y));
 for ni = 1:n
     dat = data_mt(ni,:);
     dist = hypot(X-dat(1),Y-dat(2));
     resp = normpdf(dist,0,dat(3));
-    resp = settings.max_fire * resp./sum(abs(resp(:)));
-    if dat(5)
-        resp_retina(ni,:,:) = resp;
-    else
-        resp_retina(ni,:,:) = -resp;
-    end
+    resp_mt(ni,:,:) = settings.mt.maxMult * settings.max_fire * resp./sum(abs(resp(:)));
 end
 
 % r = squeeze(resp_evc(1000,:,:));
@@ -73,56 +71,29 @@ end
 %% motion STIMULUS
 % motion stimulus is a circle of size radius -- motion stimulus is either
 % low or high coherence (.1 or 1 strength). 
-dotpos = zeros(length(x)*length(y),length(x),length(y));
-settings.dotpos.radius = 2;
-for xi = 1:length(x)
-    for yi = 1:length(x)
-        % get stim
-        dist = hypot(X-x(xi),Y-y(yi));
-        stim = normpdf(dist,0,settings.dotpos.radius);
-        stim = stim ./ sum(stim(:)) > .01;
-        dotpos((xi-1)*length(y)+yi,:,:) = stim;
+directions = {'left','right','up','down'};
+dirDegrees = [180,0,90,270];
+
+for di = 1:4
+    dat = zeros(length(x)*length(y),length(x),length(y));
+    settings.(directions{di}).radius = 5;
+    settings.(directions{di}).direction = dirDegrees(di);
+    
+    for xi = 1:length(x)
+        for yi = 1:length(x)
+            % get stim
+            dist = hypot(X-x(xi),Y-y(yi));
+            stim = dist < settings.(directions{di}).radius;
+            motpos((xi-1)*length(y)+yi,:,:) = stim;
+        end
     end
+
+    firing_rate.(directions{di}).mt = computeRate(resp_mt,motpos,settings.(directions{di}).direction,data_mt,settings);
 end
-
-% Firing rates
-disp('POSITIVE DOT STIMULUS');
-firing_rate.dotpos.retina = computeRate(resp_retina,dotpos,settings);
-firing_rate.dotpos.lgn = computeRate(resp_lgn,dotpos,settings);
-firing_rate.dotpos.evc = computeRate(resp_evc,dotpos,settings);
-clear dotpos
-%% Horiz bar stimulus
-
-% figure;
-horizbar = zeros(length(x)*length(y),length(x),length(y));
-settings.horizbar.width = 2;
-settings.horizbar.length = 15;
-adistY = Y;
-adistX = X;
-for xi = 1:length(x)
-    for yi = 1:length(x)
-        % get stim
-        cdistY = y(yi);
-        cdistX = x(xi);
-        distY = abs(adistY-cdistY);
-        distX = abs(adistX-cdistX);
-        stim = (distY<settings.horizbar.width) .* (distX<settings.horizbar.length);
-%         stim = stim ./ sum(stim(:)) > .01;
-        horizbar((xi-1)*length(y)+yi,:,:) = stim;
-%         imagesc(squeeze(horizbar(xi,yi,:,:)));
-%         colormap('gray');
-%         pause(.001);
-    end
-end
-
-% disp('RING STIMULUS');
-firing_rate.horizbar.retina = computeRate(resp_retina,horizbar,settings);
-firing_rate.horizbar.lgn = computeRate(resp_lgn,horizbar,settings);
-firing_rate.horizbar.evc = computeRate(resp_evc,horizbar,settings);
 
 %% List stims and areas
-stims = {'dotpos','dotneg','wedge','ring','vertbar','horizbar'};
-areas = {'retina','lgn','evc'};
+stims = directions;
+areas = {'mt'};
 
 %% Save information
 

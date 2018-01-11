@@ -71,9 +71,9 @@ var rendererOptions = {
 var trace_posx = [625,625,625];
 var trace_posy = [200,350,500];
 // position of the brain region circles
-var xs = [93,170,300],
-    ys = [203,175,145],
-    r = [20,15,30];
+var xs = [93,170],
+    ys = [100,175],
+    r = [20,15];
 // electrode and brain scale
 var e_scale = 0.075;
 var b_scale = 0.25;
@@ -125,7 +125,7 @@ var rf_lines = [];
 
 function add_graphics() {
     // create circles for retina/lgn/evc
-        cs = [retinaCallback,lgnCallback,v1Callback];
+    var cs = [mtCallback,lipCallback];
     for (var xi=0;xi<xs.length;xi++) {
         var g = newInteractiveRegion(xs[xi],ys[xi],r[xi],0xFF0000,cs[xi],true);
         g.cursor = 'pointer';

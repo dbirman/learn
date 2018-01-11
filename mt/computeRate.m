@@ -1,4 +1,7 @@
-function firing_rate = computeRate(resp,stim,settings)
+function firing_rate = computeRate(resp,stim,cdir,data,settings)
+
+% use the direction of each cell as a multiplier on this stimulus
+fireScale = normpdf(abs(data(:,4)-cdir),0,settings.mt.dirSigma)/settings.mt.maxFire;
 
 % first dimension = neuron, second dimension = spatial location
 resp = reshape(resp,2601,2601);
@@ -10,6 +13,8 @@ stim = stim';
 % multiply
 % first dimension = neuron, second dimension = stimulus location
 firing_rate = settings.def_fire + resp*stim;
+% first dimension is still neuron, so mutiply by the scaling factor
+firing_rate = repmat(fireScale,1,2601).*firing_rate;
 
 % set columns to be the stimulus
 firing_rate = firing_rate';
@@ -21,7 +26,7 @@ firing_rate(firing_rate<0) = 0;
 % firing_rate = firing_rate * (settings.def_fire+settings.max_fire) / max(firing_rate(:));
 
 % test (if needed)
-% figure; imagesc(squeeze(reshape(firing_rate(:,2001),51,51))); colormap('gray'); colorbar
+figure; imagesc(squeeze(reshape(firing_rate(:,2001),51,51))); colormap('gray'); colorbar
 
 % collapse
 firing_rate = (round(firing_rate(:)*10)/10)';
