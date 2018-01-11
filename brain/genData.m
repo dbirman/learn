@@ -21,7 +21,7 @@
 
 %%
 addpath(genpath('/Users/dan/proj/learn'))
-cd /Users/dan/proj/learn/evc
+cd /Users/dan/proj/learn/brain
 
 %% Coordinates
 x = -25:25;
@@ -32,7 +32,12 @@ fy = fliplr(y);
 
 n = length(x)*length(y);
 
-settings = struct;
+fsettings = fullfile(pwd,'data/settings.mat');
+if isfile(fsettings)
+    load(fsettings)
+else
+    settings = struct;
+end
 firing_rate = struct;
 
 %% Generate receptive fields
@@ -311,13 +316,21 @@ areas = {'retina','lgn','evc'};
 
 %% Save information
 
+if isfile(fullfile(pwd,'data/info.mat'))
+    info = load(fullfile(pwd,'data/info.mat'));
+else
+    info = struct;
+end
+
+info.evc = struct;
+info.evc.fnames = {};
+
 % clear the files
-files = dir(fullfile(pwd,'data/*.js*'));
+files = dir(fullfile(pwd,'data/data_evc*.js*'));
 for fi = 1:length(files)
     delete(fullfile(pwd,'data',files(fi).name));
 end
 
-fnames = {};
 count = 1;
 for si = 1:length(stims)
     for ai = 1:length(areas)
@@ -328,21 +341,16 @@ for si = 1:length(stims)
         out.stim = stims{si};
         out.area = areas{ai};
         out.data = firing_rate.(stims{si}).(areas{ai});
-        fnames{end+1} = sprintf('data%i.json',count);
-        savejson('',out,fullfile('data',fnames{end}));
+        info.evc.fnames{end+1} = sprintf('data_evc%i.json',count);
+        savejson('',out,fullfile('data',info.evc.fnames{end}));
         count = count+1;
     end
 end
 
-% save the data.js file
-[fid,dmsg] = fopen(deblank(fullfile(pwd,'data','data.js')),'w');
-fprintf(fid,'module.exports = {');
-for fi = 1:length(fnames)
-    fprintf(fid,sprintf('  %s: require(''./%s''),',char(fi+64),fnames{fi}));
-end
-fprintf(fid,'}');
-fclose(fid);
+saveDataInfo(info);
 
+%% Settings file
+save(fsettings,'settings');
 savejson('',settings,'data/settings.json');
 
 %% Display retina

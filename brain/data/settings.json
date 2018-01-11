@@ -2,44 +2,27 @@
 	"max_fire": 39,
 	"def_fire": 1,
 	"xyrand": 3,
-	"retina": {
-		"radius": 2,
-		"transText": [
-			"Sustained",
-			"Transient"
-		],
-		"typeText": [
-			"Off",
-			"On"
-		]
-	},
-	"lgn": {
-		"radiusPos": 3,
-		"radiusNeg": 5,
-		"relative": 0.75,
-		"maxMult": 2.5
-	},
-	"evc": {
-		"theta": 0.3,
+	"mt": {
 		"radius": 8,
-		"trunc": 0.04,
-		"maxMult": 3
+		"dirOpts": [0,90,180,270],
+		"dirSigma": 60,
+		"maxFire": 0.006649038007,
+		"maxMult": 4
 	},
-	"dotpos": {
-		"radius": 2
+	"left": {
+		"radius": 5,
+		"direction": 180
 	},
-	"wedge": {
-		"radius": 0.1047197551
+	"right": {
+		"radius": 5,
+		"direction": 0
 	},
-	"ring": {
-		"width": 2
+	"up": {
+		"radius": 5,
+		"direction": 90
 	},
-	"vertbar": {
-		"width": 2,
-		"length": 15
-	},
-	"horizbar": {
-		"width": 2,
-		"length": 15
+	"down": {
+		"radius": 5,
+		"direction": 270
 	}
 }
