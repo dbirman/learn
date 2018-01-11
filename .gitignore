@@ -1,7 +1,7 @@
-evc/data/firing_rate.json
 evc/node_modules/
-evc/data/
-brain/data/
+evc/data/*
+brain/data/*
+brain/node_modules/*
 mt/data/
 *.m~
 mt/.DS_Store
