@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<!--
+	Landed by HTML5 UP
+	html5up.net | @n33co
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+ -->
+<html>
+	<head>
+		<title>EVC Lab</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- [if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif] -->
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		
+		<!-- Generics -->
+			<script src="./assets/js/jquery.min.js"></script>
+			<script src="./assets/js/math.min.js"></script>
+			<script src="./assets/js/jquery.csv.min.js"></script>
+			<script src="./assets/js/jquery.scrolly.min.js"></script>
+			<script src="./assets/js/jquery.dropotron.min.js"></script>
+			<script src="./assets/js/jquery.scrollex.min.js"></script>
+			<script src="./assets/js/skel.min.js"></script>
+			<script src="./assets/js/util.js"></script>			
+
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="./assets/js/main.js"></script>
+		<!-- Math KaTeX -->
+			<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"> -->
+			<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script> -->
+		<!-- PIXI -->
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"></script>
+		<!-- Plotting: Plot.ly JS -->
+			<!-- <script type="text/javascript" src="../assets/js/mathjax/MathJax.js?config=TeX-AMS-MML_SVG"></script> -->
+      <!-- <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> -->
+	</head>
+	<body>
+
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header">
+
+					<h1 id="logo"><a href="../index.html">More labs</a></h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="../index.html">Learn</a></li>
+						</ul>
+					</nav>
+				</header>
+
+			<!-- Main -->
+				<div id="main" class="wrapper style1">
+					<div class="container">
+						<header class="major">
+							<h2>Early visual cortex lab</h2>
+							<p>Gardner Lab</p>
+						</header>
+
+						<!-- Content -->
+							<section id="content">
+	<canvas style="display:none;" id="backcanvas" width=50 height=50></canvas> 
+<!--   -->
+<div id="block1">
+	<h2>Early visual cortex lab</h2>
+	<p></p>
+	<h1>Learning goals</h1>
+	This lab will help you understand the following:
+	<ul>
+		<li>How receptive fields differ throughout the visual system.</li>
+		<li>What kinds of topography are used to organize cells in visual cortex.</li>
+		<li>How Kuffler, Hubel, and Weisel were able to learn so much about neurons in visual cortex via electrical recording.</li>
+	</ul>
+</div>
+
+<div id="block2">
+	<div id="block2_canvas">
+	</div>
+	<div id="block2_stim">
+		<h2>Stimulus:</h2>
+		<img id="dotpos" onclick="setStimulus(this);" src="images/point.png"/ style="width:10vw">
+		<img id="dotneg" onclick="setStimulus(this);" src="images/pointneg.png"/ style="width:10vw">
+		<img id="wedge" style="display:none" onclick="setStimulus(this);" src="images/wedges.png"/ style="width:10vw">
+		<img id="ring" style="display:none" onclick="setStimulus(this);" src="images/rings.png"/ style="width:10vw">
+		<img id="vertbar" onclick="setStimulus(this);" src="images/vertbar.png"/ style="width:10vw">
+		<img id="horizbar" onclick="setStimulus(this);" src="images/horizbar.png"/ style="width:10vw">
+	</div>
+	<div id="block2_controls">
+		<h2>Electrodes:</h2>
+		<form oninput="nelec = parseInt(nelectrodes.value); updateElectrodes(); ne_label.value = nelec;">
+			<input type="range" id="nelectrodes" min="1" max="3" step="1" value="1">
+			<output name="ne_label" for="nelectrodes">1</output>
+		</form>
+	</div>
+
+</div>
+
+<div id="endblock">
+	<h2>Lab complete!</h2>
+</div>
+
+							</section>
+							<section id="continue">
+								<a class="button special" onclick="prev();">Go back</a>
+								<a class="button special" onclick="next();">Continue</a>
+							</section>
+						<!-- End Content -->
+					</div>
+				</div>
+
+			<!-- Footer -->
+				<footer id="footer">
+					<ul class="copyright">
+						<li>&copy; Dan Birman 2015-Present</li><li><a href="https://github.com/dbirman/web/" target="_blank">Code<a/></li>
+					</ul>
+				</footer>
+
+		</div>
+
+		<!-- Local CSS -->
+			<!-- <link rel="stylesheet" href="psych50.css" /> -->
+		<!-- Scripts -->
+
+      <script src="./node_modules/socket.io-client/dist/socket.io.js"></script>
+			<script src="./assets/js/shared_code.js"></script>
+			<script src="./assets/js/shared_spikes.js"></script>
+			<script src="evc.js"></script>
+
+			<script>launch();</script>
+	</body>
+</html>
