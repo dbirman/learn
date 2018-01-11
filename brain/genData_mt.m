@@ -104,7 +104,7 @@ areas = {'mt'};
 %% Save information
 
 if isfile(fullfile(pwd,'data/info.mat'))
-    info = load(fullfile(pwd,'data/info.mat'));
+    load(fullfile(pwd,'data/info.mat'));
 else
     info = struct;
 end
