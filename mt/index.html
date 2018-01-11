@@ -81,8 +81,8 @@
 	<div id="block2_stim">
 		<h2>Stimulus:</h2>
 		<img id="left" onclick="setStimulus(this);" src="images/left.png"/ style="width:10vw">
-		<img id="right" onclick="setStimulus(this);" src="images/right.png"/ style="width:10vw">
 		<img id="up" onclick="setStimulus(this);" src="images/up.png"/ style="width:10vw">
+		<img id="right" onclick="setStimulus(this);" src="images/right.png"/ style="width:10vw">
 		<img id="down" onclick="setStimulus(this);" src="images/down.png"/ style="width:10vw">
 		<!-- <img id="dotneg" onclick="setStimulus(this);" src="images/pointneg.png"/ style="width:10vw">
 		<img id="wedge" style="display:none" onclick="setStimulus(this);" src="images/wedges.png"/ style="width:10vw">
@@ -91,14 +91,15 @@
 		<img id="horizbar" onclick="setStimulus(this);" src="images/horizbar.png"/ style="width:10vw"> -->
 	</div>
 	<div id="block2_controls">
+		<h2>Coherence:</h2>
+		<form oninput="coherence = parseInt(coherence.value); updateCoherence(); co_label.value = nelec;">
+			<input type="range" id="coherence" min="0" max="100" step="1" value="50">
+			<output name="co_label" for="coherence">50</output>
+		</form>
 		<h2>Electrodes:</h2>
 		<form oninput="nelec = parseInt(nelectrodes.value); updateElectrodes(); ne_label.value = nelec;">
 			<input type="range" id="nelectrodes" min="1" max="3" step="1" value="1">
 			<output name="ne_label" for="nelectrodes">1</output>
-		</form>
-		<form oninput="coherence = parseInt(coherence.value); updateCoherence(); co_label.value = nelec;">
-			<input type="range" id="coherence" min="0" max="100" step="1" value="50">
-			<output name="co_label" for="coherence">50</output>
 		</form>
 	</div>
 
@@ -134,6 +135,7 @@
 			<script src="./assets/js/shared_code.js"></script>
 			<script src="./assets/js/shared_spikes.js"></script>
 			<script src="mt.js"></script>
+			<script src="./assets/js/pixi_dots.js"></script>
 
 			<script>launch();</script>
 	</body>

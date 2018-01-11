@@ -59,7 +59,7 @@ var data = {};
 var load = require('./data/data.js');
 var settings = require('./data/settings.json');
 
-var port = 1010;
+var port = 8080;
 http.listen(port, function(){
   console.log('listening on *: ' + port);
   var lkeys = Object.keys(load);

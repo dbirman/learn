@@ -71,8 +71,8 @@ var rendererOptions = {
 var trace_posx = [625,625,625];
 var trace_posy = [200,350,500];
 // position of the brain region circles
-var xs = [93,170],
-    ys = [100,175],
+var xs = [270,250],
+    ys = [110,30],
     r = [20,15];
 // electrode and brain scale
 var e_scale = 0.075;
@@ -268,10 +268,6 @@ function vfMove(event) {
     pos.x -= vf_pos[0]-vf_pos[2];
     pos.y -= vf_pos[1]-vf_pos[2];
     stimPos = pos;
-    var sPos = getStimPos();
-    if (sPos!=undefined) {renderStimulus();} else {
-        stim_cleanup();
-    }
 }
 
 var markerLists = [markerPos,markerNeg];
@@ -308,8 +304,11 @@ function addMarker(list,x,y,c,v) {
 
 
 // stimulus functions
-var stimTypes = ['dotpos','dotneg','wedge','ring','vertbar','horizbar'];
-var stimFuncs = [function() {stim_dot(1);}, function() {stim_dot(0);}, stim_w, stim_r, function () {stim_bar(90);}, function () {stim_bar(0);}];
+var stimTypes = ['left','right','up','down'];
+var stimFuncs = [function() {stimDots(180);},
+                 function() {stimDots(0);},
+                 function() {stimDots(270);},
+                 function() {stimDots(90);}];
 var cStim = -1;
 var stimChanged = false;
 
@@ -327,35 +326,10 @@ function setStimulus(button) {
 
 var cArea;
 
-function retinaCallback() {
-    area_text.setText('Recording: Retina (Cones)');
-    cArea = 'retina';
+function mtCallback() {
+    area_text.setText('Recording: MT');
+    cArea = 'mt';
     updateLineVisibility(0);
-    rf_lines[0].visible = true;
-    resetMarkers();
-    requestElectrodeDataAll();
-    area_text_list.up.setText('Dorsal');
-    area_text_list.down.setText('Ventral');
-    area_text_list.left.setText('Lateral');
-    area_text_list.right.setText('Medial');
-}
-
-function lgnCallback() {
-    area_text.setText('Recording: LGN (Center/surround)');
-    cArea = 'lgn';
-    updateLineVisibility(1);
-    resetMarkers();
-    requestElectrodeDataAll();
-    area_text_list.up.setText('Top of LGN');
-    area_text_list.down.setText('Bottom of LGN');
-    area_text_list.left.setText('');
-    area_text_list.right.setText('');
-}
-
-function v1Callback() {
-    area_text.setText('Recording: V1 (Simple cells)');
-    cArea = 'evc';
-    updateLineVisibility(2);
     resetMarkers();
     requestElectrodeDataAll();
     area_text_list.up.setText('Dorsal');
@@ -363,6 +337,19 @@ function v1Callback() {
     area_text_list.left.setText('Anterior');
     area_text_list.right.setText('Posterior');
 }
+
+function lipCallback() {
+    area_text.setText('Recording: LIP');
+    cArea = 'mt';
+    updateLineVisibility(1);
+    resetMarkers();
+    requestElectrodeDataAll();
+    area_text_list.up.setText('Dorsal');
+    area_text_list.down.setText('Ventral');
+    area_text_list.left.setText('');
+    area_text_list.right.setText('');
+}
+
 
 function updateLineVisibility(c) {
     for (var i=0;i<rf_lines.length;i++) {
@@ -466,9 +453,8 @@ function dedebug() {
 var stimContainer;
 var pix_per_sq = 6;
 var dotGraphic,
-    barGraphic,
-    wedgeGraphic,
-    ringGraphic;
+    dotContainer,
+    dots;
 
 function renderStimulus() {
     if (cStim>=0) {
@@ -488,6 +474,8 @@ function renderStimulus() {
         // update position
         stimFuncs[cStim]();
 
+        // ensure we don't do multiple udpates
+        stimChanged = false;
     }
 }
 
@@ -495,68 +483,29 @@ function stim_cleanup() {
     if (stimContainer!=undefined) {
         stimContainer.destroy();
         stimContainer = undefined;
+        dotContainer = undefined;
         dotGraphic = undefined;
-        barGraphic = undefined;
-        wedgeGraphic = undefined;
-        ringGraphic = undefined;
     }
 }
 
-function stim_dot(pos) {
-    if (stimChanged) {
-        dotGraphic = new PIXI.Graphics;
-        if (pos) {
-            dotGraphic.beginFill(0xFFFFFF,0.5);
-        }
-        else {
-            dotGraphic.beginFill(0x000000,0.5);
-        }
-        dotGraphic.drawCircle(0,0,pix_per_sq*settings.dotpos.radius);
-        stimContainer.addChild(dotGraphic);
+function stimDots(theta) {
+    if (stimChanged || (dotGraphic==undefined)) {
+        dots = initDots(30,60,60,1,theta*Math.PI/180,0.1,2);
+        dots.t = now();
+        dotContainer = new PIXI.Container();
+        stimContainer.addChild(dotContainer);
+        dotGraphic = new PIXI.Graphics();
+        dotContainer.addChild(dotGraphic);
+        var mask = new PIXI.Graphics();
+        mask.beginFill(0xFFFFFF,1);
+        mask.drawCircle(30,30,30);
+        dotContainer.addChild(mask);
+        dotContainer.mask = mask;
     }
-    dotGraphic.position.set(stimPos.x+(vf_pos[0]-vf_pos[2]),stimPos.y+(vf_pos[1]-vf_pos[2]));
-}
-
-function stim_w() {
-    if (stimChanged) {
-        wedgeGraphic = new PIXI.Graphics;
-        wedgeGraphic.beginFill(0xFFFFFF,0.5);
-        wedgeGraphic.moveTo(0,0);
-        var endX = vf_pos[2]*Math.cos(settings.wedge.radius),
-            endY = vf_pos[2]*Math.sin(settings.wedge.radius);
-        wedgeGraphic.lineTo(endX,-endY);
-        wedgeGraphic.arc(0,0,vf_pos[2],-settings.wedge.radius,settings.wedge.radius);
-        wedgeGraphic.lineTo(0,0);
-        wedgeGraphic.endFill();
-        wedgeGraphic.position.set(vf_pos[0],vf_pos[1]);
-        stimContainer.addChild(wedgeGraphic);
-    }
-    var theta = Math.PI/2-Math.atan2(stimPos.x-vf_pos[2],stimPos.y-vf_pos[2]);
-    wedgeGraphic.rotation = theta;
-}
-
-function stim_r() {
-    if (ringGraphic==undefined) {
-        ringGraphic = new PIXI.Graphics;
-    } else {
-        ringGraphic.clear();
-    }
-    ringGraphic.lineStyle(pix_per_sq*settings.ring.width,0xFFFFFF,0.5);
-    ringGraphic.drawCircle(vf_pos[0],vf_pos[1],Math.abs(stimPos.x-vf_pos[0]));
-    stimContainer.addChild(ringGraphic);
-}
-
-function stim_bar(theta) {  
-    if (stimChanged) {
-        barGraphic = new PIXI.Graphics;
-        barGraphic.beginFill(0xFFFFFF,0.5);
-        var w = pix_per_sq*settings.horizbar.width;
-        var l = pix_per_sq*settings.horizbar.length;
-        barGraphic.drawRect(-l/2,-w/2,l,w);
-        barGraphic.rotation = theta*Math.PI/180;
-        stimContainer.addChild(barGraphic);
-    }
-    barGraphic.position.set(stimPos.x+(vf_pos[0]-vf_pos[2]),stimPos.y+(vf_pos[1]-vf_pos[2]));
+    dots = updateDots(dots,coherence,dots.dir,now()-dots.t);
+    drawDots(dots,dotGraphic);
+    dots.t = now();
+    dotContainer.position.set(stimPos.x+(vf_pos[0]-vf_pos[2])-30,stimPos.y+(vf_pos[1]-vf_pos[2])-30);
 }
 
 function renderTraces() {
@@ -598,6 +547,11 @@ var tick;
 
 function render() {
     renderTraces();
+
+    var sPos = getStimPos();
+    if (sPos!=undefined) {renderStimulus();} else {
+        stim_cleanup();
+    }
 
     tick = requestAnimationFrame(render);
 
@@ -641,6 +595,11 @@ function buttonMove(event) {
         this.elecPos.y = this.elecPos.y-this.offY+e_gray.sprite.height/2-rf_pos[1];
         this.position.set(pos.x-this.offX,pos.y-this.offY);
     }
+}
+
+var coherence = 1;
+function updateCoherence() {
+    // pass
 }
 
 function updateElectrodes() {
