@@ -389,7 +389,8 @@ function updateFiringRates(electrode) {
     } else {
         var idx = sPos.x*51+sPos.y+1; 
         if (electrode.sprite.visible) {
-            spk_setRate(electrode.trace,data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx]);
+            console.log(coherence/100*data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx]);
+            spk_setRate(electrode.trace,coherence/100*data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx]);
         }
     }
 }
@@ -502,7 +503,7 @@ function stimDots(theta) {
         dotContainer.addChild(mask);
         dotContainer.mask = mask;
     }
-    dots = updateDots(dots,coherence,dots.dir,now()-dots.t);
+    dots = updateDots(dots,coherence/100,dots.dir,now()-dots.t);
     drawDots(dots,dotGraphic);
     dots.t = now();
     dotContainer.position.set(stimPos.x+(vf_pos[0]-vf_pos[2])-30,stimPos.y+(vf_pos[1]-vf_pos[2])-30);
@@ -597,9 +598,10 @@ function buttonMove(event) {
     }
 }
 
-var coherence = 1;
+var coherence = 50;
 function updateCoherence() {
-    // pass
+    coherence = parseInt(document.getElementById('coherence').value); 
+    document.getElementById("co_label").value = coherence;
 }
 
 function updateElectrodes() {

@@ -92,9 +92,9 @@
 	</div>
 	<div id="block2_controls">
 		<h2>Coherence:</h2>
-		<form oninput="coherence = parseInt(coherence.value); updateCoherence(); co_label.value = nelec;">
+		<form oninput="updateCoherence();">
 			<input type="range" id="coherence" min="0" max="100" step="1" value="50">
-			<output name="co_label" for="coherence">50</output>
+			<output id="co_label" for="coherence">50</output>
 		</form>
 		<h2>Electrodes:</h2>
 		<form oninput="nelec = parseInt(nelectrodes.value); updateElectrodes(); ne_label.value = nelec;">
