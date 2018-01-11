@@ -1,4 +1,6 @@
 evc/data/firing_rate.json
 evc/node_modules/
 evc/data/
+Mt/data/
 *.m~
+mt/.DS_Store

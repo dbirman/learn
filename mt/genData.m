@@ -97,6 +97,7 @@ areas = {'mt'};
 
 %% Save information
 
+if ~isdir(fullfile(pwd,'data')), mkdir(fullfile(pwd,'data')); end
 % clear the files
 files = dir(fullfile(pwd,'data/*.js*'));
 for fi = 1:length(files)
