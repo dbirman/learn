@@ -8,7 +8,14 @@ var stick,
 
 function spk_init() {
   for (var i=0;i<50;i++) {
-      spikes.push(new Audio("../assets/snd/spike.wav"));
+    var cspk;
+    if (browser=="Firefox") {
+      cspk = new Audio("../assets/snd/spike_16.wav");
+    } else {
+      cspk = new Audio("../assets/snd/spike.wav");
+    }
+    cspk.load();
+    spikes.push(cspk);
   }
 }
 
