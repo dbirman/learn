@@ -100,7 +100,9 @@ function add_sprites() {
     e_gray.sprite = newElectrode('gray');
     e_gray.sprite.cursor = 'pointer';
     e_red.sprite = newElectrode('red');
+    e_red.sprite.cursor = 'pointer';
     e_blue.sprite = newElectrode('blue');
+    e_blue.sprite.cursor = 'pointer';
 }
 
 function newElectrode(str) {
@@ -167,6 +169,7 @@ function createRecordButton() {
     app.stage.addChild(g);
     g.addChild(t);
     recordGraphic = g;
+    recordGraphic.text = t;
     recordGraphic.cursor = 'pointer';
 }
 
@@ -371,6 +374,7 @@ function lipCallback() {
     recording = true;
     lip = true;
     recordGraphic.visible = false;
+    recordingMode='integrate';
 }
 
 function updateLineVisibility(c) {
@@ -400,36 +404,84 @@ function resetMarkers() {
 // Record mode
 var recording = false,
     pLipRecording,
+    recTick,
     recordingMode = 'integrate'; // 'integrate' or 'continuous' -- for LIP or MT 
 
 var recordGraphic;
 
 function recordButton() {
-    recording = !recording;
-    createRecordButton();
+    if (recTick!=undefined){
+        clearTimeout(recTick);
+        recTick=undefined;
+        createRecordButton();
+        return;
+    }
+    if (recording) {recording = false; createRecordButton();} else {
+        recordGraphic.text.setText('1...');
+        recTick = setTimeout(delayRecordStart,1000);
+    }
     console.log('recording: ' + recording);
 
     if (recording) {resetRecording();}
+}
+
+function delayRecordStart() {
+    recTick = undefined;
+    resetRecording();
+    recording = true;
+    createRecordButton();
 }
 
 function resetRecording() {
 
 }
 
+// Recording parameters
+var rec_pix_t = 100; // 1 pixel = X ms
+var recReset = undefined;
+
 function updateRecordings(electrode) {
     // init
-    if (electrode.recording==undefined) {
+    if (electrode.rec==undefined) {
         electrode.rec = {};
-        electrode.rec;
+        electrode.rec.tStart = now();
+        electrode.rec.tPrev = now();
+        electrode.rec.t = [0]; // time (used for drawing)
+        electrode.rec.y = [0]; // y value
+    }
+
+    // if we are past the 10 second delay, prepare to reset
+
+
+    if (recordingMode=='integrate') {
+
+    } else if (recordingMode=='continuous'){
+
     }
 }
 
 function renderRecordings() {
+    // Render the surrounding area
+
 
 }
 
-function _rRec() {
-
+function _rRecTrace(ctrace) {
+    if ((ctrace.trace!=undefined)&&(ctrace.trace.g!=undefined)) {
+        ctrace.trace.g.destroy();
+    }
+    ctrace.trace.g = new PIXI.Graphics();
+    ctrace.trace.g.lineStyle(1,ctrace.trace.color,1);
+    if (ctrace.trace.silent) {
+        ctrace.trace.g.moveTo(ctrace.trace.startX,ctrace.trace.startY);
+        ctrace.trace.g.lineTo(ctrace.trace.startX+ctrace.trace.spk.length,ctrace.trace.startY);
+    } else {
+        ctrace.trace.g.moveTo(ctrace.trace.startX,ctrace.trace.startY-ctrace.trace.spk[0]);
+        for (var i=1;i<ctrace.trace.spk.length;i++) {
+            ctrace.trace.g.lineTo(ctrace.trace.startX+i,ctrace.trace.startY-ctrace.trace.spk[i]);
+        }
+        trace_container.addChild(ctrace.trace.g);
+    }
 }
 
 function updateRecordingsAll() {
@@ -735,6 +787,15 @@ function launch_local() {
     e_blue.trace.startX = trace_posx[2];
     e_blue.trace.startY = trace_posy[2];
     e_blue.trace.color = 0x5DADE2;
+
+    // add location information
+    e_gray.trace.x = trace_posx[0];
+    e_red.trace.x = trace_posx[1];
+    e_blue.trace.x = trace_posx[2];
+    e_gray.trace.y = trace_posy[0];
+    e_red.trace.y = trace_posy[1];
+    e_blue.trace.y = trace_posy[2];
+
     add_traces();
     updateElectrodes(0);
 
