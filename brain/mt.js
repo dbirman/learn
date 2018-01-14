@@ -1,6 +1,8 @@
 // TODO:
-
-
+// don't erase markers when switching from MT to LIP
+// noisy condition
+// slow down noise
+// fix various bugs (LIP renders randomly? Electrodes traces don't go away? Etc etc)
 
 // Socket
 var socket = io();
@@ -81,7 +83,7 @@ var b_scale = 0.25;
 var vf_pos = [150,450,150]; // x (center) y (center), radius
 var rf_pos = [310,300,300,300];
 
-var ORIGIN_WIDTH = 900, ORIGIN_HEIGHT = 600;
+var ORIGIN_WIDTH = 1000, ORIGIN_HEIGHT = 600;
 const app = new PIXI.Application(ORIGIN_WIDTH,ORIGIN_HEIGHT, rendererOptions);
 var graphics = [];
 
@@ -355,7 +357,10 @@ function mtCallback() {
     area_text_list.left.setText('Anterior');
     area_text_list.right.setText('Posterior');
     recordGraphic.visible = true;
+    lip = false;
+    recordingMode='continuous';
     recording = pLipRecording;
+    toggleRecording(recording);
     createRecordButton();
 }
 
@@ -375,6 +380,8 @@ function lipCallback() {
     lip = true;
     recordGraphic.visible = false;
     recordingMode='integrate';
+    toggleRecording(recording);
+    resetRecordingAll();
 }
 
 function updateLineVisibility(c) {
@@ -397,91 +404,277 @@ function resetMarkers() {
     markerPos = []; markerNeg = [];
 }
 
+// Noisy
+
+var noisy = false;
+
+function toggleNoisy() {
+    noisy = !noisy;
+    console.log('NOISY NOT IMPLEMENTED... DERP DERP');
+    var noisyOpts = ['Off','On'];
+    document.getElementById("noisy").innerHTML = "Noisy: " + noisyOpts[Number(noisy)];
+}
+
 //////////////////////////////////////////////////////////////////////
 ///////////// RECORD MODE //////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
 // Record mode
 var recording = false,
+    recordingData = false,
     pLipRecording,
+    delayRecTick,
     recTick,
     recordingMode = 'integrate'; // 'integrate' or 'continuous' -- for LIP or MT 
 
-var recordGraphic;
+var recordGraphic,
+    recsurr_container,
+    rec_container;
+
+function rec_init() {
+    rec_container = new PIXI.Container();
+    app.stage.addChild(rec_container);
+    // init trace info
+    _rec_init(e_gray);
+    _rec_init(e_red);
+    _rec_init(e_blue);
+    // draw surroundings
+    renderRecordingSurr();
+    recsurr_container.visible = false;
+}
+
+function toggleRecording(set) {
+    // switch recording AND switch the surrounding on and off
+    if (set) {
+        recording = true;
+        recordingData = true;
+        setRecContainer(true);
+        trace_container.visible = false;
+    } else {
+        recording = false;
+        recordingData = true;
+        setRecContainer(false);
+        trace_container.visible = true;
+    }
+}
+
+function setRecContainer(set) {
+    rec_container.visible = set;
+    recsurr_container.visible = set;
+    e_gray.rec.surr.visible = e_gray.sprite.visible;
+    e_red.rec.surr.visible = e_red.sprite.visible;
+    e_blue.rec.surr.visible = e_blue.sprite.visible;
+}
+
+function _rec_init(electrode) {
+    electrode.rec = {};
+    electrode.rec.trace = {};
+    electrode.rec.trace.startX = electrode.trace.startX;
+    electrode.rec.trace.startY = electrode.trace.startY;
+    electrode.rec.trace.color = electrode.trace.color;
+}
 
 function recordButton() {
-    if (recTick!=undefined){
-        clearTimeout(recTick);
-        recTick=undefined;
+    if (delayRecTick!=undefined){
+        clearTimeout(delayRecTick);
+        delayRecTick=undefined;
         createRecordButton();
         return;
     }
-    if (recording) {recording = false; createRecordButton();} else {
-        recordGraphic.text.setText('1...');
-        recTick = setTimeout(delayRecordStart,1000);
-    }
-    console.log('recording: ' + recording);
+    recording = !recording;
+    toggleRecording(recording); 
+    if (recording) {
+        initDelayRecordStart();
+    } else {
+        createRecordButton();
 
-    if (recording) {resetRecording();}
+    }
+}
+
+function initDelayRecordStart() {
+    textDelay(2);
+    trace_container.visible = false;
+    delayRecTick = setTimeout(delayRecordStart,2000);
+}
+
+function textDelay(count) {
+    if (count==0) {return;}
+    recordGraphic.text.setText(count+'...');
+    setTimeout(function() {textDelay(count-1);},1000);
 }
 
 function delayRecordStart() {
-    recTick = undefined;
-    resetRecording();
-    recording = true;
+    delayRecTick = undefined;
+    resetRecordingAll();
+    toggleRecording(true);
     createRecordButton();
 }
 
-function resetRecording() {
+var recAll = {};
 
+function resetRecordingAll() {
+    resetRecording(e_gray); resetRecording(e_red); resetRecording(e_blue);
+    recAll.tStart = now();
+    recAll.tPrev = now();
+    // rec_container.clear();
+    recTick = setTimeout(updateRecordings,rec_pix_t);
+}
+
+function resetRecording(electrode) {
+    electrode.rec.t = [0]; // time (used for drawing)
+    electrode.rec.y = [0]; // y value
+    electrode.rec.randn = 0; // current noise value
 }
 
 // Recording parameters
-var rec_pix_t = 100; // 1 pixel = X ms
+var rec_pix_t = 25, // 1 pixel = X ms
+    rec_max = 5000; // so the total dist = rec_max/rec_pix_t
 var recReset = undefined;
 
-function updateRecordings(electrode) {
+function updateRecordings() {
+    if (recording) {
+        recTick = setTimeout(updateRecordings,rec_pix_t);
+    } else {
+        clearTimeout(recTick);
+        return;
+    }
+    // if we are past the 10 second delay, prepare to reset
+    if ((now()-recAll.tStart)>rec_max) {
+        // resetRecordingAll();
+        if (lip) {
+            resetRecordingAll();
+        } else {
+            recordingData = false;
+        }
+        // recTick = setTimeout(endRecordings,10000);
+        return;
+    }
+
+    if (recordingData) {
+        // otherwise, update all recordings
+        if (e_gray.sprite.visible) {_updateRecordings(e_gray);}
+        if (e_red.sprite.visible) {_updateRecordings(e_red);}
+        if (e_blue.sprite.visible) {_updateRecordings(e_blue);}
+    }
+}
+
+// function endRecordings() {
+//     toggleRecording(false);
+//     createRecordButton();
+// }
+
+var drift_noise = 0.1,
+    lip_mult = 0.01,
+    mt_noise_mult = 5;
+
+function _updateRecordings(electrode) {
     // init
     if (electrode.rec==undefined) {
-        electrode.rec = {};
-        electrode.rec.tStart = now();
-        electrode.rec.tPrev = now();
-        electrode.rec.t = [0]; // time (used for drawing)
-        electrode.rec.y = [0]; // y value
+        resetRecording(electrode);
     }
-
-    // if we are past the 10 second delay, prepare to reset
-
+    var fr;
+    if (lip) {
+        fr = lip_mult * (electrode.firingRate + electrode.rec.randn);
+    } else {
+        fr = electrode.firingRate + electrode.rec.randn;
+    }
+    // console.log(fr);
+    electrode.rec.randn = (1-drift_noise)*electrode.rec.randn + drift_noise*(mt_noise_mult*Math.sqrt(mt_noise_mult*electrode.firingRate)*randn());
+    electrode.rec.t.push(electrode.rec.t[electrode.rec.t.length-1]+1);
 
     if (recordingMode=='integrate') {
-
+        electrode.rec.y.push(electrode.rec.y[electrode.rec.y.length-1]+fr);
     } else if (recordingMode=='continuous'){
-
+        electrode.rec.y.push(fr);
     }
+
+    _rRecTrace(electrode);
 }
 
-function renderRecordings() {
+function renderRecordingSurr() {
     // Render the surrounding area
+    recsurr_container = new PIXI.Container();
+    app.stage.addChild(recsurr_container);
+    e_gray.rec.surr = _rRecSurr(e_gray,recsurr_container);
+    e_red.rec.surr = _rRecSurr(e_red,recsurr_container);
+    e_blue.rec.surr = _rRecSurr(e_blue,recsurr_container);
+}
 
+var rec_x_off = 70;
+function _rRecSurr(electrode,container) {
+    var tickStyle = new PIXI.TextStyle({
+        fill: '#ffffff',
+        fontSize: '10pt',
+    });
+
+    var t_per_pix = rec_max/rec_pix_t;
+    var local_container = new PIXI.Container();
+    var xdist = t_per_pix, ydist = 40;
+    // Get the bottom left corner of the graph
+    var x = electrode.rec.trace.startX+rec_x_off,
+        y = electrode.rec.trace.startY;
+    var xoff = x-10, yoff = y+10; // offsets
+    // 
+    var g = new PIXI.Graphics();
+    g.lineStyle(1,0xFFFFFF,1);
+    // draw X axis
+    g.moveTo(x,yoff);
+    g.lineTo(x+xdist,yoff);
+    // draw X ticks
+    for (var ti=0;ti<=xdist;ti+=50) {
+        g.moveTo(x+ti,yoff);
+        g.lineTo(x+ti,yoff+5);
+        var t = new PIXI.Text(ti*t_per_pix/10000,tickStyle);
+        t.x = x+ti;
+        t.y = yoff+12;
+        t.anchor.set(0.5,0.5);
+        local_container.addChild(t);
+    }
+    // Draw x label
+    var t = new PIXI.Text('Time (s)',tickStyle);
+    t.x = x+125;
+    t.y = yoff + 30;
+    t.anchor.set(0.5,0.5);
+    local_container.addChild(t);
+    // draw Y axis
+    g.moveTo(x,y);
+    g.lineTo(x,y-50);
+    // draw Y ticks
+    for (var yi=0;yi<=50;yi+=25) {
+        g.moveTo(x,y-yi);
+        g.lineTo(x-5,y-yi);
+        var t = new PIXI.Text(yi,tickStyle);
+        t.x = x-5;
+        t.y = y-yi;
+        t.anchor.set(1,0.5);
+        local_container.addChild(t);
+    }
+    // Draw y label
+    var t = new PIXI.Text('Spikes (per sec)',tickStyle);
+    t.x = x-35;
+    t.y = y-25;
+    t.anchor.set(0.5,0.5);
+    t.rotation = Math.PI*3/2;
+    local_container.addChild(t);
+    // Finalize
+    local_container.addChild(g);
+    container.addChild(local_container);
+    return local_container;
 
 }
 
-function _rRecTrace(ctrace) {
-    if ((ctrace.trace!=undefined)&&(ctrace.trace.g!=undefined)) {
-        ctrace.trace.g.destroy();
+function _rRecTrace(electrode) {
+    if ((electrode.rec.trace!=undefined)&&(electrode.rec.trace.g!=undefined)) {
+        electrode.rec.trace.g.destroy();
     }
-    ctrace.trace.g = new PIXI.Graphics();
-    ctrace.trace.g.lineStyle(1,ctrace.trace.color,1);
-    if (ctrace.trace.silent) {
-        ctrace.trace.g.moveTo(ctrace.trace.startX,ctrace.trace.startY);
-        ctrace.trace.g.lineTo(ctrace.trace.startX+ctrace.trace.spk.length,ctrace.trace.startY);
-    } else {
-        ctrace.trace.g.moveTo(ctrace.trace.startX,ctrace.trace.startY-ctrace.trace.spk[0]);
-        for (var i=1;i<ctrace.trace.spk.length;i++) {
-            ctrace.trace.g.lineTo(ctrace.trace.startX+i,ctrace.trace.startY-ctrace.trace.spk[i]);
-        }
-        trace_container.addChild(ctrace.trace.g);
+    g = new PIXI.Graphics();
+    g.lineStyle(1,electrode.rec.trace.color,1);
+    g.moveTo(electrode.rec.trace.startX+rec_x_off,electrode.rec.trace.startY-electrode.rec.y[0]);
+    for (var i=1;i<electrode.rec.t.length;i++) {
+        g.lineTo(electrode.rec.trace.startX+i+rec_x_off,electrode.rec.trace.startY-electrode.rec.y[i]);
     }
+    rec_container.addChild(g);
+    electrode.rec.trace.g = g;
 }
 
 function updateRecordingsAll() {
@@ -722,7 +915,7 @@ function buttonMove(event) {
     }
 }
 
-var coherence = 50;
+var coherence = 100;
 function updateCoherence() {
     coherence = parseInt(document.getElementById('coherence').value); 
     document.getElementById("co_label").value = coherence;
@@ -798,6 +991,8 @@ function launch_local() {
 
     add_traces();
     updateElectrodes(0);
+
+    rec_init();
 
     // set the current step correctly (which stimulus and areas are accessible)
     socket.emit('settings');
