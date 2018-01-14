@@ -100,10 +100,13 @@ function add_sprites() {
     brain.x = 0; brain.y = 0;
     app.stage.addChild(brain);
 
+
     e_gray.sprite = newElectrode('gray');
     e_gray.sprite.cursor = 'pointer';
     e_red.sprite = newElectrode('red');
+    e_red.sprite.cursor = 'pointer';
     e_blue.sprite = newElectrode('blue');
+    e_blue.sprite.cursor = 'pointer';
 }
 
 function newElectrode(str) {

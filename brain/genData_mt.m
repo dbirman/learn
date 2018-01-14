@@ -11,8 +11,9 @@
 
 %%
 addpath(genpath('/Users/dan/proj/learn'))
-cd /Users/dan/proj/learn/mt
+cd /Users/dan/proj/learn/brain
 
+if ~isdir(fullfile(pwd,'data')), mkdir(fullfile(pwd,'data')); end
 %% Coordinates
 x = -25:25;
 fx = fliplr(x);
@@ -22,7 +23,12 @@ fy = fliplr(y);
 
 n = length(x)*length(y);
 
-settings = struct;
+fsettings = fullfile(pwd,'data/settings.mat');
+if isfile(fsettings)
+    load(fsettings)
+else
+    settings = struct;
+end
 firing_rate = struct;
 
 %% Generate receptive fields
@@ -75,6 +81,7 @@ directions = {'left','right','up','down'};
 dirDegrees = [180,0,90,270];
 
 for di = 1:4
+    disp(sprintf('Running: %s',directions{di}));
     dat = zeros(length(x)*length(y),length(x),length(y));
     settings.(directions{di}).radius = 5;
     settings.(directions{di}).direction = dirDegrees(di);
@@ -88,7 +95,7 @@ for di = 1:4
         end
     end
 
-    firing_rate.(directions{di}).mt = computeRate(resp_mt,motpos,settings.(directions{di}).direction,data_mt,settings);
+    firing_rate.(directions{di}).mt = computeRate_mt(resp_mt,motpos,settings.(directions{di}).direction,data_mt,settings);
 end
 
 %% List stims and areas
@@ -97,9 +104,18 @@ areas = {'mt'};
 
 %% Save information
 
+if isfile(fullfile(pwd,'data/info.mat'))
+    load(fullfile(pwd,'data/info.mat'));
+else
+    info = struct;
+end
+
+info.mt = struct;
+info.mt.fnames = {};
+
 if ~isdir(fullfile(pwd,'data')), mkdir(fullfile(pwd,'data')); end
 % clear the files
-files = dir(fullfile(pwd,'data/*.js*'));
+files = dir(fullfile(pwd,'data/data_mt*.js*'));
 for fi = 1:length(files)
     delete(fullfile(pwd,'data',files(fi).name));
 end
@@ -115,21 +131,16 @@ for si = 1:length(stims)
         out.stim = stims{si};
         out.area = areas{ai};
         out.data = firing_rate.(stims{si}).(areas{ai});
-        fnames{end+1} = sprintf('data%i.json',count);
-        savejson('',out,fullfile('data',fnames{end}));
+        info.mt.fnames{end+1} = sprintf('data_mt%i.json',count);
+        savejson('',out,fullfile('data',info.mt.fnames{end}));
         count = count+1;
     end
 end
 
-% save the data.js file
-[fid,dmsg] = fopen(deblank(fullfile(pwd,'data','data.js')),'w');
-fprintf(fid,'module.exports = {');
-for fi = 1:length(fnames)
-    fprintf(fid,sprintf('  %s: require(''./%s''),',char(fi+64),fnames{fi}));
-end
-fprintf(fid,'}');
-fclose(fid);
+saveDataInfo(info);
 
+%% Settings file
+save(fsettings,'settings');
 savejson('',settings,'data/settings.json');
 
 %% Display retina
