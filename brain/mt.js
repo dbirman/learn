@@ -774,6 +774,28 @@ function updateFiringRatesAll() {
     if (velec>0) {updateFiringRates(e_gray);}
     if (velec>1) {updateFiringRates(e_red);}
     if (velec>2) {updateFiringRates(e_blue);}
+    if (noisy) {
+        // this is hard because we don't actually know which electrode prefers which direction, so we can't really have a
+        // "noisy" stimulus
+        // instead we'll mimic:
+        // take the first two electrodes, 60% of the time make the lower firing one randomly go to zero
+        var lower,higher;
+        if (e_gray.firingRate<e_red.firingRate) {
+            lower = e_gray;
+            higher = e_red;
+        } else {
+            lower = e_red;
+            higher = e_gray;
+        }
+        if (Math.random()<0.6) {
+            // reduce the lower electrode
+            lower.firingRate = 0.5*Math.random()*lower.firingRate;
+        } else {
+            // raise the lower firing and lower the higher
+            higher.firingRate = 0.5*Math.random()*higher.firingRate;
+            lower.firingRate = 4*Math.random()*lower.firingRate;
+        }
+    }
 }
 
 function renderStimulus() {
