@@ -11,11 +11,17 @@ app.get( '/*' , function( req, res ) {
     res.sendfile("./" + file);
 }); 
 
+var connectionList = {};
+
 io.on('connection', function(socket){
   console.log('Connection: ID ' + socket.id);
+  addClient(socket.id);
+  logClients();
 
   socket.on('disconnect', function(){
   	console.log('disconnect');
+    removeClient(socket.id);
+    logClients();
   });
 
   socket.on('settings', function() {
@@ -41,6 +47,23 @@ io.on('connection', function(socket){
   	}
   })
 });
+
+function addClient(id) {
+  connectionList[id] = {};
+  connectionList[id].connected = Date.now();
+}
+
+function removeClient(id) {
+  delete connectionList[id];
+}
+
+function logClients() {
+  var keys = Object.keys(connectionList);
+  for (var ki=0;ki<keys.length;ki++) {
+    console.log('Client: ' + keys[ki] + ' connected for: ' + Math.round((Date.now()-connectionList[keys[ki]].connected)/1000));
+  }
+  console.log('Total clients: ' + keys.length);
+}
 
 // Note that data sizes is 2601 * 51 * 51
 
