@@ -350,7 +350,7 @@ function mtCallback() {
     area_text.setText('Recording: MT');
     cArea = 'mt';
     updateLineVisibility(0);
-    resetMarkers();
+    // resetMarkers();
     requestElectrodeDataAll();
     area_text_list.up.setText('Dorsal');
     area_text_list.down.setText('Ventral');
@@ -369,7 +369,7 @@ function lipCallback() {
     area_text.setText('Recording: LIP');
     cArea = 'mt';
     updateLineVisibility(1);
-    resetMarkers();
+    // resetMarkers();
     requestElectrodeDataAll();
     area_text_list.up.setText('Dorsal');
     area_text_list.down.setText('Ventral');
