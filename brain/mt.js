@@ -354,8 +354,8 @@ function mtCallback() {
     requestElectrodeDataAll();
     area_text_list.up.setText('Dorsal');
     area_text_list.down.setText('Ventral');
-    area_text_list.left.setText('Anterior');
-    area_text_list.right.setText('Posterior');
+    area_text_list.left.setText('');
+    area_text_list.right.setText('');
     recordGraphic.visible = true;
     lip = false;
     recordingMode='continuous';
@@ -563,9 +563,9 @@ function updateRecordings() {
 //     createRecordButton();
 // }
 
-var drift_noise = 0.1,
+var drift_noise = 0.025,
     lip_mult = 0.01,
-    mt_noise_mult = 5;
+    mt_noise_mult = 1;
 
 function _updateRecordings(electrode) {
     // init
@@ -579,7 +579,7 @@ function _updateRecordings(electrode) {
         fr = electrode.firingRate + electrode.rec.randn;
     }
     // console.log(fr);
-    electrode.rec.randn = (1-drift_noise)*electrode.rec.randn + drift_noise*(mt_noise_mult*Math.sqrt(mt_noise_mult*electrode.firingRate)*randn());
+    electrode.rec.randn = (1-drift_noise)*electrode.rec.randn + drift_noise*((120-coherence)/mt_noise_mult*randn());
     electrode.rec.t.push(electrode.rec.t[electrode.rec.t.length-1]+1);
 
     if (recordingMode=='integrate') {
@@ -621,10 +621,10 @@ function _rRecSurr(electrode,container) {
     g.moveTo(x,yoff);
     g.lineTo(x+xdist,yoff);
     // draw X ticks
-    for (var ti=0;ti<=xdist;ti+=50) {
+    for (var ti=0;ti<=xdist;ti+=xdist/5) {
         g.moveTo(x+ti,yoff);
         g.lineTo(x+ti,yoff+5);
-        var t = new PIXI.Text(ti*t_per_pix/10000,tickStyle);
+        var t = new PIXI.Text(ti/40,tickStyle);
         t.x = x+ti;
         t.y = yoff+12;
         t.anchor.set(0.5,0.5);
@@ -669,9 +669,9 @@ function _rRecTrace(electrode) {
     }
     g = new PIXI.Graphics();
     g.lineStyle(1,electrode.rec.trace.color,1);
-    g.moveTo(electrode.rec.trace.startX+rec_x_off,electrode.rec.trace.startY-electrode.rec.y[0]);
+    g.moveTo(electrode.rec.trace.startX+rec_x_off,Math.min(electrode.rec.trace.startY,electrode.rec.trace.startY-electrode.rec.y[0]));
     for (var i=1;i<electrode.rec.t.length;i++) {
-        g.lineTo(electrode.rec.trace.startX+i+rec_x_off,electrode.rec.trace.startY-electrode.rec.y[i]);
+        g.lineTo(electrode.rec.trace.startX+i+rec_x_off,Math.min(electrode.rec.trace.startY,electrode.rec.trace.startY-electrode.rec.y[i]));
     }
     rec_container.addChild(g);
     electrode.rec.trace.g = g;
