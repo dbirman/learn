@@ -126,7 +126,7 @@ function setup() {
 }
 
 function toggleCoherence() {
-	option = (option+1)%3;
+	option = (option+1)%2;
 	console.log(option);
 	if (option==0) {
 		document.getElementById("toggle").innerHTML = "Mode: High coherence";
