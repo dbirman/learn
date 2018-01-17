@@ -826,6 +826,9 @@ function stim_cleanup() {
         stimContainer = undefined;
         dotContainer = undefined;
         dotGraphic = undefined;
+        spk_setRate(e_gray.trace,0);
+        spk_setRate(e_red.trace,0);
+        spk_setRate(e_blue.trace,0);
     }
 }
 
