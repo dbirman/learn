@@ -517,6 +517,7 @@ function resetRecordingAll() {
     recAll.tStart = now();
     recAll.tPrev = now();
     // rec_container.clear();
+    if (recTick!=undefined) {clearTimeout(recTick);}
     recTick = setTimeout(updateRecordings,rec_pix_t);
 }
 
