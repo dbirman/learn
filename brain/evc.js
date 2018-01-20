@@ -558,7 +558,7 @@ function stim_r() {
 }
 
 function stim_bar(theta) {  
-    if (stimChanged) {
+    if (stimChanged || (barGraphic==undefined)) {
         barGraphic = new PIXI.Graphics;
         barGraphic.beginFill(0xFFFFFF,0.5);
         var w = pix_per_sq*settings.horizbar.width;
