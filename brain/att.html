@@ -80,17 +80,26 @@
 	<div id="block2_stim">
 		<h2>Stimulus:</h2>
 		<img id="dotpos" onclick="setStimulus(this);" src="images/point.png"/ style="width:10vw">
-		<img id="horizbar" onclick="setStimulus(this);" src="images/horizbar.png"/ style="width:10vw">
+		<!-- <img id="horizbar" onclick="setStimulus(this);" src="images/horizbar.png"/ style="width:10vw">
 		<img id="rotbarL" onclick="setStimulus(this);" src="images/rotbarL.png"/ style="width:10vw">
 		<img id="vertbar" onclick="setStimulus(this);" src="images/vertbar.png"/ style="width:10vw">
-		<img id="rotbarR" onclick="setStimulus(this);" src="images/rotbarR.png"/ style="width:10vw">
+		<img id="rotbarR" onclick="setStimulus(this);" src="images/rotbarR.png"/ style="width:10vw"> -->
 	</div>
 	<div id="block2_controls">
+		<h2>Contrast:</h2>
+		<form oninput="updateContrast();">
+			<input type="range" id="contrast" min="0" max="100" step="1" value="100">
+			<output id="co_label" for="contrast">100</output>%
+		</form>
 		<h2>Electrodes:</h2>
 		<form oninput="nelec = parseInt(nelectrodes.value); updateElectrodes(); ne_label.value = nelec;">
 			<input type="range" id="nelectrodes" min="1" max="2" step="1" value="1">
 			<output name="ne_label" for="nelectrodes">1</output>
 		</form>
+		<a id="attmode" class="button special" onclick="toggleAttention();">Attention model: sensory enhancement</a>
+		<br><br>
+		<a id="helper" class="button special" onclick="toggleHelper();">Helper: on</a>
+		<br><br>
 	</div>
 
 </div>
@@ -124,7 +133,7 @@
       <script src="./node_modules/socket.io-client/dist/socket.io.js"></script>
 			<script src="./assets/js/shared_code.js"></script>
 			<script src="./assets/js/shared_spikes.js"></script>
-			<script src="evc.js"></script>
+			<script src="att.js"></script>
 
 			<script>launch();</script>
 	</body>

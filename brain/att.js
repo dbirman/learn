@@ -174,6 +174,27 @@ var vf_text, area_text;
 
 var area_text_list = {};
 
+function add_electrode_text() {
+    var style = new PIXI.TextStyle({
+        fill: '#ffffff',
+    });
+    // add electrode text
+    t = new PIXI.Text('0 (spk/s)',style);
+    t.x = e_gray.trace.startX+200;
+    t.y = e_gray.trace.startY-30;
+    t.anchor.set(1,1);
+    e_gray.spk_text = t;
+    app.stage.addChild(t);
+    e_gray.helper = true;
+
+    t = new PIXI.Text('0 (spk/s)',style);
+    t.x = e_red.trace.startX+200;
+    t.y = e_red.trace.startY-30;
+    t.anchor.set(1,1);
+    e_red.spk_text = t;
+    app.stage.addChild(t);
+
+}
 function add_text() {
     var style = new PIXI.TextStyle({
         fill: '#ffffff',
@@ -188,6 +209,7 @@ function add_text() {
     area_text.y = 300;
     area_text.anchor.set(0.5,1);
     app.stage.addChild(area_text);
+
     // add up/down designations for visual field
     var style = new PIXI.TextStyle({
         fill: '#ffffff',
@@ -315,8 +337,8 @@ function addMarker(list,x,y,c,v) {
 
 
 // stimulus functions
-var stimTypes = ['dotpos','vertbar','horizbar','rotbarL','rotbarR'];
-var stimFuncs = [function() {stim_dot(1);}, function() {stim_dot(0);}, stim_w, stim_r, function () {stim_bar(90);}, function () {stim_bar(0);}];
+var stimTypes = ['dotpos'];
+var stimFuncs = [function() {stim_dot(1);}];
 var cStim = -1;
 var stimChanged = false;
 
@@ -363,6 +385,7 @@ function v1Callback() {
     area_text.setText('Recording: V1 (Simple cells)');
     cArea = 'evc';
     updateLineVisibility(2);
+    rf_lines[0].visible = true;
     resetMarkers();
     requestElectrodeDataAll();
     area_text_list.up.setText('Dorsal');
@@ -375,6 +398,13 @@ function updateLineVisibility(c) {
     for (var i=0;i<rf_lines.length;i++) {
         rf_lines[i].visible = i == c;
     }
+}
+
+var contrast = 100;
+function updateContrast() {
+    contrast = parseInt(document.getElementById('contrast').value); 
+    document.getElementById("co_label").value = contrast;
+    // console.log(getContrast());
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -409,9 +439,36 @@ function updateFiringRates(electrode) {
     } else {
         var idx = sPos.x*51+sPos.y+1; 
         if (electrode.sprite.visible) {
-            spk_setRate(electrode.trace,data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx]);
+            var rate = data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx];
+            if (rate>settings.def_fire) {rate = getContrast() * rate;}
+            if (afield.enabled && electrode.infield) {
+                if (selectionMode) {
+                    if (rate>settings.def_fire) {
+                        rate = rate + 3;
+                    } else {
+                        rate = Math.max(0,rate - 3);
+                    }
+                } else {
+                    if (rate>settings.def_fire) {
+                        rate = rate * 1.5;
+                    } else {
+                        rate = Math.max(0,rate - 3);
+                    }
+                }
+            }
+            spk_setRate(electrode.trace,rate);
         }
     }
+    electrode.spk_text.setText(Math.round(electrode.trace.rate)+" (spk/s)");
+}
+
+var rmax = 1,
+    n = .75,
+    c50 = 0.5;
+
+function getContrast() {
+    // if neither of the extreme values, do the interpolation (naka-rushton)
+    return 2 * rmax * Math.pow(contrast/100,n) / (Math.pow(contrast/100,n)+Math.pow(c50,n))
 }
 
 function frChecksFail() {
@@ -515,7 +572,7 @@ function stim_cleanup() {
 }
 
 function stim_dot(pos) {
-    if (stimChanged) {
+    if (stimChanged || dotGraphic==undefined) {
         dotGraphic = new PIXI.Graphics;
         if (pos) {
             dotGraphic.beginFill(0xFFFFFF,0.5);
@@ -526,49 +583,9 @@ function stim_dot(pos) {
         dotGraphic.drawCircle(0,0,pix_per_sq*settings.dotpos.radius);
         stimContainer.addChild(dotGraphic);
     }
-    dotGraphic.position.set(stimPos.x+(vf_pos[0]-vf_pos[2]),stimPos.y+(vf_pos[1]-vf_pos[2]));
-}
-
-function stim_w() {
-    if (stimChanged) {
-        wedgeGraphic = new PIXI.Graphics;
-        wedgeGraphic.beginFill(0xFFFFFF,0.5);
-        wedgeGraphic.moveTo(0,0);
-        var endX = vf_pos[2]*Math.cos(settings.wedge.radius),
-            endY = vf_pos[2]*Math.sin(settings.wedge.radius);
-        wedgeGraphic.lineTo(endX,-endY);
-        wedgeGraphic.arc(0,0,vf_pos[2],-settings.wedge.radius,settings.wedge.radius);
-        wedgeGraphic.lineTo(0,0);
-        wedgeGraphic.endFill();
-        wedgeGraphic.position.set(vf_pos[0],vf_pos[1]);
-        stimContainer.addChild(wedgeGraphic);
+    if (dotGraphic!=undefined) {
+        dotGraphic.position.set(stimPos.x+(vf_pos[0]-vf_pos[2]),stimPos.y+(vf_pos[1]-vf_pos[2]));
     }
-    var theta = Math.PI/2-Math.atan2(stimPos.x-vf_pos[2],stimPos.y-vf_pos[2]);
-    wedgeGraphic.rotation = theta;
-}
-
-function stim_r() {
-    if (ringGraphic==undefined) {
-        ringGraphic = new PIXI.Graphics;
-    } else {
-        ringGraphic.clear();
-    }
-    ringGraphic.lineStyle(pix_per_sq*settings.ring.width,0xFFFFFF,0.5);
-    ringGraphic.drawCircle(vf_pos[0],vf_pos[1],Math.abs(stimPos.x-vf_pos[0]));
-    stimContainer.addChild(ringGraphic);
-}
-
-function stim_bar(theta) {  
-    if (stimChanged || (barGraphic==undefined)) {
-        barGraphic = new PIXI.Graphics;
-        barGraphic.beginFill(0xFFFFFF,0.5);
-        var w = pix_per_sq*settings.horizbar.width;
-        var l = pix_per_sq*settings.horizbar.length;
-        barGraphic.drawRect(-l/2,-w/2,l,w);
-        barGraphic.rotation = theta*Math.PI/180;
-        stimContainer.addChild(barGraphic);
-    }
-    barGraphic.position.set(stimPos.x+(vf_pos[0]-vf_pos[2]),stimPos.y+(vf_pos[1]-vf_pos[2]));
 }
 
 function renderTraces() {
@@ -602,8 +619,8 @@ function _rTrace(ctrace) {
         for (var i=1;i<ctrace.trace.spk.length;i++) {
             ctrace.trace.g.lineTo(ctrace.trace.startX+i,ctrace.trace.startY-ctrace.trace.spk[i]);
         }
-        trace_container.addChild(ctrace.trace.g);
     }
+    trace_container.addChild(ctrace.trace.g);
 }
 
 var tick;
@@ -658,13 +675,28 @@ function buttonMove(event) {
 function updateElectrodes() {
     velec = nelec;
     e_gray.sprite.visible = velec > 0;
+    e_gray.spk_text.visible = e_gray.helper;
     e_red.sprite.visible = velec > 1;
+    e_red.spk_text.visible = e_gray.helper && (velec>1);
+
     e_blue.sprite.visible = velec > 2;
     if (e_gray.trace!=undefined) {
         e_gray.trace.silent = (curBlock==1) || !(velec > 0);
         e_red.trace.silent = (curBlock==1) || !(velec > 1);
         e_blue.trace.silent = (curBlock==1) || !(velec > 2);
     } 
+}
+
+function toggleHelper() {
+    e_gray.helper = !e_gray.helper;
+    updateElectrodes();
+    document.getElementById("helper").innerHTML = "Helper: " + (e_gray.helper ? "on" : "off");
+}
+
+var selectionMode = false; // 0 = enhancement, 1 = selection
+function toggleAttention() {
+    selectionMode = !selectionMode;
+    document.getElementById("attmode").innerHTML = "Attention model: " + (selectionMode ? "selection" : "sensory enhancement");
 }
 
 function run(i) {   
@@ -715,21 +747,157 @@ function launch_local() {
     e_blue.trace.startY = trace_posy[2];
     e_blue.trace.color = 0x5DADE2;
     add_traces();
+    add_electrode_text();
     updateElectrodes(0);
-
+    afield.pressed=false;
+    afield.enabled = false;
+    attention_init(); 
     // set the current step correctly (which stimulus and areas are accessible)
     socket.emit('settings');
 
-    // after the tutorials, this will default to the final step
-    setStep(false);
 }
 
-function setStep(override) {
-    if (override) {
-        step = Infinity;
+var afield = {};
+
+var konami = [38,38,40,40,37,39,37,39,66,65];
+var konami_pos = 0;
+
+
+var party = [80,65,82,84,89,80,65,82,82,79,84];
+var party_pos = 0;
+
+function checkKonami(e) {
+
+    if (e.keyCode==konami[konami_pos]) {
+        konami_pos++;
+    } else {
+        konami_pos=0;
     }
+    if (konami_pos==konami.length) {    
+        // if (Math.random()<0.5) {
+        //     meow = PIXI.Sprite.fromImage('images/brain.png');
+        // } else {
+            meow = PIXI.Sprite.fromImage('images/deadpool.png');
+        // }
+        meow.anchor.set(0.5,0.5);
+        meow.scale.set(0.5);
+        meow.x = app.stage.width/2; meow.y = app.stage.height/2;
+        app.stage.addChild(meow);
+        app.ticker.add(function(delta) {
+            meow.rotation += 0.05* delta;
+        })
+    }
+}
 
-    if (step>=0) {
+// function checkParty(e) {
+//     //whoops gifs don't work. derp
+//     if (e.keyCode==party[party_pos]) {
+//         party_pos++;
+//     } else {
+//         party_pos=0;
+//     }
+//     if (party_pos==konami.length) {    
+//         // if (Math.random()<0.5) {
+//         //     meow = PIXI.Sprite.fromImage('images/brain.png');
+//         // } else {
+//         parrot = PIXI.Sprite.fromImage('images/middleparrot.gif');
+//         // }
+//         parrot.anchor.set(0.5,0.5);
+//         parrot.scale.set(25);
+//         parrot.x = app.stage.width/2; parrot.y = app.stage.height/2;
+//         app.stage.addChild(parrot);
+//         app.ticker.add(function(delta) {
+//             parrot.rotation += 0.05* delta;
+//         })
+//     }
+// }
 
-    } 
+function attention_init() {
+    document.body.onkeydown = function(e){
+        checkKonami(e);
+        // checkParty(e);
+        if (any(equals([32,37,38,39,40,87,83],e.keyCode))) {e.preventDefault();}
+        if(e.keyCode == 32){
+            if (afield.g==undefined) {init_afield();}
+            afield.pressed = !afield.pressed;
+            afield.enabled = !afield.pressed;
+            if (afield.enabled) {
+                e_gray.infield = checkElectrodeInField(e_gray);
+                e_red.infield = checkElectrodeInField(e_red);
+            }
+            afield.t.visible = afield.pressed;
+            update_afield(0,0,0,afield.pressed?1:0.25);
+        }
+        if(e.keyCode == 37 && afield.pressed && afield.g!=undefined){
+            update_afield(-5,0,0,1);   
+        }
+        if(e.keyCode == 39 && afield.pressed && afield.g!=undefined){
+            update_afield(5,0,0,1);   
+        }
+        if(e.keyCode == 38 && afield.pressed && afield.g!=undefined){
+            update_afield(0,-5,0,1);   
+        }
+        if(e.keyCode == 40 && afield.pressed && afield.g!=undefined){
+            update_afield(0,5,0,1);   
+        }
+        if(e.keyCode == 87 && afield.pressed && afield.g!=undefined){
+            update_afield(0,0,5,1);   
+        }
+        if(e.keyCode == 83 && afield.pressed && afield.g!=undefined){
+            update_afield(0,0,-5,1);   
+        }
+    }
+}
+
+function checkElectrodeInField(electrode) {
+    if (electrode.trace.silent) {return false;}
+    // Figure out whether the electrode is in the attention field or not
+    // remember that V1 is not L/R flipped, but it is up down flipped
+    // convert field x/y to electrode x/y
+    var ePos = getElecPos(electrode);
+    if (ePos==undefined) {return false;}
+    var x = afield.x, y = afield.y;
+    x -= (vf_pos[0]-vf_pos[2]);
+    y -= (vf_pos[1]-vf_pos[2]);
+    x = x / pix_per_sq;
+    y = y / pix_per_sq;
+    // flip y
+    y = 50 - y;
+
+    var ret = (Math.abs(x-ePos.x)<(afield.sigma/pix_per_sq)) && (Math.abs(y-ePos.y)<afield.sigma);
+    console.log(ret);
+    return ret;
+}
+
+function init_afield() {
+    afield = {};
+    afield.enabled = true;
+    afield.pressed = false;
+    afield.x = vf_pos[0];
+    afield.y = vf_pos[1];
+    afield.sigma = 31;
+    afield.g = new PIXI.Graphics();
+    afield.g.beginFill(0xFFFFFF,0.25);
+    afield.g.drawCircle(afield.x,afield.y,afield.sigma);
+
+    var style = new PIXI.TextStyle({
+        fill: '#ff0000',
+    });
+    afield.t = new PIXI.Text('Press space again to enable attention field',style);
+    afield.t.x = 0;
+    afield.t.y = 320;
+    app.stage.addChild(afield.t);
+    app.stage.addChild(afield.g);
+}
+
+function update_afield(dx,dy,dsigma,alpha) {
+    afield.x = Math.min(vf_pos[0]+vf_pos[2],Math.max(0,afield.x+dx));
+    afield.y = Math.min(vf_pos[1]+vf_pos[2],Math.max(vf_pos[1]-vf_pos[2],afield.y+dy));
+    afield.sigma = Math.min(200,Math.max(1,afield.sigma+dsigma));
+    afield.alpha = alpha;
+    afield.g.destroy();
+    afield.g = new PIXI.Graphics();
+    afield.g.beginFill(0xFFFFFF,alpha);
+    afield.g.drawCircle(afield.x,afield.y,afield.sigma);
+    app.stage.addChild(afield.g);
 }
