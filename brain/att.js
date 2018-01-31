@@ -441,18 +441,19 @@ function updateFiringRates(electrode) {
         if (electrode.sprite.visible) {
             var rate = data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx];
             if (rate>settings.def_fire) {rate = getContrast() * rate;}
-            if (afield.enabled && electrode.infield) {
-                if (selectionMode) {
-                    if (rate>settings.def_fire) {
-                        rate = rate + 3;
+            if (afield.enabled) {
+                if (selectionMode && (rate>3)) {
+                    if (electrode.infield) {
+                    console.log('selecting')
+                        rate = rate + 6;
                     } else {
-                        rate = Math.max(0,rate - 3);
+                    console.log('suppressing')
+                        rate = Math.max(0,rate - 6);
                     }
                 } else {
-                    if (rate>settings.def_fire) {
+                    if (electrode.infield) {
+                    console.log('enhancing');
                         rate = rate * 1.5;
-                    } else {
-                        rate = Math.max(0,rate - 3);
                     }
                 }
             }
