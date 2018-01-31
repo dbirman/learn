@@ -444,15 +444,12 @@ function updateFiringRates(electrode) {
             if (afield.enabled) {
                 if (selectionMode && (rate>3)) {
                     if (electrode.infield) {
-                    console.log('selecting')
                         rate = rate + 6;
                     } else {
-                    console.log('suppressing')
                         rate = Math.max(0,rate - 6);
                     }
                 } else {
                     if (electrode.infield) {
-                    console.log('enhancing');
                         rate = rate * 1.5;
                     }
                 }
