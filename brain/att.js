@@ -754,6 +754,8 @@ function launch_local() {
     // set the current step correctly (which stimulus and areas are accessible)
     socket.emit('settings');
 
+    // set V1 by default
+    v1Callback();
 }
 
 var afield = {};
