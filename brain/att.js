@@ -176,7 +176,7 @@ var area_text_list = {};
 
 function add_electrode_text() {
     var style = new PIXI.TextStyle({
-        fill: '#ffffff',
+        fill: 0xBEBEBE,
     });
     // add electrode text
     t = new PIXI.Text('0 (spk/s)',style);
@@ -186,6 +186,9 @@ function add_electrode_text() {
     e_gray.spk_text = t;
     app.stage.addChild(t);
     e_gray.helper = true;
+    style = new PIXI.TextStyle({
+        fill: 0xCD6155,
+    });
 
     t = new PIXI.Text('0 (spk/s)',style);
     t.x = e_red.trace.startX+200;
@@ -731,7 +734,6 @@ function launch_local() {
     if (localStorage.evc_step != undefined) {
         step = localStorage.evc_step;
     }
-
     // generate the three spike traces
     e_gray.trace = spk_addTrace();
     e_gray.trace.startX = trace_posx[0];
