@@ -442,15 +442,16 @@ function updateFiringRates(electrode) {
             var rate = data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx];
             if (rate>settings.def_fire) {rate = getContrast() * rate;}
             if (afield.enabled) {
+                var effect = 1/(afield.sigma/31); // scale according to effect (larger than 10 sigma will reduce)
                 if (selectionMode && (rate>3)) {
                     if (electrode.infield) {
-                        rate = rate + 6;
+                        rate = rate + 6*effect;
                     } else {
-                        rate = Math.max(0,rate - 6);
+                        rate = Math.max(0,rate - 6*effect);
                     }
                 } else {
                     if (electrode.infield) {
-                        rate = rate * 1.5;
+                        rate = rate * 1.5 * effect;
                     }
                 }
             }
@@ -824,6 +825,7 @@ function attention_init() {
                 e_red.infield = checkElectrodeInField(e_red);
             }
             afield.t.visible = afield.pressed;
+            afield.ct.visible = afield.pressed;
             update_afield(0,0,0,afield.pressed?1:0.25);
         }
         if(e.keyCode == 37 && afield.pressed && afield.g!=undefined){
@@ -882,9 +884,25 @@ function init_afield() {
         fill: '#ff0000',
     });
     afield.t = new PIXI.Text('Press space again to enable attention field',style);
-    afield.t.x = 0;
+    afield.t.x = 40;
     afield.t.y = 320;
     app.stage.addChild(afield.t);
+
+    var dir_container = new PIXI.Container(); // container to hold text
+    var ts = ['Controls:','W','S','Left','Up','Right','Down'];
+    var nativex = 450, nativey = 450;
+    var xs = [0,-80,-80,-20,20,60,20];
+    var ys = [-50,-20,30,10,-10,10,30];
+    for (var ti=0;ti<ts.length;ti++) {
+        var t = new PIXI.Text(ts[ti],style);
+        t.x = nativex+xs[ti];
+        t.y = nativey+ys[ti];
+        t.anchor.set(0.5,0.5);
+        dir_container.addChild(t);
+    }
+    afield.ct = dir_container;
+    app.stage.addChild(dir_container);
+
     app.stage.addChild(afield.g);
 }
 
