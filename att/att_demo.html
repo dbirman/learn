@@ -1,0 +1,114 @@
+<!-- TODO: - make right eveidence negative -->
+<!-- TODO: - on 7 give them motion coherence options (e.g. click one to show output for that motion coherence) -->
+
+<!DOCTYPE HTML>
+<!--
+	Landed by HTML5 UP
+	html5up.net | @n33co
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Demo</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+
+		<!-- Generics -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/math.min.js"></script>
+			<script src="../assets/js/jquery.csv.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/jquery.dropotron.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="../assets/js/main.js"></script>
+		<!-- Math KaTeX -->
+			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+		<!-- Plotting: Plot.ly JS -->
+      <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	</head>
+	<body>
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header">
+					<!-- <h1 id="logo"><a href="../index.html">Demo</a></h1> -->
+					<nav id="nav">
+						<!-- <ul>
+							<li><a href="../learn.html">Learn</a></li>
+						</ul> -->
+					</nav>
+				</header>
+
+			<!-- Main -->
+				<div id="main" class="wrapper style1">
+					<div class="container">
+						<header class="major">
+							<h2>Demo</h2>
+							<p>PSYCH 50</p>
+						</header>
+
+						<!-- Content -->
+							<section id="content">
+<div id="block1">
+	<h2>Week 5: thought question demo</h2>
+	<h1>Instructions</h1>
+  <p> This week's thought questions involves participating in an experiment that was originally conducted in 2011 by Franco Pestilli, Professor Gardner, and their colleagues. This type of experiment is known as a 2-interval forced choice task: in each trial, you will be shown a sequence of images and will be cued to respond at the end by pressing either 1 or 2. </p>
+  <p> </p>
+  <p>You will see a set of 4 contrast patches flash quickly two times -- your job is to judge which of those two intervals had higher contrast. Afterwards, you will be cued with a single arrow, and you will have to press either 1 to indicate that the first interval had higher contrast or 2 to indicate that the second interval had higher contrast. Press the <b>q</b> key to start each trial. </p>
+</div>
+
+<div id="block2">
+<!-- game block -->
+	<div style="text-align:center;">
+	<span id="waiting">Press q to start</span><br>
+	<canvas id="canvas" style="cursor:none" width=400 height=400></canvas>
+	<br>
+	<progress color="red" id="prog" max="1" value="0"></progress>
+	</div>
+
+</div>
+
+<div id="block3">
+	<p>Write down this information, you will need it for the thought question and in section this week!</p>
+	<output id="rti"></output><br>
+	<output id="pci"></output><br><!-- 
+	<output id="rtc"></output><br>
+	<output id="pcc"></output><br> -->
+</div>
+
+<div id="endblock">
+	<h2>Demo complete!</h2>
+</div>
+							</section>
+							<section id="continue">
+								<a class="button special" onclick="next();">Continue</a>
+							</section>
+						<!-- End Content -->
+					</div>
+				</div>
+
+			<!-- Footer -->
+				<footer id="footer">
+					<ul class="copyright">
+						<li>&copy; Dan Birman 2015-Present</li><li><a href="https://github.com/dbirman/learn/" target="_blank">Code<a/></li>
+					</ul>
+				</footer>
+
+		</div>
+	</body>
+		<!-- Local Assets -->
+			<script src="contrasts.js"></script>
+			<script src="../assets/js/shared_code.js"></script>
+			<script src="att_demo.js"></script>
+			<!-- <link rel="stylesheet" href="psych50_ddm.css" /> -->
+
+			<script>launch();</script>
+</html>
