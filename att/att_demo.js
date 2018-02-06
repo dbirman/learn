@@ -327,6 +327,6 @@ function input2suid(){
 }
 
 function getData(){
-  var data = {suid: suid, condition: isFocal, JND_focal: contrastDiff, JND_dist: conDiffDist, correct:correct, subjectResp: subjResps, correctResp: correctResp}; 
+  var data = {suid: suid, condition: isFocal, JND_focal: contrastDiff, JND_dist: conDiffDist, correct:correct, subjectResp: subjResps, correctResp: correctResp, baseContrast:baseContrast, trialContrast: trialContrast, responseLocation:respLoc, myContrast:myContrast}; 
   return data;
 }
