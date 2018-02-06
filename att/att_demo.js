@@ -175,10 +175,14 @@ function setupTrial() {
   console.log(cueLoc);
   jitter = Math.random()*.1 - .05;
   baseContrast.push(myContrast+jitter);
-  if (Math.random() > 0.5){
-    var tc = myContrast + jitter + contrastDiff[trial];
+  if (Math.random() > 0.5){ // Randomize order of which stimulus is greater.
+    if (trFocal){
+      var tc = myContrast + jitter + contrastDiff[trial];
+    } else{ var tc = myContrast + jitter + conDiffDist[trial];}
   }else{
-    var tc = myContrast + jitter - contrastDiff[trial];
+    if(trFocal){
+      var tc = myContrast + jitter - contrastDiff[trial];
+    } else{ var tc = myContrast + jitter - conDiffDist[trial];}
   }
   trialContrast.push(tc);
   con1_1 = initContrastPatch(cueLoc[0], tc, canvas);
@@ -254,10 +258,24 @@ var done2 = false;
 function stop() {
 	window.cancelAnimationFrame(tick);
 
-	document.getElementById("rti").value = "Reaction time: " + Math.round(mean(RT)) + " ms";
-	// document.getElementById("rtc").value = "High coherence reaction time: " + Math.round(mean(RTc)) + " ms";
-	document.getElementById("pci").value = "Percent correct: " + Math.round(mean(correct)*100) + "%";
-	// document.getElementById("pcc").value = "High coherence % correct: " + Math.round(mean(correctc)*100) + "%";
+  var lastN = 7;
+
+  var focalAcc = correct.filter(function (elem, i, array){ return isFocal[i]==1});
+  var distAcc = correct.filter(function (elem, i, array){ return isFocal[i]==0});
+  var fNumCorr = focalAcc.reduce(add, 0);
+  var dNumCorr = distAcc.reduce(add,0);
+
+  var focalSens = contrastDiff.filter(function (elem, i, array){ return isFocal[i]==1});
+  var distSens = conDiffDist.filter(function (elem, i, array){ return isFocal[i]==0});
+
+  document.getElementById("fAcc").value = "Focal attention accuracy: " + Math.round(100*fNumCorr / focalAcc.length) + "%";
+  document.getElementById("dAcc").value = "Distributed attention accuracy: " + Math.round(100*dNumCorr / distAcc.length) + "%";
+
+  var fSens= mean(focalSens.slice(focalSens.length-lastN, focalSens.length).map(function (elem) {return Math.abs(elem);}));
+  var dSens= mean(distSens.slice(distSens.length-lastN, distSens.length).map(function (elem) {return Math.abs(elem)}));
+  document.getElementById("fSens").value = "Focal attention contrast sensitivity threshold: " + fSens;
+  document.getElementById("dSens").value = "Distributed attention contrast sensitivity threshold: " + dSens;
+
 }
 
 function run(i) {
@@ -278,3 +296,14 @@ function launch_local() {
 	// katex.render("y(t)=y_{0}+v_{y}t+\\frac{1}{2}at^{2}",document.getElementById("katex2"),{displayMode:true});	
 }
 
+function add(a,b){
+  return a +b;
+}
+
+function subtract(a1,a2){
+  ar = [];
+  for(i=0; i<a1.length; i++){
+    ar.push(a1[i] - a2[i]);
+  }
+  return ar;
+}
