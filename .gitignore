@@ -4,6 +4,6 @@ brain/data/*
 brain/node_modules/*
 att/node_modules/*
 mt/data/
-att/adata/*
+att/data/*
 *.m~
 mt/.DS_Store
