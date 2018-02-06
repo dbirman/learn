@@ -8,7 +8,7 @@ var ctx = canvas.getContext("2d");
 var tick;
 
 var trial = 0;
-var trials = 50;
+var trials = 100;
 var onscreen = true;
 
 var con1_1 = [];
@@ -35,6 +35,9 @@ var state = false; // false = waiting incoherent, true = currne trial
 
 var tstart = undefined, // trial start tracker (for RT)
 		rtstart = undefined;
+
+// Hide continue button until they submit the username
+$("#continue").hide();
 
 function draw() {
 	t = elapsed();
@@ -147,6 +150,8 @@ function draw() {
 ///////////////////////////////////
 ////////// LOCAL CODE /////////////
 ///////////////////////////////////
+
+var suid = '';
 
 var RT = [];
 var RTc = [];
@@ -306,4 +311,17 @@ function subtract(a1,a2){
     ar.push(a1[i] - a2[i]);
   }
   return ar;
+}
+
+function input2suid(){
+  suid = document.getElementById("usrnm").value;
+  $("#namesubmit").hide();
+  $("#continue").show();
+  // hide suid field
+  // show continue button
+}
+
+function getData(){
+  var data = {suid: suid, condition: isFocal, JND_focal: contrastDiff, JND_dist: conDiffDist, correct:correct, subjectResp: subjResps, correctResp: correctResp}; 
+  return data;
 }
