@@ -18,8 +18,8 @@ io.on('connection', function(socket){
   console.log('Connection: ID ' + socket.id);
   addClient(socket.id);
 
-  socket.on('disconnect', function(data){
-    console.log('received data from' + socket.id);
+  socket.on('data', function(data){
+    console.log('received data from ' + socket.id);
     saveData(socket.id,data);
   });
 
@@ -35,16 +35,15 @@ function addClient(id) {
 }
 
 function saveData(id,data) {
-  connectionList[id].data = data;
-}
-
-function saveAllData() {
-  var file = './data.json';
-  jsonfile.writeFile(file,connectionList, function (err) {
+  var file = './data/'+id+'.json';
+  jsonfile.writeFile(file,data, function (err) {
     console.error(err);
   });
-
-  setTimeout(saveAllData,60000);
+  console.log('wrote data from ' + id);
 }
 
-saveAllData();
+
+var port = 8080;
+http.listen(port, function(){
+  console.log('listening on *: ' + port);
+});

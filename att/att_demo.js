@@ -296,7 +296,7 @@ function run(i) {
 			draw();
 			break;
     case 3:
-      io.emit(getData());
+      socket.emit('data',getData());
       break;
  }
 }
