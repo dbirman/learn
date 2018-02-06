@@ -1,6 +1,8 @@
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
+var socket = io();
+
 ////////////////////////////////
 ////////// ANIMATION /////////////
 ////////////////////////////////
@@ -288,6 +290,9 @@ function run(i) {
 			t = elapsed();
 			draw();
 			break;
+    case 3:
+      io.emit(getData());
+      break;
  }
 }
 

@@ -2,6 +2,7 @@ evc/node_modules/
 evc/data/*
 brain/data/*
 brain/node_modules/*
+att/node_modules/*
 mt/data/
 *.m~
 mt/.DS_Store
