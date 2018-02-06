@@ -245,7 +245,7 @@ function calcVals(trialType) {
   }
   document.getElementById("waiting").innerHTML=fbText;
   drawFeedback(corr, canvas, ctx);
-	RT.push(now()-rtstart);
+	RT.push(now()-tstart);
 	rtstart = undefined;
 	tstart = undefined;
 	correct.push(corr);
@@ -322,6 +322,6 @@ function input2suid(){
 }
 
 function getData(){
-  var data = {suid: suid, condition: isFocal, JND_focal: contrastDiff, JND_dist: conDiffDist, correct:correct, subjectResp: subjResps, correctResp: correctResp, baseContrast:baseContrast, trialContrast: trialContrast, responseLocation:respLoc, myContrast:myContrast}; 
+  var data = {suid: suid, condition: isFocal, JND_focal: contrastDiff, JND_dist: conDiffDist, correct:correct, subjectResp: subjResps, correctResp: correctResp, baseContrast:baseContrast, trialContrast: trialContrast, responseLocation:respLoc, myContrast:myContrast, RTs: RT}; 
   return data;
 }
