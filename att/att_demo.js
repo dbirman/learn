@@ -132,7 +132,6 @@ function draw() {
           setupTrial();
 					state = true;
 					$("#waiting").hide();
-					// cdots = (cdots+1)%3;
 					tstart = now();
 				}
 				break;
@@ -221,6 +220,7 @@ function calcVals(trialType) {
       }
       conDiffDist.push(conDiffDist[trial]);
     }
+    fbText = 'Correct! Press Q to continue.';
   } else{ //incorrect response --> increment contrast difference.
     corr = false;
     if (trialType == 0) {
@@ -232,7 +232,9 @@ function calcVals(trialType) {
       contrastDiff.push(contrastDiff[trial] + fixStairInc);
       conDiffDist.push(conDiffDist[trial]);
     }
+    fbText = 'Incorrect! Press Q to continue.';
   }
+  document.getElementById("waiting").innerHTML=fbText;
   drawFeedback(corr, canvas, ctx);
 	RT.push(now()-rtstart);
 	rtstart = undefined;
