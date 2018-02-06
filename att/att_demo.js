@@ -38,6 +38,7 @@ var tstart = undefined, // trial start tracker (for RT)
 
 function draw() {
 	t = elapsed();
+  $("#resp").hide();
 	ctx.clearRect(0,0,canvas.width,canvas.height);
 
   //isFocal = 1;
@@ -85,6 +86,7 @@ function draw() {
     ctx.clearRect(0,0,canvas.width, canvas.height);
     drawCue(cues, true, respLoc[trial], ctx);
     drawBoxes(con1_1, con2_1, con3_1, con4_1);
+    $("#resp").show();
   }
 
 
