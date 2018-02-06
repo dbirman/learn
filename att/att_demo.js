@@ -163,16 +163,17 @@ var correctc = [];
 var option = 0;
 
 // Precompute the conditions
-var contrasts = [.3, .4, .5, .6, .7];
+var contrasts = [.3, .4, .45, .5, .55, .6];
 var contrastVals = [.03, .07, .20, .50, .75];
 var contrastDiff = [.2]; 
-var conDiffDist = [.2];
+var conDiffDist = [.37];
 var baseContrast = [];
 var fixStairInc = .02;
 var myContrast = getRandomSubarray(contrasts, 1)[0];
 var trialContrast = [];
 var correctResp = [];
 var stairCtr = 0; var stairCtrDist = 0;
+var fSens = 0; var dSens = 0;
 
 function setupTrial() {
   trFocal = Math.random() > 0.5;
@@ -180,7 +181,7 @@ function setupTrial() {
   var cueLoc = getRandomSubarray([...Array(4).keys()], 4); // cueLoc will be the first
   respLoc.push(cueLoc[0]);
   console.log(cueLoc);
-  jitter = Math.random()*.1 - .05;
+  jitter = Math.random()*.05 - .025;
   baseContrast.push(myContrast+jitter);
   if (Math.random() > 0.5){ // Randomize order of which stimulus is greater.
     if (trFocal){
@@ -247,7 +248,7 @@ function calcVals(trialType) {
   }
   document.getElementById("waiting").innerHTML=fbText;
   drawFeedback(corr, canvas, ctx);
-	RT.push(now()-rtstart);
+	RT.push(now()-tstart);
 	rtstart = undefined;
 	tstart = undefined;
 	correct.push(corr);
@@ -275,11 +276,8 @@ function stop() {
   var focalSens = contrastDiff.filter(function (elem, i, array){ return isFocal[i]==1});
   var distSens = conDiffDist.filter(function (elem, i, array){ return isFocal[i]==0});
 
-  document.getElementById("fAcc").value = "Focal attention accuracy: " + Math.round(100*fNumCorr / focalAcc.length) + "%";
-  document.getElementById("dAcc").value = "Distributed attention accuracy: " + Math.round(100*dNumCorr / distAcc.length) + "%";
-
-  var fSens= mean(focalSens.slice(focalSens.length-lastN, focalSens.length).map(function (elem) {return Math.abs(elem);}));
-  var dSens= mean(distSens.slice(distSens.length-lastN, distSens.length).map(function (elem) {return Math.abs(elem)}));
+  fSens= mean(focalSens.slice(focalSens.length-lastN, focalSens.length).map(function (elem) {return Math.abs(elem);}));
+  dSens= mean(distSens.slice(distSens.length-lastN, distSens.length).map(function (elem) {return Math.abs(elem)}));
   document.getElementById("fSens").value = "Focal attention contrast sensitivity threshold: " + fSens;
   document.getElementById("dSens").value = "Distributed attention contrast sensitivity threshold: " + dSens;
 
@@ -327,6 +325,6 @@ function input2suid(){
 }
 
 function getData(){
-  var data = {suid: suid, condition: isFocal, JND_focal: contrastDiff, JND_dist: conDiffDist, correct:correct, subjectResp: subjResps, correctResp: correctResp, baseContrast:baseContrast, trialContrast: trialContrast, responseLocation:respLoc, myContrast:myContrast}; 
+  var data = {suid: suid, condition: isFocal, JND_focal: contrastDiff, JND_dist: conDiffDist, correct:correct, subjectResp: subjResps, correctResp: correctResp, baseContrast:baseContrast, trialContrast: trialContrast, responseLocation:respLoc, myContrast:myContrast, RTs: RT, focalSensitivity: fSens, distSensitivity: dSens}; 
   return data;
 }
