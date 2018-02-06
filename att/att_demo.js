@@ -266,7 +266,7 @@ function stop() {
   var dNumCorr = distAcc.reduce(add,0);
 
   var focalSens = contrastDiff.filter(function (elem, i, array){ return isFocal[i]==1});
-  var distSens = contrastDiff.filter(function (elem, i, array){ return isFocal[i]==0});
+  var distSens = conDiffDist.filter(function (elem, i, array){ return isFocal[i]==0});
 
   document.getElementById("fAcc").value = "Focal attention accuracy: " + Math.round(100*fNumCorr / focalAcc.length) + "%";
   document.getElementById("dAcc").value = "Distributed attention accuracy: " + Math.round(100*dNumCorr / distAcc.length) + "%";
