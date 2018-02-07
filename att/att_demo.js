@@ -278,8 +278,8 @@ function stop() {
 
   fSens= mean(focalSens.slice(focalSens.length-lastN, focalSens.length).map(function (elem) {return Math.abs(elem);}));
   dSens= mean(distSens.slice(distSens.length-lastN, distSens.length).map(function (elem) {return Math.abs(elem)}));
-  document.getElementById("fSens").value = "Focal attention contrast sensitivity threshold: " + fSens;
-  document.getElementById("dSens").value = "Distributed attention contrast sensitivity threshold: " + dSens;
+  document.getElementById("fSens").value = "Focal attention just noticeable difference: " + fSens;
+  document.getElementById("dSens").value = "Distributed attention just noticeable difference: " + dSens;
 
 }
 
