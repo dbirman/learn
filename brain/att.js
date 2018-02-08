@@ -393,8 +393,8 @@ function v1Callback() {
     requestElectrodeDataAll();
     area_text_list.up.setText('Dorsal');
     area_text_list.down.setText('Ventral');
-    area_text_list.left.setText('Anterior');
-    area_text_list.right.setText('Posterior');
+    area_text_list.left.setText('');
+    area_text_list.right.setText('');
 }
 
 function updateLineVisibility(c) {
