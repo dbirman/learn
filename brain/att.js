@@ -445,7 +445,8 @@ function updateFiringRates(electrode) {
             var rate = data[stimTypes[cStim]][cArea][ePos.x][ePos.y][idx];
             if (rate>settings.def_fire) {rate = getContrast() * rate;}
             if (afield.enabled) {
-                var effect = 1/(afield.sigma/31); // scale according to effect (larger than 10 sigma will reduce)
+                var effect = 1;
+                // var effect = 1/(afield.sigma/31); // scale according to effect (larger than 10 sigma will reduce)
                 if (selectionMode && (rate>3)) {
                     if (electrode.infield) {
                         rate = rate + 6*effect;
