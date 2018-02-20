@@ -532,11 +532,11 @@ function run(i) {
 	// Runs each time a block starts incase that block has to do startup
 	switch(i) {
 		case 2:
-			if (!done2) {$("#continue").hide();run2();}
+			if (!done2) {}//$("#continue").hide();run2();}
 			break;
 		case 4:
 			$("#part24").hide(); 
-			if (!(done4==2)) {$("#continue").hide();launch4();}
+			if (!(done4==2)) {}//{$("#continue").hide();launch4();}
 			break;
 		case 5:
 			// todo
