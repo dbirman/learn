@@ -80,7 +80,6 @@ function launch() {
  	apImg.src = 'images/apple.png';
  	leafImg.src = 'images/leaf.png';
 	canvas.addEventListener("click",updateCanvasClick,false);
-	console.log('A friendly message from Dan: This isn\'t a CS class--there are no bonus points for crashing the server.');
 }
 
 function ta_alive() {
@@ -136,7 +135,7 @@ function studentLogin() {
 	section = Number(document.getElementById("section").value);
 
 	if (section<2 || section>13) {
-		alert('Nice try. This incident will be reported. See https://xkcd.com/838/');
+		alert('That is not your section number. This incident will be reported. See https://xkcd.com/838/');
 		return;
 	}
 
