@@ -236,10 +236,12 @@ function now() {
 	return performance.now();
 }
 
+var ptime = 10000;
+
 function drawProgress() {
 	progress += elapsed();
-	if (progress>=5000) {progress=5000;}
-	var time = progress/5000;
+	if (progress>=10000) {progress=10000;}
+	var time = progress/10000;
 	ctx.fillStyle = "#ffffff";
 	ctx.fillRect(0,0,400,30);
 	ctx.fillStyle = "#5DADE2";

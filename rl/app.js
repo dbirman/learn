@@ -162,7 +162,7 @@ function run() {
 		}
 	}
 
-	setTimeout(run,5000);
+	setTimeout(run,10000);
 }
 
 var port = 8080;
