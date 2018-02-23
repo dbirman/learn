@@ -205,15 +205,18 @@ function draw() {
 
 	ctx.font = "30px Arial";
 	ctx.fillStyle = "#ffffff";
-	if (TA) {
-		if (ta_debug) {
-			// draw the tree values
-			var trees = ['A','B','C'];
-			for (var i=0;i<3;i++) {
+	// if (TA) {
+		// draw the tree values
+		var trees = ['A','B','C'];
+		for (var i=0;i<3;i++) {
+			if (ta_debug) {
 				ctx.fillText('Tree ' + trees[i] + ': ' + eval('ta_'+trees[i]),treeX[i],treeY[i]);
+			} else {
+				ctx.fillText('Tree ' + trees[i],treeX[i],treeY[i]);
 			}
 		}
-	} else {
+	// } 
+	if (!TA) {
 		//draw score
 		ctx.fillText("Apples: " + score,700,30);
 	}
