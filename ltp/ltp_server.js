@@ -42,6 +42,8 @@ io.on('connection', function(socket){
     if (data.student) {
       addStudent(data.sectionNum,socket.id);
       io.to(socket.id).emit('login',true);
+
+      socket.on('synapse', function(syn) {updateSynapse(syn,socket.sectionNum);});
     } else {
       if (data.password=='whydidakshaymakemedothis') {
         addTA(data.sectionNum,socket.id);
@@ -106,6 +108,17 @@ function remove(array, element) {
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
+function getSim(num) {
+  return sections[num].simulation;
+}
+
+function setSim(num,sim) {
+  sections[num].simulation = sim;
+}
+
+function updateSynapse(syn,num) {
+
+}
 
 function initSimulation(sim) {
 
