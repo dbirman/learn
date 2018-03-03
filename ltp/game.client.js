@@ -11,6 +11,12 @@ socket.on('login', function (success) {
 	}
 });
 
+socket.on('matrix', function(matrix) {updateMatrix(matrix);});
+
+socket.on('graph', function(graph) {updateGraph(graph);});
+
+socket.on('rates', function(rates) {updateRates(rates);});
+
 function login(student,section,password) {
 	var data = {};
 	data.sectionNum = section;
@@ -46,10 +52,10 @@ function studentLogin() {
 }
 
 var rendererOptions = {
-  antialiasing: false,
-  transparent: true,
-  resolution: window.devicePixelRatio,
-  autoResize: true,
+	antialiasing: false,
+	transparent: true,
+	resolution: window.devicePixelRatio,
+	autoResize: true,
 }
 
 var ORIGIN_WIDTH = 1000, ORIGIN_HEIGHT = 800;
@@ -61,22 +67,122 @@ var graphics = [];
 document.getElementById("viewport").appendChild(app.view);
 
 function launchPixi() {
+	viewContainer = new PIXI.Container();
+	app.stage.addChild(viewContainer);
 	if (TA) {
-
+		addTA(viewContainer);
 	} else {
 		// Student
-	    viewContainer = new PIXI.Container();
-	    app.stage.addChild(viewContainer);
-
 		addNeuron(viewContainer); 
 		addSynapses(viewContainer);
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////// TA CODE  ////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+function addTA(container) {
+	document.getElementById("ta_stuff").style.display="";
+	// add matrix
+
+	// add graph
+
+}
+
+function taPlay() {
+	if (TA) {
+		socket.emit('play');
+	}
+}
+
+function taReset() {
+	if (TA) {
+		socket.emit('reset');
+	}
+}
+
+var matContainer,
+		matStructure = {};
+
+function fakeMatrix() {
+	matStructure.matrix = [];
+	for (var i=0;i<18;i++) {
+		matStructure.matrix[i] = multiply(256,ones(18));
+	}
+	drawMatrix();
+}
+function updateMatrix(matrix) {
+	matStructure.matrix = matrix;
+	drawMatrix();
+}
+
+function drawMatrix() {
+	if (matContainer==undefined) {
+		matContainer = new PIXI.Container();
+		app.stage.addChild(matContainer);
+	}
+	if (matStructure.g!=undefined) {matStructure.g.destroy();}
+	var g = new PIXI.Graphics();
+	var m = matStructure.matrix;
+	for (var i=0;i<m.length;i++) {
+		for (var j=0;j<m[i].length;j++) {
+			g.beginFill(m[i][j]*m[i][j]*m[i][j],1);
+			g.drawRect(i*10,j*10,9,9);
+			console.log('ddrew something');
+		}
+	}
+	matContainer.addChild(g);
+	matStructure.g = g;
+}
+
+function toggleMatrix() {
+	matContainer.visible = !matContainer.visible;
+	if (matContainer.visible) {
+		socket.emit('matrixRequest');
+	}
+}
+
+
+var graphContainer,
+		graphStructure = {};
+
+function updateGraph() {
+
+}
+
+function drawGraph() {
+
+}
+
+function toggleGraph() {
+	graphContainer.visible = !graphContainer.visible;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////// STUDENT CODE  ////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
 var nrn;
 
 function addNeuron(container) {
-    nrn = PIXI.Sprite.fromImage('images/nrn.png');
+	nrn = PIXI.Sprite.fromImage('images/nrn.png');
 	nrn.anchor.set(0.5,0.5);
 	nrn.scale.set(0.4);
 	nrn.x = 600; nrn.y = ORIGIN_HEIGHT/2;
@@ -96,31 +202,31 @@ function addSynapses(container) {
 		pr = 0.6,
 		mr = 0.5;
 
-	for (var i=0;i<num;i++) {
-		var syn = {};
+		for (var i=0;i<num;i++) {
+			var syn = {};
 
-		syn.theta = Math.PI*1.5-i/num*Math.PI;
-		syn.num = 1*i;
-		syn.posCall = new Function('synapseCallback('+syn.num+',true)');
-		syn.negCall = new Function('synapseCallback('+syn.num+',false)');
+			syn.theta = Math.PI*1.5-i/num*Math.PI;
+			syn.num = 1*i;
+			syn.posCall = new Function('synapseCallback('+syn.num+',true)');
+			syn.negCall = new Function('synapseCallback('+syn.num+',false)');
 
 		// Find two sets of points -- one set far away, and one set closer.
 		var ic = Math.cos(syn.theta),
-			is = Math.sin(syn.theta);
+		is = Math.sin(syn.theta);
 
 		var fx = lpos[0] + irad*ic,
-			fy = lpos[1] + irad*is,
-			nx = lpos[0] + inr*irad*ic,
-			ny = lpos[1] + inr*irad*is;
-			tx1 = lpos[0] + (inr-0.05)*irad*Math.cos(syn.theta-Math.PI/30),
-			ty1 = lpos[1] + (inr-0.05)*irad*Math.sin(syn.theta-Math.PI/30),
-			tx2 = lpos[0] + (inr-0.05)*irad*Math.cos(syn.theta+Math.PI/30),
-			ty2 = lpos[1] + (inr-0.05)*irad*Math.sin(syn.theta+Math.PI/30);
+		fy = lpos[1] + irad*is,
+		nx = lpos[0] + inr*irad*ic,
+		ny = lpos[1] + inr*irad*is;
+		tx1 = lpos[0] + (inr-0.05)*irad*Math.cos(syn.theta-Math.PI/30),
+		ty1 = lpos[1] + (inr-0.05)*irad*Math.sin(syn.theta-Math.PI/30),
+		tx2 = lpos[0] + (inr-0.05)*irad*Math.cos(syn.theta+Math.PI/30),
+		ty2 = lpos[1] + (inr-0.05)*irad*Math.sin(syn.theta+Math.PI/30);
 
 		var spx = lpos[0] + pr*irad*ic,
-			spy = lpos[1] + pr*irad*is;
-			smx = lpos[0] + mr*irad*ic,
-			smy = lpos[1] + mr*irad*is;
+		spy = lpos[1] + pr*irad*is;
+		smx = lpos[0] + mr*irad*ic,
+		smy = lpos[1] + mr*irad*is;
 
 		// Draw a line between the two sets of points
 		syn.g = new PIXI.Graphics();    
@@ -142,7 +248,7 @@ function addSynapses(container) {
 		syn.plus.scale.set(0.75);
 		syn.plus.x = spx; syn.plus.y = spy;
 		syn.plus.interactive = true;
-    	syn.plus.on('pointerdown', syn.posCall);
+		syn.plus.on('pointerdown', syn.posCall);
 		container.addChild(syn.plus);
 
 		syn.minus = PIXI.Sprite.fromImage('images/minus-01.png');
@@ -150,7 +256,7 @@ function addSynapses(container) {
 		syn.minus.scale.set(0.75);
 		syn.minus.x = smx; syn.minus.y = smy;
 		syn.minus.interactive = true;
-    	syn.minus.on('pointerdown', syn.negCall);
+		syn.minus.on('pointerdown', syn.negCall);
 		container.addChild(syn.minus);
 
 		synapses.push(syn);
@@ -159,14 +265,18 @@ function addSynapses(container) {
 
 function synapseCallback(num,positive) {
 	console.log('You tried to make synapse #' + num + ' more positive ' + positive);
+	var syn = {};
+	syn.num = num;
+	syn.positive = positive;
+	socket.emit('synapse',syn);
 }
 
 // max firing rate is 10
 
-var rates = [3,2,3,4,1,3,4,3,5,4,2,5]; // firing rates for the 11 synapses + neuron (0->11 indexes)
+var rates = [1,2,3,1,2,3,1,2,3,1,2,1]; // firing rates for the 11 synapses + neuron (0->11 indexes)
 
 function updateRates(nRates) {
-
+	rates = nRates;
 }
 
 function fire() {
@@ -174,13 +284,48 @@ function fire() {
 	for (var i=0;i<(rates.length-1);i++) {
 		if (Math.random()<(rates[i]/10)) {
 			synapses[i].g.alpha = 1;
-			setTimeout(new Function('synapses['+i+'].g.alpha = 0.5;'),50);
+			setTimeout(new Function('synapses['+i+'].g.alpha = 0.5;'),100);
 		}
 	}
-	if (Math.random()<(rates[11]/10)) {
+	if (Math.random()<(rates[11]/5)) {
 		nrn.alpha = 1;
-		setTimeout(function() {nrn.alpha = 0.5;},50);
+		setTimeout(function() {nrn.alpha = 0.5;},100);
 	}
 
-	setTimeout(fire,100);
+	setTimeout(fire,200);
+}
+
+
+
+
+
+
+
+////
+
+
+/**
+ * Function to make array of zeros of given length.
+ * @param {Number} length the length of the array to make
+ * @returns {Array} the zero array
+ */
+function zeros(length) {
+	var tempArray = new Array(length);
+	for (var i=0;i<tempArray.length;i++) {
+		tempArray[i] = 0;
+	}
+	return tempArray;
+}
+
+/**
+ * Function to make array of ones of given length.
+ * @param {Number} length the length of the array to make.
+ * @returns {Array} the ones array
+ */
+function ones(length) {
+	var tempArray = new Array(length);
+	for (var i=0;i<length;i++) {
+		tempArray[i] = 1;
+	}
+	return tempArray;
 }

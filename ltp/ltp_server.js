@@ -48,6 +48,8 @@ io.on('connection', function(socket){
       if (data.password=='whydidakshaymakemedothis') {
         addTA(data.sectionNum,socket.id);
         io.to(socket.id).emit('login',true);
+
+        socket.on('matrixRequest',io.to(socket.id).emit('matrix',sections[socket.sectionNum].simulation.v1_wm));
       }
     }
   });
@@ -120,7 +122,7 @@ function updateSynapse(syn,num) {
 
 }
 
-function initSimulation(sim) {
+function initSimulation() {
 
 }
 
@@ -130,13 +132,29 @@ function resetSimulation(sim) {
 
 function startSimulation(sim) {
 
-  sim.tick = setTimeout(function() {tickSimulation(sim);},1000);
+}
+
+var tickID,
+  runningSimulations = [];
+
+function tick() {
+  console.log('tick');
+  tickID = setTimeout(tick,1000);
+
+  for (var i=0;i<runningSimulations.length;i++) {
+    _tick(runningSimulations[i]);
+  }
+}
+
+function _tick(sim) {
+
 }
 
 function stopStimulation(sim) {
-  clearTimeout(sim.tick);
 }
 
 function tickSimulation(sim) {
 
 }
+
+tick();
