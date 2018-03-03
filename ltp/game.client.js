@@ -19,7 +19,7 @@ function login(student,section,password) {
 	socket.emit('login',data);
 }
 
-var TA;
+var TA = false;
 
 function taLogin() {
 	pass = document.getElementById("password").value;
@@ -27,7 +27,7 @@ function taLogin() {
 	
 	if ((pass!=undefined) && (section!=undefined)) {
 		login(false,section,pass);
-		TA = false;
+		TA = true;
 	}
 }
 
@@ -41,6 +41,7 @@ function studentLogin() {
 
 	if (section!=undefined) {
 		login(true,section,'');
+		TA = false;
 	}
 }
 
@@ -162,7 +163,7 @@ function synapseCallback(num,positive) {
 
 // max firing rate is 10
 
-var rates = [1,2,3,4,1,6,4,3,5,6,2,5]; // firing rates for the 11 synapses + neuron (0->11 indexes)
+var rates = [3,2,3,4,1,3,4,3,5,4,2,5]; // firing rates for the 11 synapses + neuron (0->11 indexes)
 
 function updateRates(nRates) {
 
