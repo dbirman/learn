@@ -211,26 +211,45 @@ function _tick(sim) {
 
     // Set each v1 neuron's firing rate according to the sum of its inputs * weights
     var v1_fr = new Array(sim.nV1);
+    var all_fr = new Array(sim.nV1);
+    var all_idx = new Array(sim.nV1);
+
     for (var i = 0; i < sim.nV1; i++) {
         var w_v1 = sim.v1_wm[i];
         var w_lgn = sim.lgn_wm[i];
         var mask_lgn = sim.lgn[mask[i]];
 
+        var nConns = sim.nV1-1+3;
+        all_fr[i] = new Array(nConns);
+        all_idx[i] = new Array(nConns);
+
         var thisFR = 0;
         // first add previous v1 firing rates * weights
         for (var j = 0; j < sim.nV1; j++){
-            thisFR += w_v1[j] * sim.v1_fr[j];
+            if j!=i{
+              thisFR += w_v1[j] * sim.v1_fr[j];
+              all_fr[i].push(sim.v1_fr[j]);
+              all_idx[i].push(j);
+            }
         }
 
         // then add mask firing rates
         for (var j = 0; j < sim.nLGN; j++){
             thisFR += w_lgn[j]*mask_lgn[j]*lgn_fr[j];
+
+            if ( mask_lgn[j] == 1) {
+              all_fr[i].push(w_lgn[j]);
+              all_idx[i].push(j);
+            }
         }
 
         v1_fr[i] = thisFR;
     }
 
+
     sim.v1_fr = v1_fr;
+    sim.all_fr = all_fr;
+    sim.all_idx = all_idx;
     sim.counter++;
 }
 
