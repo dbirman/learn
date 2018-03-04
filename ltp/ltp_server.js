@@ -314,23 +314,18 @@ function _tick(section) {
       var randSyn = Math.floor(Math.random() * (sim.nV1+2));
 
       this_isFiring = sim.v1_fr[i] > 2;
-      var loop = 0;
       var syn;
-      while (loop < 1) {
-        var r = Math.floor(Math.random()*(sim.nV1));
-        that_isFiring = sim.v1_fr[r] > 2;
-        if (r != i && that_isFiring == this_isFiring && this_isFiring){ // if both neurons are firing
-          syn.pos = 1;
-          syn.num = r;
-          loop = 1;
-          updateSynapse(syn, section.sectionNum, i);
-        } else if (r!=i && that_isFiring != this_isFiring) { // one neuron is firing and other is not
-          syn.pos = 0;
-          syn.num = r;
-          loop = 1;
-          updateSynapse(syn, section.sectionNum, i);
-        }
-      } 
+      ridx = sim.all_idx[i][randSyn]
+      that_isFiring = sim.v1_fr[ridx] > 2;
+      if (that_isFiring == this_isFiring && this_isFiring){ // if both neurons are firing
+        syn.pos = 1;
+        syn.num = randSyn;
+        updateSynapse(syn, section.sectionNum, i);
+      } else if (that_isFiring != this_isFiring) { // one neuron is firing and other is not
+        syn.pos = 0;
+        syn.num = r;
+        updateSynapse(syn, section.sectionNum, i);
+      }
 
     }
   }        
