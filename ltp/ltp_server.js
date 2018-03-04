@@ -43,6 +43,7 @@ io.on('connection', function(socket){
     if (data.student) {
       addStudent(data.sectionNum,socket.id);
       io.to(socket.id).emit('login',true);
+      io.to(socket.id).emit('play',sections[socket.sectionNum].active);
 
       socket.on('synapse', function(syn) {updateSynapse(syn,socket.sectionNum,socket.id);});
     } else {
@@ -50,7 +51,7 @@ io.on('connection', function(socket){
         addTA(data.sectionNum,socket.id);
         io.to(socket.id).emit('login',true);
 
-        socket.on('play', function() {toggleSimulation(socket.sectionNum);});
+        socket.on('play', function() {toggleSimulation(socket.sectionNum,socket.id);});
 
         socket.on('matrixRequest', function() {io.to(socket.id).emit('matrix',sections[socket.sectionNum].simulation.v1_wm);});
       }
@@ -217,12 +218,26 @@ function resetSimulation(sim) {
   
 }
 
-function toggleSimulation(num) {
+function toggleSimulation(num,id) {
+  console.log('Toggling simulation: ' + num);
   if (runningSections.indexOf(sections[num])>-1) {
     remove(runningSections,sections[num]);
+    sections[num].active = false;
+    emitPlaying(num);
     return;
   }
   runningSections.push(sections[num]);
+  sections[num].active = true;
+  emitPlaying(num);
+}
+
+function emitPlaying(num) {
+  for (var i=0;i<sections[num].students.length;i++) {
+    io.to(sections[num].students[i]).emit('play',sections[num].active);
+  }
+  for (var i=0;i<sections[num].TAs.length;i++) {
+    io.to(sections[num].TAs[i]).emit('play',sections[num].active);
+  }
 }
 
 var tickID,
@@ -235,6 +250,7 @@ function tick() {
   for (var i=0;i<runningSections.length;i++) {
     _tick(runningSections[i].simulation, i);
     sendFiringRates(runningSections[i]);
+    sendWeights(runningSections[i]);
   }
 
 }
@@ -303,12 +319,18 @@ function _tick(sim, num) {
 }
 
 function sendFiringRates(section) {
-  console.log('Sending rates');
   for (var i=0;i<section.students.length;i++) {
     var rates = {};
     rates.all = section.simulation.all_fr[i];
     rates.me = section.simulation.v1_fr[i];
     io.to(section.students[i]).emit('rates',rates);
+  }
+}
+
+function sendWeights(section) {
+  for (var i=0;i<section.students.length;i++) {
+    var weights = section.simulation.all_wm[i];
+    io.to(section.students[i]).emit('weights',weights);
   }
 }
 

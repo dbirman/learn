@@ -17,7 +17,11 @@ socket.on('graph', function(graph) {updateGraph(graph);});
 
 socket.on('rates', function(rates) {updateRates(rates);});
 
+socket.on('weights', function(weights) {updateWeights(weights);});
+
 socket.on('login_fail', function() {alert('Failed to login');})
+
+socket.on('play', function(active) {console.log(active); lactive = active; addPlay(lactive); });
 
 function login(student,section,password) {
 	var data = {};
@@ -78,6 +82,30 @@ function launchPixi() {
 		addNeuron(viewContainer); 
 		addSynapses(viewContainer);
 	}
+	addPlay(lactive);
+}
+
+var playg;
+
+function addPlay(active) {   
+	if (playg!=undefined) {playg.destroy()}
+
+	var style = new PIXI.TextStyle({
+      fill: active ? 0x00FF00 : 0xFF0000,
+  });
+  // add electrode text
+  if (active) {
+  	t = new PIXI.Text('PLAYING!',style);
+  } else {
+  	t = new PIXI.Text('NOT PLAYING',style);
+  }
+  t.x = 500;
+  t.y = 50;
+  t.anchor.set(0.5,0.5);
+  app.stage.addChild(t);
+
+  playg = t;
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -155,8 +183,18 @@ function drawMatrix() {
 function toggleMatrix() {
 	matContainer.visible = !matContainer.visible;
 	if (matContainer.visible) {
-		socket.emit('matrixRequest');
+		getMatrix();
 	}
+}
+
+var tickMatrix;
+
+function getMatrix() {
+	if (tickMatrix!=undefined) {
+		return;
+	}
+	setTimeout(getMatrix,2000);
+	socket.emit('matrixRequest');
 }
 
 var graphContainer,
@@ -209,7 +247,7 @@ function drawGraph() {
 function toggleGraph() {
 	graphContainer.visible = !graphContainer.visible;
 	if (graphContainer.visible) {
-		socket.emit('matrixRequest');
+		getMatrix();
 	}
 }
 
@@ -327,7 +365,26 @@ function updateRates(nRates) {
 	nrn_rate = nRates.me;
 }
 
+function updateWeights(weights) {
+	// Change the colors of the synapse graphics to reflect the new weights
+	for (var i=0;i<weights.length;i++) {
+		var syn = synapses[i];
+		const graphicsData = syn.g.graphicsData;
+		var color = weights[i]>0 ? 0x00FF00 : 0xFFFFFF;
+		for (var gi=0;gi<graphicsData.length;gi++) {
+			g[gi].lineColor = color;
+		}
+		g.dirty++;
+		g.clearDirty++;
+	}
+}
+
+var lactive = false;
+
 function fire() {
+	if (!lactive) {
+		return;
+	}
 	// 
 	for (var i=0;i<(rates.length-1);i++) {
 		if (Math.random()<(rates[i]/10)) {
