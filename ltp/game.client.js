@@ -284,19 +284,19 @@ function addSynapses(container) {
 	// Adds the eleven incoming synapses that can be up/down weighted
 
 	var lpos = [450,ORIGIN_HEIGHT/2], // approx left side of the neuron
-		irad = 400, // radius to bring synapses in from
-		inr = 0.4,
-		num = 20,
-		pr = 0.6,
-		mr = 0.5;
+	irad = 400, // radius to bring synapses in from
+	inr = 0.4,
+	num = 20,
+	pr = 0.6,
+	mr = 0.5;
 
-		for (var i=0;i<num;i++) {
-			var syn = {};
+	for (var i=0;i<num;i++) {
+		var syn = {};
 
-			syn.theta = Math.PI*1.75-i/num*Math.PI*1.5;
-			syn.num = i;
-			syn.posCall = new Function('synapseCallback('+syn.num+',true)');
-			syn.negCall = new Function('synapseCallback('+syn.num+',false)');
+		syn.theta = Math.PI*1.75-i/num*Math.PI*1.5;
+		syn.num = i;
+		syn.posCall = new Function('synapseCallback('+syn.num+',true)');
+		syn.negCall = new Function('synapseCallback('+syn.num+',false)');
 
 		// Find two sets of points -- one set far away, and one set closer.
 		var ic = Math.cos(syn.theta),
@@ -331,21 +331,23 @@ function addSynapses(container) {
 
 		container.addChild(syn.g);
 
-		syn.plus = PIXI.Sprite.fromImage('images/plus-01.png');
-		syn.plus.anchor.set(0.5,0.5);
-		syn.plus.scale.set(0.75);
-		syn.plus.x = spx; syn.plus.y = spy;
-		syn.plus.interactive = true;
-		syn.plus.on('pointerdown', syn.posCall);
-		container.addChild(syn.plus);
+		if (i<=16) {
+			syn.plus = PIXI.Sprite.fromImage('images/plus-01.png');
+			syn.plus.anchor.set(0.5,0.5);
+			syn.plus.scale.set(0.75);
+			syn.plus.x = spx; syn.plus.y = spy;
+			syn.plus.interactive = true;
+			syn.plus.on('pointerdown', syn.posCall);
+			container.addChild(syn.plus);
 
-		syn.minus = PIXI.Sprite.fromImage('images/minus-01.png');
-		syn.minus.anchor.set(0.5,0.5);
-		syn.minus.scale.set(0.75);
-		syn.minus.x = smx; syn.minus.y = smy;
-		syn.minus.interactive = true;
-		syn.minus.on('pointerdown', syn.negCall);
-		container.addChild(syn.minus);
+			syn.minus = PIXI.Sprite.fromImage('images/minus-01.png');
+			syn.minus.anchor.set(0.5,0.5);
+			syn.minus.scale.set(0.75);
+			syn.minus.x = smx; syn.minus.y = smy;
+			syn.minus.interactive = true;
+			syn.minus.on('pointerdown', syn.negCall);
+			container.addChild(syn.minus);
+		}
 
 		synapses.push(syn);
 	}

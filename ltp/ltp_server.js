@@ -52,6 +52,7 @@ io.on('connection', function(socket){
         addTA(data.sectionNum,socket.id);
         io.to(socket.id).emit('login',true);
 
+        socket.on('reset', function() {resetSimulation(socket.sectionNum);});
         socket.on('play', function() {toggleSimulation(socket.sectionNum,socket.id);});
 
         socket.on('matrixRequest', function() {io.to(socket.id).emit('matrix',sections[socket.sectionNum].simulation.v1_wm);});
@@ -144,7 +145,7 @@ function updateSynapse(syn,sectionNum,id) {
   if (idx<=16) {
     sections[sectionNum].simulation.v1_wm[midx][ridx] += update;
     if(sections[sectionNum].simulation.v1_wm[midx][ridx]>0.25) {sections[sectionNum].simulation.v1_wm[midx][ridx]=0.25;}
-    if(sections[sectionNum].simulation.v1_wm[midx][ridx]<-0.25) {sections[sectionNum].simulation.v1_wm[midx][ridx]=-0.25;}
+    if(sections[sectionNum].simulation.v1_wm[midx][ridx]<-0.1) {sections[sectionNum].simulation.v1_wm[midx][ridx]=-0.1;}
   } else {
     sections[sectionNum].simulation.lgn_wm[midx][ridx] += update;
     if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.9;}
@@ -165,7 +166,8 @@ function initSimulation() {
   var v1_wm = new Array(18);
   for (var i = 0; i < nV1; i++) {
     v1_wm[i] = new Array(nV1);
-    v1_wm[i] = Array.from({length: nV1}, () => (Math.random()*.5 - .25));
+    v1_wm[i] = Array.from({length: nV1}, () => (Math.random()*.35 - .1));
+    v1_wm[i][i]=0;
 
     for (var j = 0; j < nV1; j++){
       if (i!=j) {
@@ -265,11 +267,11 @@ function _tick(section) {
   // Show an orientation and use it to determine LGN, then V1 firing rates.
   var whichOr = Math.floor(sim.counter % sim.nLGN);
   var lgn_fr = Array.from(Array(sim.nLGN), () => 0);
-  lgn_fr[whichOr] = 10;
-  lgn_fr[(whichOr+1)%sim.nLGN] = 5;
-  lgn_fr[(whichOr-1)%sim.nLGN] = 5;
-  lgn_fr[(whichOr+2)%sim.nLGN] = 2;
-  lgn_fr[(whichOr-2)%sim.nLGN] = 2;
+  lgn_fr[whichOr] = 5;
+  lgn_fr[(whichOr+1)%sim.nLGN] = 2;
+  lgn_fr[(whichOr-1)%sim.nLGN] = 2;
+  lgn_fr[(whichOr+2)%sim.nLGN] = 1;
+  lgn_fr[(whichOr-2)%sim.nLGN] = 1;
 
 
   // Set each v1 neuron's firing rate according to the sum of its inputs * weights
@@ -289,7 +291,7 @@ function _tick(section) {
       // first add previous v1 firing rates * weights
       for (var j = 0; j < sim.nV1; j++){
         if (j!=i) {
-          thisFR += w_v1[j] * sim.v1_fr[j];
+          thisFR += 0.5 * w_v1[j] * sim.v1_fr[j];
           all_fr[i].push(sim.v1_fr[j]);
           all_wm[i].push(w_v1[j]);
         }
@@ -304,12 +306,13 @@ function _tick(section) {
           all_wm[i].push(w_lgn[j]);
         }
       }
-
+      thisFR = Math.min(10,Math.max(0,thisFR));
       v1_fr[i] = thisFR;
     }
 
   // Update the AI's
-  var n_upd = 5;
+  var pos =0, neg =0;
+  var n_upd = 10;
   if (section.students==undefined) {
     nStuds = 0;
   } else {
@@ -320,31 +323,34 @@ function _tick(section) {
       for (var j = 0; j < n_upd; j++){
         var randSyn = Math.floor(Math.random() * (sim.nV1+2));
 
-        this_isFiring = sim.v1_fr[i] > 1;
+        this_isFiring = sim.v1_fr[i] > 3;
         var syn = {};
         syn.num = randSyn;
         ridx = sim.all_idx[i][randSyn]
         if (randSyn > 16){
-          that_isFiring = sim.v1_fr[ridx] > 1;
+          that_isFiring = sim.v1_fr[ridx] > 3;
         } else{
-          that_isFiring = lgn_fr[rIdx]>1;
+          that_isFiring = lgn_fr[ridx]>3;
         }
         if ((that_isFiring == this_isFiring) && this_isFiring){ // if both neurons are firing
-          syn.pos = true;
+          syn.positive = true;
           updateSynapse(syn, section.sectionNum, i);
-        } else if ((that_isFiring != this_isFiring) && (Math.random() > 0.75)) { // one neuron is firing and other is not
-          syn.pos = false;
+          pos++;
+        } else if ((that_isFiring != this_isFiring) && (Math.random() > 0.9)) { // one neuron is firing and other is not
+          syn.positive = false;
           updateSynapse(syn, section.sectionNum, i);
+          neg++;
         }
       }
 
     }
   }        
+  console.log('Positive updates: ' + pos + ' negative updates: ' + neg);
 
   sim.v1_fr = v1_fr;
   sim.all_fr = all_fr;
   sim.all_wm = all_wm;
-  sim.counter+=1;
+  sim.counter+=0.5;
 }
 
 function sendFiringRates(section) {
