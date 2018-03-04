@@ -62,6 +62,7 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
     console.log('user disconnected');
     try {
+      if (sections[socket.sectionNum]==undefined) {return;}
       remove(sections[socket.sectionNum].students,socket.id);
       remove(sections[socket.sectionNum].TAs,socket.id);
     } catch (err) {
@@ -304,6 +305,7 @@ function _tick(section) {
     }
 
   // Update the AI's
+  var n_upd = 5;
   if (section.students==undefined) {
     nStuds = 0;
   } else {
@@ -311,20 +313,21 @@ function _tick(section) {
   }
   if ( nStuds < sim.nV1 ) {
     for (var i = nStuds; i < sim.nV1; i++) {
-      var randSyn = Math.floor(Math.random() * (sim.nV1+2));
+      for (var j = 0; j < n_upd; j++){
+        var randSyn = Math.floor(Math.random() * (sim.nV1+2));
 
-      this_isFiring = sim.v1_fr[i] > 2;
-      var syn;
-      ridx = sim.all_idx[i][randSyn]
-      that_isFiring = sim.v1_fr[ridx] > 2;
-      if (that_isFiring == this_isFiring && this_isFiring){ // if both neurons are firing
-        syn.pos = 1;
+        this_isFiring = sim.v1_fr[i] > 1;
+        var syn = {};
         syn.num = randSyn;
-        updateSynapse(syn, section.sectionNum, i);
-      } else if (that_isFiring != this_isFiring) { // one neuron is firing and other is not
-        syn.pos = 0;
-        syn.num = r;
-        updateSynapse(syn, section.sectionNum, i);
+        ridx = sim.all_idx[i][randSyn]
+        that_isFiring = sim.v1_fr[ridx] > 1;
+        if ((that_isFiring == this_isFiring) && this_isFiring){ // if both neurons are firing
+          syn.pos = true;
+          updateSynapse(syn, section.sectionNum, i);
+        } else if ((that_isFiring != this_isFiring) && (Math.random() > 0.75)) { // one neuron is firing and other is not
+          syn.pos = false;
+          updateSynapse(syn, section.sectionNum, i);
+        }
       }
 
     }
@@ -333,7 +336,7 @@ function _tick(section) {
   sim.v1_fr = v1_fr;
   sim.all_fr = all_fr;
   sim.all_wm = all_wm;
-  sim.counter+=0.25;
+  sim.counter+=1;
 }
 
 function sendFiringRates(section) {

@@ -171,7 +171,7 @@ function drawMatrix() {
 	for (var i=0;i<m.length;i++) {
 		for (var j=0;j<m[i].length;j++) {
 			var val = m[i][j];
-			val = (val + 0.25)*256/0.5;
+			val = (val + 0.25)/0.5;
 			g.beginFill(PIXI.utils.rgb2hex([val,val,val]),1);
 			g.drawRect(i*sz,j*sz,sz-1,sz-1);
 		}
@@ -228,7 +228,7 @@ function drawGraph() {
 				var cw = w[j];
 				cw = (cw+0.25)*2;
 
-				sg.lineStyle(cw*5,PIXI.utils.rgb2hex([cw*256,cw*256,cw*256]),cw);
+				sg.lineStyle(cw*5,PIXI.utils.rgb2hex([cw,cw,cw]),cw);
 				sg.moveTo(xs[i],ys[i]);
 				sg.lineTo(xs[j],ys[j]);
 			}
