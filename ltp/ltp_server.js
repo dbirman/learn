@@ -123,7 +123,44 @@ function updateSynapse(syn,num) {
 }
 
 function initSimulation() {
+    // Set number of v1 and lgn neurons
+    var nV1 = 18;
+    var nLGN = 18;
 
+    // init 18x18 v1 weight matrix (fully connected)
+    var v1_wm = new Array(18);
+    for (var i = 0; i < nV1; i++) {
+        v1_wm[i] = new Array(nV1);
+        v1_wm[i] = Array.from({length: nV1}, () => (Math.random()*.5 - .25));
+    }
+    
+    // init 18x18 v1<-->lgn weight matrix
+    var initWeights = [-.9, -.8, -.75, -.7, .7, .75, .8, .9]
+    var lgn_wm = new Array(nV1);
+    for (var i = 0; i < nV1; i++) {
+      lgn_wm[i] = new Array(nLGN);
+      lgn_wm[i] = Array.from({length: nLGN}, () => (initWeights[Math.floor(Math.random()*initWeights.length)] + (-.025+Math.random()*.05)));
+    }
+
+    // init 18x18 v1<-->lgn mask that determines if 2 neurons are connected.
+    var lgn_mask = new Array(nV1);
+    for (var i = 0; i < nV1; i++) {
+        lgn_mask[i] = new Array(nLGN);
+        lgn_mask[i] = Array.from(Array(nLGN), () => 0); // 0 if not connected
+        var inJ = Math.floor(i / 3);
+        for (var j = i; j < i + 3; j++) {
+            lgn_mask[i][j % lgn_mask[i].length] = 1; // 1 if they are
+        }
+    }
+    
+    // return a dictionary called sim
+    sim.nV1 = nV1;
+    sim.nLGN = nLGN;
+    sim.v1_wm = v1_wm;
+    sim.lgn_wm = lgn_wm;
+    sim.lgn_mask = lgn_mask;
+
+    return sim
 }
 
 function resetSimulation(sim) {
@@ -147,6 +184,8 @@ function tick() {
 }
 
 function _tick(sim) {
+    // Show an orientation and use it to determine LGN, then V1 firing rates.
+
 
 }
 
@@ -156,5 +195,4 @@ function stopStimulation(sim) {
 function tickSimulation(sim) {
 
 }
-
 tick();
