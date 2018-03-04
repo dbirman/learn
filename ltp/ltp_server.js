@@ -45,11 +45,11 @@ io.on('connection', function(socket){
 
       socket.on('synapse', function(syn) {updateSynapse(syn,socket.sectionNum);});
     } else {
-      if (data.password=='whydidakshaymakemedothis') {
+      if (data.password==' ') {
         addTA(data.sectionNum,socket.id);
         io.to(socket.id).emit('login',true);
 
-        socket.on('matrixRequest',io.to(socket.id).emit('matrix',sections[socket.sectionNum].simulation.v1_wm));
+        socket.on('matrixRequest', function() {io.to(socket.id).emit('matrix',sections[socket.sectionNum].simulation.v1_wm);});
       }
     }
   });
@@ -156,6 +156,7 @@ function initSimulation() {
         }
     }
     
+    var sim = {};
     // return a dictionary called sim
     sim.nV1 = nV1;
     sim.nLGN = nLGN;
