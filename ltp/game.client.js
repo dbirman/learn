@@ -17,6 +17,8 @@ socket.on('graph', function(graph) {updateGraph(graph);});
 
 socket.on('rates', function(rates) {updateRates(rates);});
 
+socket.on('login_fail', function() {alert('Failed to login');})
+
 function login(student,section,password) {
 	var data = {};
 	data.sectionNum = section;
