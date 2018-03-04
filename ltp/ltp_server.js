@@ -220,8 +220,8 @@ function initSimulation() {
   return sim
 }
 
-function resetSimulation(sim) {
-
+function resetSimulation() {
+  sections[sectionNum].simulation = initSimulation();
 }
 
 function toggleSimulation(num,id) {
@@ -311,7 +311,7 @@ function _tick(section) {
     }
 
   // Update the AI's
-  var pos =0, neg =0;
+  var pos =0, neg =0, doNotUpdate = false;
   var n_upd = 10;
   if (section.students==undefined) {
     nStuds = 0;
@@ -330,13 +330,14 @@ function _tick(section) {
         if (randSyn > 16){
           that_isFiring = sim.v1_fr[ridx] > 3;
         } else{
+          doNotUpdate = true;
           that_isFiring = lgn_fr[ridx]>3;
         }
-        if ((that_isFiring == this_isFiring) && this_isFiring){ // if both neurons are firing
+        if (!doNotUpdate  && (that_isFiring == this_isFiring) && this_isFiring){ // if both neurons are firing
           syn.positive = true;
           updateSynapse(syn, section.sectionNum, i);
           pos++;
-        } else if ((that_isFiring != this_isFiring) && (Math.random() > 0.9)) { // one neuron is firing and other is not
+        } else if (!doNotUpdate && (that_isFiring != this_isFiring) && (Math.random() > 0.9)) { // one neuron is firing and other is not
           syn.positive = false;
           updateSynapse(syn, section.sectionNum, i);
           neg++;
