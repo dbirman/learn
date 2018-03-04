@@ -133,6 +133,9 @@ function initSimulation() {
         v1_wm[i] = new Array(nV1);
         v1_wm[i] = Array.from({length: nV1}, () => (Math.random()*.5 - .25));
     }
+
+    // init v1 firing rates to 0
+    var v1_fr = new Array.from({length: nV1} () => 0);
     
     // init 18x18 v1<-->lgn weight matrix
     var initWeights = [-.9, -.8, -.75, -.7, .7, .75, .8, .9]
@@ -157,6 +160,7 @@ function initSimulation() {
     sim.nV1 = nV1;
     sim.nLGN = nLGN;
     sim.v1_wm = v1_wm;
+    sim.v1_fr = v1_fr;
     sim.lgn_wm = lgn_wm;
     sim.lgn_mask = lgn_mask;
 
@@ -185,8 +189,34 @@ function tick() {
 
 function _tick(sim) {
     // Show an orientation and use it to determine LGN, then V1 firing rates.
+    var whichOr = tickId % sim.counter;
+    var lgn_fr = Array.from(Array(sim.nLGN), () => 0);
+    lgn_fr[whichOr] = 10;
 
 
+
+    // Set each v1 neuron's firing rate according to the sum of its inputs * weights
+    var v1_fr = new Array(sim.nV1);
+    for (var i = 0; i < sim.nV1; i++) {
+        var w_v1 = sim.v1_wm[i];
+        var w_lgn = sim.lgn_wm[i];
+        var mask_lgn = sim.lgn[mask[i];
+
+        var thisFR = 0;
+        // first add previous v1 firing rates * weights
+        for (var j = 0; j < sim.nV1; j++){
+            thisFR += w_v1[j] * sim.v1_fr[j];
+        }
+
+        // then add mask firing rates
+        for (var j = 0; j < sim.nLGN; j++){
+            thisFR += w_lgn[j]*mask_lgn[j]*lgn_fr[j];
+        }
+
+        v1_fr[i] = thisFR;
+    }
+
+    sim.v1_fr = v1_fr;
 }
 
 function stopStimulation(sim) {
