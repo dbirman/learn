@@ -177,7 +177,7 @@ function drawMatrix() {
 			} else {
 				g.beginFill(PIXI.utils.rgb2hex([val,0,0]),1);
 			}
-			g.drawRect(i*sz,j*sz,sz-1,sz-1);
+			g.drawRect(j*sz,i*sz,sz-1,sz-1);
 		}
 	}
 	matContainer.addChild(g);

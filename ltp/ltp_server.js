@@ -179,7 +179,7 @@ function initSimulation() {
   // init v1 firing rates to 0
   var v1_fr = Array.from({length: nV1}, () => 0);
   // init 18x18 v1<-->lgn weight matrix
-  var initWeights = [-.9, -.8, -.75, -.7, .7, .75, .8, .9]
+  var initWeights = [-.5, -.4, -.3, -.2, .4, .6, .8, .9]
   var lgn_wm = new Array(nV1);
   for (var i = 0; i < nV1; i++) {
     lgn_wm[i] = new Array(nLGN);
@@ -323,12 +323,12 @@ function _tick(section) {
       for (var j = 0; j < n_upd; j++){
         var randSyn = Math.floor(Math.random() * (sim.nV1+2));
 
-        this_isFiring = sim.v1_fr[i] > 3;
+        this_isFiring = sim.v1_fr[i] > 1.5;
         var syn = {};
         syn.num = randSyn;
         ridx = sim.all_idx[i][randSyn]
-        if (randSyn > 16){
-          that_isFiring = sim.v1_fr[ridx] > 3;
+        if (randSyn <= 16){
+          that_isFiring = sim.v1_fr[ridx] > 1.5;
         } else{
           doNotUpdate = true;
           that_isFiring = lgn_fr[ridx]>3;
