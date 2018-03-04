@@ -171,8 +171,12 @@ function drawMatrix() {
 	for (var i=0;i<m.length;i++) {
 		for (var j=0;j<m[i].length;j++) {
 			var val = m[i][j];
-			val = (val + 0.25)/0.5;
-			g.beginFill(PIXI.utils.rgb2hex([val,val,val]),1);
+			var color = (val + 0.25)/0.5;
+			if (val>0) {
+				g.beginFill(PIXI.utils.rgb2hex([0,val,0]),1);
+			} else {
+				g.beginFill(PIXI.utils.rgb2hex([val,0,0]),1);
+			}
 			g.drawRect(i*sz,j*sz,sz-1,sz-1);
 		}
 	}
