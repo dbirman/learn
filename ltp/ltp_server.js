@@ -218,8 +218,8 @@ function initSimulation() {
   return sim
 }
 
-function resetSimulation(sim) {
-
+function resetSimulation() {
+  sections[sectionNum].simulation = initSimulation();
 }
 
 function toggleSimulation(num,id) {
