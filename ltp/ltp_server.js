@@ -157,6 +157,7 @@ function initSimulation() {
     }
     
     // return a dictionary called sim
+    sim.counter = 0;
     sim.nV1 = nV1;
     sim.nLGN = nLGN;
     sim.v1_wm = v1_wm;
@@ -189,7 +190,7 @@ function tick() {
 
 function _tick(sim) {
     // Show an orientation and use it to determine LGN, then V1 firing rates.
-    var whichOr = tickId % sim.counter;
+    var whichOr = sim.counter % sim.nLGN;
     var lgn_fr = Array.from(Array(sim.nLGN), () => 0);
     lgn_fr[whichOr] = 10;
 
@@ -217,6 +218,7 @@ function _tick(sim) {
     }
 
     sim.v1_fr = v1_fr;
+    sim.counter++;
 }
 
 function stopStimulation(sim) {
