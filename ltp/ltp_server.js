@@ -327,12 +327,13 @@ function _tick(section) {
         if (randSyn > 16){
           that_isFiring = sim.v1_fr[ridx] > 1;
         } else{
+          doNotUpdate = true;
           that_isFiring = lgn_fr[rIdx]>1;
         }
-        if ((that_isFiring == this_isFiring) && this_isFiring){ // if both neurons are firing
+        if (!doNotUpdate && (that_isFiring == this_isFiring) && this_isFiring){ // if both neurons are firing
           syn.pos = true;
           updateSynapse(syn, section.sectionNum, i);
-        } else if ((that_isFiring != this_isFiring) && (Math.random() > 0.75)) { // one neuron is firing and other is not
+        } else if (!doNotUpdate && (that_isFiring != this_isFiring) && (Math.random() > 0.75)) { // one neuron is firing and other is not
           syn.pos = false;
           updateSynapse(syn, section.sectionNum, i);
         }
