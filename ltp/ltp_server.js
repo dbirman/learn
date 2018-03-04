@@ -28,6 +28,7 @@ function initSection(num) {
   newSection.students = [];
   newSection.alpha = 0.025;
   newSection.simulation = initSimulation();
+  newSection.sectionNum = num;
   newSection.tick = undefined; // tracks the 1 second tick when the simulation is on
 
   sections[num] = newSection;
@@ -204,6 +205,7 @@ function initSimulation() {
     sim.lgn_mask = lgn_mask;
     sim.all_idx = all_idx;
 
+    // Initialize Firing Rates to 0
     var all_fr = new Array(sim.nV1);
     var nConns = sim.nV1-1+3;
     for (var i = 0; i < nV1; i++){
@@ -248,14 +250,15 @@ function tick() {
   tickID = setTimeout(tick,1000);
 
   for (var i=0;i<runningSections.length;i++) {
-    _tick(runningSections[i].simulation, i);
+    _tick(runningSections[i],i);
     sendFiringRates(runningSections[i]);
     sendWeights(runningSections[i]);
   }
 
 }
 
-function _tick(sim, num) {
+function _tick(sim) {
+    var sim = section.simulation;
 
     // Show an orientation and use it to determine LGN, then V1 firing rates.
     var whichOr = Math.floor(sim.counter % sim.nLGN);
@@ -274,6 +277,7 @@ function _tick(sim, num) {
         var mask_lgn = sim.lgn_mask[i];
 
         all_fr[i] = [];
+        all_wm[i] = [];
 
         var thisFR = 0;
         // first add previous v1 firing rates * weights
@@ -299,10 +303,29 @@ function _tick(sim, num) {
     }
 
     // Update the AI's
-    nStuds = sections[num].students.length;
+    nStuds = section.students.length;
     if ( nStuds < sim.nV1 ) {
         for (var i = nStuds; i < sim.nV1; i++) {
             var randSyn = Math.floor(Math.random() * (sim.nV1+2));
+
+            this_isFiring = sim.v1_fr[i] > 2;
+            var loop = 0;
+            var syn;
+            while (loop < 1) {
+                var r = Math.floor(Math.random()*(sim.nV1));
+                that_isFiring = sim.v1_fr[r] > 2;
+                if (r != i && that_isFiring == this_isFiring && this_isFiring){ // if both neurons are firing
+                    syn.pos = 1;
+                    syn.num = r;
+                    loop = 1;
+                    updateSynapse(syn, section.sectionNum, i);
+                } else if (r!=i && that_isFiring != this_isFiring) { // one neuron is firing and other is not
+                    syn.pos = 0;
+                    syn.num = r;
+                    loop = 1;
+                    updateSynapse(syn, section.sectionNum, i);
+                }
+            } 
 
             for (var j = 0; j < sim.nV1-1+3; j++) {
                 syn.pos = 0;
