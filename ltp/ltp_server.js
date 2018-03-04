@@ -266,6 +266,10 @@ function _tick(section) {
   var whichOr = Math.floor(sim.counter % sim.nLGN);
   var lgn_fr = Array.from(Array(sim.nLGN), () => 0);
   lgn_fr[whichOr] = 10;
+  lgn_fr[(whichOr+1)%sim.nLGN] = 5;
+  lgn_fr[(whichOr-1)%sim.nLGN] = 5;
+  lgn_fr[(whichOr+2)%sim.nLGN] = 2;
+  lgn_fr[(whichOr-2)%sim.nLGN] = 2;
 
 
   // Set each v1 neuron's firing rate according to the sum of its inputs * weights
@@ -320,7 +324,11 @@ function _tick(section) {
         var syn = {};
         syn.num = randSyn;
         ridx = sim.all_idx[i][randSyn]
-        that_isFiring = sim.v1_fr[ridx] > 1;
+        if (randSyn > 16){
+          that_isFiring = sim.v1_fr[ridx] > 1;
+        } else{
+          that_isFiring = lgn_fr[rIdx]>1;
+        }
         if ((that_isFiring == this_isFiring) && this_isFiring){ // if both neurons are firing
           syn.pos = true;
           updateSynapse(syn, section.sectionNum, i);
