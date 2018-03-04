@@ -17,6 +17,8 @@ socket.on('graph', function(graph) {updateGraph(graph);});
 
 socket.on('rates', function(rates) {updateRates(rates);});
 
+socket.on('login_fail', function() {alert('Failed to login');})
+
 function login(student,section,password) {
 	var data = {};
 	data.sectionNum = section;
@@ -93,9 +95,15 @@ function launchPixi() {
 function addTA(container) {
 	document.getElementById("ta_stuff").style.display="";
 	// add matrix
+	matContainer = new PIXI.Container();
+	matContainer.visible = false;
+	app.stage.addChild(matContainer);
 
 	// add graph
-
+	graphContainer = new PIXI.Container();
+	graphContainer.visible = false;
+	app.stage.addChild(graphContainer);
+	
 }
 
 function taPlay() {
@@ -113,31 +121,31 @@ function taReset() {
 var matContainer,
 		matStructure = {};
 
-function fakeMatrix() {
-	matStructure.matrix = [];
-	for (var i=0;i<18;i++) {
-		matStructure.matrix[i] = multiply(256,ones(18));
-	}
-	drawMatrix();
-}
+// function fakeMatrix() {
+// 	matStructure.matrix = [];
+// 	for (var i=0;i<18;i++) {
+// 		matStructure.matrix[i] = ones(18);
+// 	}
+// 	drawMatrix();
+// }
+
 function updateMatrix(matrix) {
 	matStructure.matrix = matrix;
 	drawMatrix();
+	drawGraph();
 }
 
 function drawMatrix() {
-	if (matContainer==undefined) {
-		matContainer = new PIXI.Container();
-		app.stage.addChild(matContainer);
-	}
 	if (matStructure.g!=undefined) {matStructure.g.destroy();}
 	var g = new PIXI.Graphics();
-	var m = matStructure.matrix;
+	var m = matStructure.matrix,
+		sz = 20;
 	for (var i=0;i<m.length;i++) {
 		for (var j=0;j<m[i].length;j++) {
-			g.beginFill(m[i][j]*m[i][j]*m[i][j],1);
-			g.drawRect(i*10,j*10,9,9);
-			console.log('ddrew something');
+			var val = m[i][j];
+			val = (val + 0.25)*256/0.5;
+			g.beginFill(PIXI.utils.rgb2hex([val,val,val]),1);
+			g.drawRect(i*sz,j*sz,sz-1,sz-1);
 		}
 	}
 	matContainer.addChild(g);
@@ -151,20 +159,58 @@ function toggleMatrix() {
 	}
 }
 
-
 var graphContainer,
 		graphStructure = {};
 
-function updateGraph() {
-
-}
-
 function drawGraph() {
+	if (graphStructure.g!=undefined) {graphStructure.g.destroy();}
+	// Build the graph and connections
+	var cpos = [700,300],
+		rad = 15,
+		bigrad = 200;
+	var m = matStructure.matrix,
+		xs = [],
+		ys = [];
+	graphStructure.students = [];
+
+	for (var i=0;i<m.length;i++) {
+		var x = cpos[0] + bigrad*Math.cos(Math.PI*2*i/m.length),
+			y = cpos[1] + bigrad*Math.sin(Math.PI*2*i/m.length);
+		xs.push(x);
+		ys.push(y);
+	}
+
+	for (var i=0;i<m.length;i++) {
+		var sg = new PIXI.Graphics();
+
+		// draw weight lines
+		var w = m[i];
+		for (var j=0;j<w.length;j++) {
+			if (i!=j) {
+				var cw = w[j];
+				cw = (cw+0.25)*2;
+
+				sg.lineStyle(cw*5,PIXI.utils.rgb2hex([cw*256,cw*256,cw*256]),cw);
+				sg.moveTo(xs[i],ys[i]);
+				sg.lineTo(xs[j],ys[j]);
+			}
+		}
+
+		sg.lineStyle(0,0,0);
+		sg.beginFill(0xFFFFFF,0.5);
+		sg.drawCircle(xs[i],ys[i],rad);
+
+		graphContainer.addChild(sg);
+		graphStructure.students.push(sg);
+	}
 
 }
 
 function toggleGraph() {
 	graphContainer.visible = !graphContainer.visible;
+	if (graphContainer.visible) {
+		socket.emit('matrixRequest');
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

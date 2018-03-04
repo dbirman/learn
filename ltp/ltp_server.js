@@ -45,11 +45,13 @@ io.on('connection', function(socket){
 
       socket.on('synapse', function(syn) {updateSynapse(syn,socket.sectionNum);});
     } else {
-      if (data.password=='whydidakshaymakemedothis') {
+      if (data.password==' ') {
         addTA(data.sectionNum,socket.id);
         io.to(socket.id).emit('login',true);
 
-        socket.on('matrixRequest',io.to(socket.id).emit('matrix',sections[socket.sectionNum].simulation.v1_wm));
+        socket.on('play', function() {toggleSimulation(socket.sectionNum);});
+
+        socket.on('matrixRequest', function() {io.to(socket.id).emit('matrix',sections[socket.sectionNum].simulation.v1_wm);});
       }
     }
   });
@@ -67,6 +69,10 @@ io.on('connection', function(socket){
 
 function addStudent(sectionNum,id) {
   checkInitSection(sectionNum);
+  if (sections[sectionNum].students.length>18) {
+    io.to(id).emit('login_fail');
+    return;
+  }
   sections[sectionNum].students.push(id);
 }
 
@@ -135,7 +141,7 @@ function initSimulation() {
     }
 
     // init v1 firing rates to 0
-    var v1_fr = new Array.from({length: nV1} () => 0);
+    var v1_fr = Array.from({length: nV1}, () => 0);
     
     // init 18x18 v1<-->lgn weight matrix
     var initWeights = [-.9, -.8, -.75, -.7, .7, .75, .8, .9]
@@ -156,6 +162,7 @@ function initSimulation() {
         }
     }
     
+    var sim = {};
     // return a dictionary called sim
     sim.counter = 0;
     sim.nV1 = nV1;
@@ -172,20 +179,26 @@ function resetSimulation(sim) {
   
 }
 
-function startSimulation(sim) {
-
+function toggleSimulation(num) {
+  if (runningSections.indexOf(sections[num])>-1) {
+    remove(runningSections,sections[num]);
+    return;
+  }
+  runningSections.push(sections[num]);
 }
 
 var tickID,
-  runningSimulations = [];
+  runningSections = [];
 
 function tick() {
   console.log('tick');
   tickID = setTimeout(tick,1000);
 
-  for (var i=0;i<runningSimulations.length;i++) {
-    _tick(runningSimulations[i]);
+  for (var i=0;i<runningSections.length;i++) {
+    _tick(runningSections[i].simulation);
   }
+
+
 }
 
 function _tick(sim) {
@@ -201,7 +214,7 @@ function _tick(sim) {
     for (var i = 0; i < sim.nV1; i++) {
         var w_v1 = sim.v1_wm[i];
         var w_lgn = sim.lgn_wm[i];
-        var mask_lgn = sim.lgn[mask[i];
+        var mask_lgn = sim.lgn[mask[i]];
 
         var thisFR = 0;
         // first add previous v1 firing rates * weights
@@ -221,10 +234,4 @@ function _tick(sim) {
     sim.counter++;
 }
 
-function stopStimulation(sim) {
-}
-
-function tickSimulation(sim) {
-
-}
 tick();
