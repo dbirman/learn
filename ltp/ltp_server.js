@@ -125,7 +125,7 @@ function setSim(num,sim) {
 }
 
 function updateSynapse(syn,num) {
-
+  sections[num].simulation 
 }
 
 function initSimulation() {
@@ -196,8 +196,8 @@ function tick() {
 
   for (var i=0;i<runningSections.length;i++) {
     _tick(runningSections[i].simulation);
+    sendFiringRates(runningSections[i]);
   }
-
 
 }
 
@@ -246,11 +246,20 @@ function _tick(sim) {
         v1_fr[i] = thisFR;
     }
 
-
     sim.v1_fr = v1_fr;
     sim.all_fr = all_fr;
     sim.all_idx = all_idx;
     sim.counter++;
+}
+
+function sendFiringRates(section) {
+  for (var i=0;i<section.students.length;i++) {
+    rates = {};
+    rates.me = i;
+    rates.all = section.simulation.v1_fr;
+    rates.lgn = section.simulation.lgn[mask[i]]*section.simulation.lgn_fr;
+    io.to(sections.students[i]).emit('rates',rates);
+  }
 }
 
 tick();
