@@ -252,7 +252,7 @@ function addSynapses(container) {
 			var syn = {};
 
 			syn.theta = Math.PI*1.75-i/num*Math.PI*1.5;
-			syn.num = i+1;
+			syn.num = i;
 			syn.posCall = new Function('synapseCallback('+syn.num+',true)');
 			syn.negCall = new Function('synapseCallback('+syn.num+',false)');
 
@@ -319,11 +319,12 @@ function synapseCallback(num,positive) {
 
 // max firing rate is 10
 
-var rates = [1,2,3,1,2,2,1,1,2,2,3,2,1,2,2,1,1,1], // firing rates for the 11 synapses + neuron (0->11 indexes)
-	nrn_rate = 3;
+var rates = [], // firing rates for the 11 synapses + neuron (0->11 indexes)
+	nrn_rate =0 ;
 
 function updateRates(nRates) {
-	rates = nRates;
+	rates = nRates.all;
+	nrn_rate = nRates.me;
 }
 
 function fire() {
@@ -336,13 +337,13 @@ function fire() {
 	}
 	if (Math.random()<(nrn_rate/5)) {
 		nrn.alpha = 1;
-		setTimeout(function() {nrn.alpha = 0.5;},100);
+		setTimeout(function() {nrn.alpha = 0.5;},200);
 	}
 
 	setTimeout(fire,200);
 }
 
-
+fire();
 
 
 //// helpers
