@@ -129,7 +129,11 @@ function updateSynapse(syn,sectionNum,id) {
   var idx = syn.num,
     pos = syn.positive;
 
-  var midx = sections[sectionNum].students.indexOf(id);
+  if(typeof(id)=='string'){
+    var midx = sections[sectionNum].students.indexOf(id);
+  } else {
+    var midx = id;
+  }
   var ridx = sections[sectionNum].simulation.all_idx[midx][idx];
 
   var update = sections[sectionNum].alpha * (pos ? 1 : -1);
@@ -206,7 +210,6 @@ function initSimulation() {
     }
     sim.all_fr = all_fr;
 
-
     return sim
 }
 
@@ -230,13 +233,13 @@ function tick() {
   tickID = setTimeout(tick,1000);
 
   for (var i=0;i<runningSections.length;i++) {
-    _tick(runningSections[i].simulation);
+    _tick(runningSections[i].simulation, i);
     sendFiringRates(runningSections[i]);
   }
 
 }
 
-function _tick(sim) {
+function _tick(sim, num) {
 
     // Show an orientation and use it to determine LGN, then V1 firing rates.
     var whichOr = Math.floor(sim.counter % sim.nLGN);
@@ -247,16 +250,14 @@ function _tick(sim) {
     // Set each v1 neuron's firing rate according to the sum of its inputs * weights
     var v1_fr = new Array(sim.nV1);
     var all_fr = new Array(sim.nV1);
-    var all_idx = new Array(sim.nV1);
+    var all_wm = new Array(sim.nV1);
 
     for (var i = 0; i < sim.nV1; i++) {
         var w_v1 = sim.v1_wm[i];
         var w_lgn = sim.lgn_wm[i];
         var mask_lgn = sim.lgn_mask[i];
 
-        var nConns = sim.nV1-1+3;
         all_fr[i] = [];
-        all_idx[i] = [];
 
         var thisFR = 0;
         // first add previous v1 firing rates * weights
@@ -264,7 +265,7 @@ function _tick(sim) {
             if (j!=i) {
               thisFR += w_v1[j] * sim.v1_fr[j];
               all_fr[i].push(sim.v1_fr[j]);
-              all_idx[i].push(j);
+              all_wm[i].push(w_v1[j]);
             }
         }
 
@@ -274,16 +275,30 @@ function _tick(sim) {
             thisFR += w_lgn[j]*mask_lgn[j]*lgn_fr[j];
             if ( mask_lgn[j] == 1) {
               all_fr[i].push(lgn_fr[j]);
-              all_idx[i].push(j);
+              all_wm[i].push(w_lgn[j]);
             }
         }
 
         v1_fr[i] = thisFR;
     }
 
+    // Update the AI's
+    nStuds = sections[num].students.length;
+    if ( nStuds < sim.nV1 ) {
+        for (var i = nStuds; i < sim.nV1; i++) {
+            var randSyn = Math.floor(Math.random() * (sim.nV1+2));
+
+            for (var j = 0; j < sim.nV1-1+3; j++) {
+                syn.pos = 0;
+                syn.num = 1;
+                //updateSynapse(syn,sectionNum,id)
+            }
+
+        }
+    }
+
     sim.v1_fr = v1_fr;
     sim.all_fr = all_fr;
-    sim.all_idx = all_idx;
     sim.counter+=0.25;
 }
 
