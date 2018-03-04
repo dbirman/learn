@@ -17,7 +17,7 @@ socket.on('graph', function(graph) {updateGraph(graph);});
 
 socket.on('rates', function(rates) {updateRates(rates);});
 
-socket.on('weights', function(weights) {updateWeights(weights);});
+socket.on('weights', function(weights) {lweights = weights; updateWeights();});
 
 socket.on('login_fail', function() {alert('Failed to login');})
 
@@ -348,11 +348,15 @@ function addSynapses(container) {
 }
 
 function synapseCallback(num,positive) {
-	console.log('You tried to make synapse #' + num + ' more positive ' + positive);
-	var syn = {};
-	syn.num = num;
-	syn.positive = positive;
-	socket.emit('synapse',syn);
+	if (lactive) {
+		console.log('You tried to make synapse #' + num + ' more positive ' + positive);
+		var syn = {};
+		syn.num = num;
+		syn.positive = positive;
+		lweights[num] += 0.025 * (positive ? 1 : -1);
+		updateWeights();
+		socket.emit('synapse',syn);
+	}
 }
 
 // max firing rate is 10
@@ -365,39 +369,53 @@ function updateRates(nRates) {
 	nrn_rate = nRates.me;
 }
 
-function updateWeights(weights) {
+lweights = [];
+
+function updateWeights() {
 	// Change the colors of the synapse graphics to reflect the new weights
-	for (var i=0;i<weights.length;i++) {
+	for (var i=0;i<=16;i++) {
 		var syn = synapses[i];
+		syn.g.alpha = Math.max(0.05,Math.abs(lweights[i])*2);
 		const graphicsData = syn.g.graphicsData;
-		var color = weights[i]>0 ? 0x00FF00 : 0xFFFFFF;
+		var color = lweights[i]>0 ? 0x00FF00 : 0xFF0000;
 		for (var gi=0;gi<graphicsData.length;gi++) {
-			g[gi].lineColor = color;
+			graphicsData[gi].lineColor = color;
 		}
-		g.dirty++;
-		g.clearDirty++;
+		syn.g.dirty++;
+		syn.g.clearDirty++;
+	}
+	for (var i=17;i<synapses.length;i++) {
+		var syn = synapses[i];
+		syn.g.alpha = Math.max(0.05,Math.abs(lweights[i])*(0.5/0.9));
+		const graphicsData = syn.g.graphicsData;
+		var color = lweights[i]>0 ? 0x00FF00 : 0xFF0000;
+		for (var gi=0;gi<graphicsData.length;gi++) {
+			graphicsData[gi].lineColor = color;
+		}
+		syn.g.dirty++;
+		syn.g.clearDirty++;
 	}
 }
 
 var lactive = false;
 
 function fire() {
+	setTimeout(fire,100);
 	if (!lactive) {
 		return;
 	}
 	// 
-	for (var i=0;i<(rates.length-1);i++) {
+	for (var i=0;i<rates.length;i++) {
 		if (Math.random()<(rates[i]/10)) {
-			synapses[i].g.alpha = 1;
-			setTimeout(new Function('synapses['+i+'].g.alpha = 0.5;'),100);
+			synapses[i].g.alpha = synapses[i].g.alpha*2;
+			setTimeout(new Function('synapses['+i+'].g.alpha = synapses['+i+'].g.alpha/2;'),150);
 		}
 	}
-	if (Math.random()<(nrn_rate/5)) {
+	if (Math.random()<(nrn_rate/10)) {
 		nrn.alpha = 1;
-		setTimeout(function() {nrn.alpha = 0.5;},200);
+		setTimeout(function() {nrn.alpha = 0.5;},150);
 	}
 
-	setTimeout(fire,200);
 }
 
 fire();

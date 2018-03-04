@@ -145,11 +145,10 @@ function updateSynapse(syn,sectionNum,id) {
     if(sections[sectionNum].simulation.v1_wm[midx][ridx]<-0.25) {sections[sectionNum].simulation.v1_wm[midx][ridx]=-0.25;}
   } else {
     sections[sectionNum].simulation.lgn_wm[midx][ridx] += update;
-    if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.25) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.25;}
-    if(sections[sectionNum].simulation.lgn_wm[midx][ridx]<-0.25) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=-0.25;}
+    if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.9;}
+    if(sections[sectionNum].simulation.lgn_wm[midx][ridx]<-0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=-0.9;}
   }
 
-  sections[sectionNum].simulation.v1_wm;
 }
 
 function initSimulation() {
@@ -167,9 +166,12 @@ function initSimulation() {
         v1_wm[i] = Array.from({length: nV1}, () => (Math.random()*.5 - .25));
 
         for (var j = 0; j < nV1; j++){
-            all_idx[i].push(j);
+            if (i!=j) {
+              all_idx[i].push(j);
+            }
         }
     }
+    console.log(all_idx);
 
     // init v1 firing rates to 0
     var v1_fr = Array.from({length: nV1}, () => 0);
@@ -248,14 +250,15 @@ function tick() {
   tickID = setTimeout(tick,1000);
 
   for (var i=0;i<runningSections.length;i++) {
-    _tick(runningSections[i].simulation, i);
+    _tick(runningSections[i]);
     sendFiringRates(runningSections[i]);
     sendWeights(runningSections[i]);
   }
 
 }
 
-function _tick(sim, num) {
+function _tick(section) {
+  var sim = section.simulation;
 
     // Show an orientation and use it to determine LGN, then V1 firing rates.
     var whichOr = Math.floor(sim.counter % sim.nLGN);
@@ -274,6 +277,7 @@ function _tick(sim, num) {
         var mask_lgn = sim.lgn_mask[i];
 
         all_fr[i] = [];
+        all_wm[i] = [];
 
         var thisFR = 0;
         // first add previous v1 firing rates * weights
@@ -299,14 +303,18 @@ function _tick(sim, num) {
     }
 
     // Update the AI's
-    nStuds = sections[num].students.length;
+    if (section.students==undefined) {
+      nStuds = 0;
+    } else {
+      nStuds = section.students.length;
+    }
     if ( nStuds < sim.nV1 ) {
         for (var i = nStuds; i < sim.nV1; i++) {
             var randSyn = Math.floor(Math.random() * (sim.nV1+2));
 
             for (var j = 0; j < sim.nV1-1+3; j++) {
-                syn.pos = 0;
-                syn.num = 1;
+                // syn.pos = 0;
+                // syn.num = 1;
                 //updateSynapse(syn,sectionNum,id)
             }
 
@@ -315,6 +323,7 @@ function _tick(sim, num) {
 
     sim.v1_fr = v1_fr;
     sim.all_fr = all_fr;
+    sim.all_wm = all_wm;
     sim.counter+=0.25;
 }
 
