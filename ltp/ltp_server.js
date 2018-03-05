@@ -51,6 +51,7 @@ io.on('connection', function(socket){
       if (data.password==' ') {
         addTA(data.sectionNum,socket.id);
         io.to(socket.id).emit('login',true);
+        io.to(socket.id).emit('play',sections[socket.sectionNum].active);
 
         socket.on('reset', function() {resetSimulation(socket.sectionNum);});
         socket.on('play', function() {toggleSimulation(socket.sectionNum,socket.id);});
@@ -146,11 +147,11 @@ function updateSynapse(syn,sectionNum,id) {
     sections[sectionNum].simulation.v1_wm[midx][ridx] += update;
     if(sections[sectionNum].simulation.v1_wm[midx][ridx]>0.25) {sections[sectionNum].simulation.v1_wm[midx][ridx]=0.25;}
     if(sections[sectionNum].simulation.v1_wm[midx][ridx]<-0.1) {sections[sectionNum].simulation.v1_wm[midx][ridx]=-0.1;}
-  } else {
-    sections[sectionNum].simulation.lgn_wm[midx][ridx] += update;
-    if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.9;}
-    if(sections[sectionNum].simulation.lgn_wm[midx][ridx]<-0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=-0.9;}
-  }
+  }// } else {
+  //   sections[sectionNum].simulation.lgn_wm[midx][ridx] += update;
+  //   if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.9;}
+  //   if(sections[sectionNum].simulation.lgn_wm[midx][ridx]<-0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=-0.9;}
+  // }
 
 }
 
@@ -166,7 +167,7 @@ function initSimulation() {
   var v1_wm = new Array(18);
   for (var i = 0; i < nV1; i++) {
     v1_wm[i] = new Array(nV1);
-    v1_wm[i] = Array.from({length: nV1}, () => (Math.random()*.35 - .1));
+    v1_wm[i] = Array.from({length: nV1}, () => (Math.random()*.1 - .1));
     v1_wm[i][i]=0;
 
     for (var j = 0; j < nV1; j++){
@@ -179,11 +180,14 @@ function initSimulation() {
   // init v1 firing rates to 0
   var v1_fr = Array.from({length: nV1}, () => 0);
   // init 18x18 v1<-->lgn weight matrix
-  var initWeights = [-.5, -.4, -.3, -.2, .4, .6, .8, .9]
+  var initWeights = [-0.4, 0.7, 0.7];
   var lgn_wm = new Array(nV1);
   for (var i = 0; i < nV1; i++) {
-    lgn_wm[i] = new Array(nLGN);
-    lgn_wm[i] = Array.from({length: nLGN}, () => (initWeights[Math.floor(Math.random()*initWeights.length)] + (-.025+Math.random()*.05)));
+    lgn_wm[i] = zeros(nLGN);
+    var vals = initWeights.slice(0).shuffle();
+    for (var j=-1;j<2;j++) {
+      lgn_wm[i][i+j] = vals[j+1] + Math.random()*0.1-0.05;
+    }
   }
 
   // init 18x18 v1<-->lgn mask that determines if 2 neurons are connected.
@@ -261,6 +265,8 @@ function tick() {
 
 }
 
+var v1_lgn_ratio = 0.25;
+
 function _tick(section) {
   var sim = section.simulation;
 
@@ -279,6 +285,18 @@ function _tick(section) {
   var all_fr = new Array(sim.nV1);
   var all_wm = new Array(sim.nV1);
 
+  // Output the average V1 weights
+  // for (var i =0; i< sim.nV1;i++) {
+  //   var c = 0;
+  //   for (var j=0;j<sim.nV1;j++) {
+  //     c+=sim.v1_wm[i][j];
+  //   }
+  //   for (var k=0;k<sim.nLGN;k++) {
+  //     c+=sim.lgn_wm[i][k];
+  //   }
+  //   console.log(c);
+  // }
+
   for (var i = 0; i < sim.nV1; i++) {
     var w_v1 = sim.v1_wm[i];
     var w_lgn = sim.lgn_wm[i];
@@ -288,64 +306,65 @@ function _tick(section) {
     all_wm[i] = [];
 
     var thisFR = 0;
-      // first add previous v1 firing rates * weights
-      for (var j = 0; j < sim.nV1; j++){
-        if (j!=i) {
-          thisFR += 0.5 * w_v1[j] * sim.v1_fr[j];
-          all_fr[i].push(sim.v1_fr[j]);
-          all_wm[i].push(w_v1[j]);
-        }
+    // first add previous v1 firing rates * weights
+    for (var j = 0; j < sim.nV1; j++){
+      if (j!=i) {
+        thisFR += v1_lgn_ratio * w_v1[j] * sim.v1_fr[j];
+        all_fr[i].push(sim.v1_fr[j]);
+        all_wm[i].push(w_v1[j]);
       }
-
-
-      // then add mask firing rates
-      for (var j = 0; j < sim.nLGN; j++){
-        thisFR += w_lgn[j]*mask_lgn[j]*lgn_fr[j];
-        if ( mask_lgn[j] == 1) {
-          all_fr[i].push(lgn_fr[j]);
-          all_wm[i].push(w_lgn[j]);
-        }
-      }
-      thisFR = Math.min(10,Math.max(0,thisFR));
-      v1_fr[i] = thisFR;
     }
 
+
+    // then add LGN firing rates (use the mask to block out)
+    for (var j = 0; j < sim.nLGN; j++){
+      thisFR += w_lgn[j]*mask_lgn[j]*lgn_fr[j];
+      if ( mask_lgn[j] == 1) {
+        all_fr[i].push(lgn_fr[j]);
+        all_wm[i].push(w_lgn[j]);
+      }
+    }
+
+    thisFR = Math.min(10,Math.max(0,thisFR));
+    v1_fr[i] = thisFR;
+  }
+
   // Update the AI's
-  var pos =0, neg =0, doNotUpdate = false;
+  var pos =0, neg =0;
   var n_upd = 10;
   if (section.students==undefined) {
     nStuds = 0;
   } else {
     nStuds = section.students.length;
   }
+
   if ( nStuds < sim.nV1 ) {
     for (var i = nStuds; i < sim.nV1; i++) {
+      // Check if I'm firing
+      var this_isFiring = sim.v1_fr[i] > 0.25;
+
       for (var j = 0; j < n_upd; j++){
         var randSyn = Math.floor(Math.random() * (sim.nV1+2));
 
-        this_isFiring = sim.v1_fr[i] > 1.5;
         var syn = {};
         syn.num = randSyn;
         ridx = sim.all_idx[i][randSyn]
         if (randSyn <= 16){
-          that_isFiring = sim.v1_fr[ridx] > 1.5;
-        } else{
-          doNotUpdate = true;
-          that_isFiring = lgn_fr[ridx]>3;
-        }
-        if (!doNotUpdate  && (that_isFiring == this_isFiring) && this_isFiring){ // if both neurons are firing
-          syn.positive = true;
-          updateSynapse(syn, section.sectionNum, i);
-          pos++;
-        } else if (!doNotUpdate && (that_isFiring != this_isFiring) && (Math.random() > 0.9)) { // one neuron is firing and other is not
-          syn.positive = false;
-          updateSynapse(syn, section.sectionNum, i);
-          neg++;
+          that_isFiring = sim.v1_fr[ridx] > 0.25;
+          if (that_isFiring && this_isFiring) { // if both neurons are firing
+            syn.positive = true;
+            updateSynapse(syn, section.sectionNum, i);
+            pos++;
+          } else if ((this_isFiring || that_isFiring) ) { // one neuron is firing and other is not
+            syn.positive = false;
+            updateSynapse(syn, section.sectionNum, i);
+            neg++;
+          }
         }
       }
-
     }
-  }        
+  }     
+
   console.log('Positive updates: ' + pos + ' negative updates: ' + neg);
 
   sim.v1_fr = v1_fr;
@@ -360,6 +379,11 @@ function sendFiringRates(section) {
     rates.all = section.simulation.all_fr[i];
     rates.me = section.simulation.v1_fr[i];
     io.to(section.students[i]).emit('rates',rates);
+  }
+  for (var i=0;i<section.TAs.length;i++) {
+    var rates = {};
+    rates.all = section.simulation.v1_fr;
+    io.to(section.TAs[i]).emit('rates',rates);
   }
 }
 
@@ -382,5 +406,15 @@ function sendWeights(section) {
   }
   return tempArray;
 }
+
+Array.prototype.shuffle = function() {
+    var result = [];
+    while( this.length ) {
+        var index = Math.floor( this.length * Math.random() );
+        result.push( this[ index ] );
+        this.splice(index, 1);
+    }
+    return result;
+};
 
 tick();

@@ -160,6 +160,7 @@ var matContainer,
 function updateMatrix(matrix) {
 	matStructure.matrix = matrix;
 	drawMatrix();
+	if (!graphInit) {initGraph();}
 	drawGraph();
 }
 
@@ -202,10 +203,13 @@ function getMatrix() {
 }
 
 var graphContainer,
-		graphStructure = {};
+		graphStructure = {},
+		graphInit = false;
 
-function drawGraph() {
-	if (graphStructure.g!=undefined) {graphStructure.g.destroy();}
+
+function initGraph() {
+	graphInit = true;
+
 	// Build the graph and connections
 	var cpos = [700,300],
 		rad = 15,
@@ -222,6 +226,36 @@ function drawGraph() {
 		ys.push(y);
 	}
 
+	graphStructure.xs = xs;
+	graphStructure.ys = ys;
+	graphStructure.rad = rad;
+	graphStructure.bigrad = bigrad;
+	graphStructure.cpos = cpos;
+
+	for (var i=0;i<m.length;i++) {
+		var snode = new PIXI.Graphics();
+
+		snode.lineStyle(0,0,0);
+		snode.beginFill(0xFFFFFF,1);
+		snode.drawCircle(xs[i],ys[i],rad);
+		snode.alpha = 0.5;
+		console.log(snode.alpha);
+		graphContainer.addChild(snode);
+		graphStructure.students.push(snode);
+
+	}
+}
+
+function drawGraph() {
+	if (graphStructure.g!=undefined) {graphStructure.g.destroy();}
+	// Build the graph and connections
+	var cpos = graphStructure.cpos,
+		rad = graphStructure.rad,
+		bigrad = graphStructure.bigrad,
+		m = matStructure.matrix,
+		xs = graphStructure.xs,
+		ys = graphStructure.ys;
+
 	for (var i=0;i<m.length;i++) {
 		var sg = new PIXI.Graphics();
 
@@ -230,22 +264,16 @@ function drawGraph() {
 		for (var j=0;j<w.length;j++) {
 			if (i!=j) {
 				var cw = w[j];
-				cw = (cw+0.25)*2;
+				cw = Math.pow((cw+0.25)*2,2);
 
 				sg.lineStyle(cw*5,PIXI.utils.rgb2hex([cw,cw,cw]),cw);
 				sg.moveTo(xs[i],ys[i]);
 				sg.lineTo(xs[j],ys[j]);
 			}
 		}
-
-		sg.lineStyle(0,0,0);
-		sg.beginFill(0xFFFFFF,0.5);
-		sg.drawCircle(xs[i],ys[i],rad);
-
 		graphContainer.addChild(sg);
-		graphStructure.students.push(sg);
+		graphStructure.g = sg;
 	}
-
 }
 
 function toggleGraph() {
@@ -411,15 +439,24 @@ function fire() {
 		return;
 	}
 	// 
-	for (var i=0;i<rates.length;i++) {
-		if (Math.random()<(rates[i]/10)) {
-			synapses[i].g.alpha = synapses[i].g.alpha*2;
-			setTimeout(new Function('synapses['+i+'].g.alpha = synapses['+i+'].g.alpha/2;'),150);
+	if (TA) {
+		for (var i=0;i<rates.length;i++) {
+			if (Math.random()<(rates[i]/10)) {
+				graphStructure.students[i].alpha = graphStructure.students[i].alpha*2;
+				setTimeout(new Function('graphStructure.students['+i+'].alpha = graphStructure.students['+i+'].alpha/2;'),150);
+			}
 		}
-	}
-	if (Math.random()<(nrn_rate/10)) {
-		nrn.alpha = 1;
-		setTimeout(function() {nrn.alpha = 0.5;},150);
+	} else {
+		for (var i=0;i<rates.length;i++) {
+			if (Math.random()<(rates[i]/10)) {
+				synapses[i].g.alpha = synapses[i].g.alpha*2;
+				setTimeout(new Function('synapses['+i+'].g.alpha = synapses['+i+'].g.alpha/2;'),150);
+			}
+		}
+		if (Math.random()<(nrn_rate/10)) {
+			nrn.alpha = 1;
+			setTimeout(function() {nrn.alpha = 0.5;},150);
+		}
 	}
 
 }
@@ -454,4 +491,12 @@ function ones(length) {
 		tempArray[i] = 1;
 	}
 	return tempArray;
+}
+
+function sum(array) {
+	var csum = 0;
+	for (var ai=0;ai<array.length;ai++) {
+		csum+= array[ai];
+	}
+	return csum;
 }
