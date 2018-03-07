@@ -57,3 +57,35 @@ function drawDots(dots,ctx) {
 		ctx.fillRect(Math.round(dots.x[i])-dots.szoff,Math.round(dots.y[i])-dots.szoff,dots.size,dots.size);
 	}
 }
+
+function clipCtx(ctx,canvas) {
+	ctx.save();
+	ctx.beginPath();
+	ctx.arc(canvas.width/2,canvas.height/2,canvas.width/2,0,2*Math.PI,false);
+	ctx.clip();
+}
+
+/*
+
+// example code
+
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+var coherence = 0.65;
+var dots = initDots(100,100,100,coherence2,0,0.075,1);
+var tick;
+var ptime = 0;
+
+function drawDots() {
+	var el = Date.now()-ptime; ptime = Date.now();
+
+	dots = updateDots(dots,coherence,dots.dir,el);
+	// draw
+	ctx.clearRect(0,0,canvas.width,canvas.height);
+	clipCtx(ctx,canvas);
+	drawDots(dots,ctx);
+	ctx.restore();
+
+	tick = window.requestAnimationFrame(drawDots);
+}
+*/
