@@ -186,8 +186,9 @@ function initSimulation() {
   // init  v1 weight matrix (fully connected)
   var v1_wm = new Array(18);
   for (var i = 0; i < nV1; i++) {
-    v1_wm[i] = new Array(nV1);
-    v1_wm[i] = Array.from({length: nV1}, () => (Math.random()*.1 - .1));
+    v1_wm[i] = zeros(nV1); // [TODO] for now just init to zero
+    // v1_wm[i] = new Array(nV1);
+    // v1_wm[i] = Array.from({length: nV1}, () => (Math.random()*.1 - .1));
     v1_wm[i][i]=0;
 
     for (var j = 0; j < nV1; j++){
@@ -255,7 +256,7 @@ function resetSimulation() {
 }
 
 function toggleAI(num,id) {
-  console.log('Toggling stimulus: ' + num);
+  console.log('Toggling AI: ' + num);
   sections[num].AI = !sections[num].AI;
   emitSignal(num,'play',sections[num].AI);
 }
@@ -373,44 +374,45 @@ function _tick(section) {
     v1_fr[i] = thisFR;
   }
 
-  // Update the AI's
-  var pos =0, neg =0;
-  var n_upd = 10;
-  if (section.students==undefined) {
-    nStuds = 0;
-  } else {
-    nStuds = section.students.length;
-  }
+  if (section.AI) {
+    // Update the AI's
+    var pos =0, neg =0;
+    var n_upd = 10;
+    if (section.students==undefined) {
+      nStuds = 0;
+    } else {
+      nStuds = section.students.length;
+    }
 
-  if ( nStuds < sim.nV1 ) {
-    for (var i = nStuds; i < sim.nV1; i++) {
-      // Check if I'm firing
-      var this_isFiring = sim.v1_fr[i] > 0.25;
+    if ( nStuds < sim.nV1 ) {
+      for (var i = nStuds; i < sim.nV1; i++) {
+        // Check if I'm firing
+        var this_isFiring = sim.v1_fr[i] > 0.25;
 
-      for (var j = 0; j < n_upd; j++){
-        var randSyn = Math.floor(Math.random() * (sim.nV1+2));
+        for (var j = 0; j < n_upd; j++){
+          var randSyn = Math.floor(Math.random() * (sim.nV1+2));
 
-        var syn = {};
-        syn.num = randSyn;
-        ridx = sim.all_idx[i][randSyn]
-        if (randSyn <= 16){
-          that_isFiring = sim.v1_fr[ridx] > 0.25;
-          if (that_isFiring && this_isFiring) { // if both neurons are firing
-            syn.positive = true;
-            updateSynapse(syn, section.sectionNum, i);
-            pos++;
-          } else if ((this_isFiring || that_isFiring) ) { // one neuron is firing and other is not
-            syn.positive = false;
-            updateSynapse(syn, section.sectionNum, i);
-            neg++;
+          var syn = {};
+          syn.num = randSyn;
+          ridx = sim.all_idx[i][randSyn]
+          if (randSyn <= 16){
+            that_isFiring = sim.v1_fr[ridx] > 0.25;
+            if (that_isFiring && this_isFiring) { // if both neurons are firing
+              syn.positive = true;
+              updateSynapse(syn, section.sectionNum, i);
+              pos++;
+            } else if ((this_isFiring || that_isFiring) ) { // one neuron is firing and other is not
+              syn.positive = false;
+              updateSynapse(syn, section.sectionNum, i);
+              neg++;
+            }
           }
         }
       }
-    }
-  }     
+    }     
 
-  console.log('Positive updates: ' + pos + ' negative updates: ' + neg);
-
+    console.log('Positive updates: ' + pos + ' negative updates: ' + neg);
+  }
   sim.v1_fr = v1_fr;
   sim.all_fr = all_fr;
   sim.all_wm = all_wm;

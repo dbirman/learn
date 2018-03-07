@@ -119,9 +119,9 @@ function addPlay(active) {
 function updateAI(ai) {
 	if (TA) {
 		if (ai) {
-			document.getElementById("aibutton").innerHTML("Turn off AI");
+			document.getElementById("aibutton").innerHTML = "Turn off AI";
 		} else {
-			document.getElementById("aibutton").innerHTML("Turn on AI");
+			document.getElementById("aibutton").innerHTML = "Turn on AI";
 		}
 	} else {
 
@@ -131,9 +131,9 @@ function updateAI(ai) {
 function updateStim(stim) {
 	if (TA) {
 		if (stim) {
-			document.getElementById("stimbutton").innerHTML("Turn off AI");
+			document.getElementById("stimbutton").innerHTML = "Hide stimulus";
 		} else {
-			document.getElementById("aibutton").innerHTML("Turn on AI");
+			document.getElementById("aibutton").innerHTML("Show stimulus");
 		}
 	} else {
 
