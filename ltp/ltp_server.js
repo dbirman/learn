@@ -22,13 +22,17 @@ app.get( '/*' , function( req, res ) {
 
   var sections = {};
 
-  function initSection(num) {
-    var newSection = {};
-    newSection.TAs = [];
-    newSection.students = [];
-    newSection.alpha = 0.025;
-    newSection.simulation = initSimulation();
-    newSection.sectionNum = num;
+function initSection(num) {
+  var newSection = {};
+  newSection.TAs = [];
+  newSection.students = zeros(19);
+  newSection.studentCount = 0;
+  newSection.studentPos = 0;
+  newSection.alpha = 0.025;
+  newSection.simulation = initSimulation();
+  newSection.sectionNum = num;
+  newSection.AI = false;
+  newSection.stimulus = true;
   newSection.tick = undefined; // tracks the 1 second tick when the simulation is on
 
   sections[num] = newSection;
@@ -55,6 +59,8 @@ io.on('connection', function(socket){
 
         socket.on('reset', function() {resetSimulation(socket.sectionNum);});
         socket.on('play', function() {toggleSimulation(socket.sectionNum,socket.id);});
+        socket.on('toggle_ai', function() {toggleAI(socket.sectionNum,socket.id);});
+        socket.on('toggle_stim', function() {toggleStimulus(socket.sectionNum,socket.id);});
 
         socket.on('matrixRequest', function() {io.to(socket.id).emit('matrix',sections[socket.sectionNum].simulation.v1_wm);});
       }
@@ -65,7 +71,13 @@ io.on('connection', function(socket){
     console.log('user disconnected');
     try {
       if (sections[socket.sectionNum]==undefined) {return;}
-      remove(sections[socket.sectionNum].students,socket.id);
+      for (var i=0;i<18;i++) {
+        if (sections[socket.sectionNum].students[i]==socket.id) {
+          sections[socket.sectionNum].students[i] = 0;
+          sections[socket.sectionNum].studentPos = i;
+          sections[socket.sectionNum].studentCount--;
+        }
+      }
       remove(sections[socket.sectionNum].TAs,socket.id);
     } catch (err) {
       console.log(err);
@@ -75,11 +87,20 @@ io.on('connection', function(socket){
 
 function addStudent(sectionNum,id) {
   checkInitSection(sectionNum);
-  if (sections[sectionNum].students.length>18) {
+  if (sections[sectionNum].studentCount>17) {
     io.to(id).emit('login_fail');
     return;
   }
-  sections[sectionNum].students.push(id);
+  sections[sectionNum].students[sections[sectionNum].studentPos] = id;
+  // console.log('added student to: ' + sections[sectionNum].studentPos);
+  sections[sectionNum].studentCount++;
+  // console.log('section has: ' + sections[sectionNum].studentCount + ' students');
+  for (var i=0;i<18;i++) {
+    if (sections[sectionNum].students[i]==0) {
+      sections[sectionNum].studentPos = i;
+      break;
+    }
+  }
 }
 
 function addTA(sectionNum,id) {
@@ -92,7 +113,6 @@ function checkInitSection(num) {
     initSection(num);
   }
 }
-
 
 var port = 8080;
 http.listen(port, function(){
@@ -163,7 +183,7 @@ function initSimulation() {
   // all idx
   var all_idx = Array.from({length: nV1}, () => []);
 
-  // init 18x18 v1 weight matrix (fully connected)
+  // init  v1 weight matrix (fully connected)
   var v1_wm = new Array(18);
   for (var i = 0; i < nV1; i++) {
     v1_wm[i] = new Array(nV1);
@@ -228,25 +248,36 @@ function resetSimulation() {
   sections[sectionNum].simulation = initSimulation();
 }
 
+function toggleAI(num,id) {
+  console.log('Toggling stimulus: ' + num);
+  sections[num].AI = !sections[num].AI;
+  emitSignal(num,'play',sections[num].AI);
+}
+
+function toggleStimulus(num,id) {
+  console.log('Toggling stimulus: ' + num);
+  sections[num].stimulus = !sections[num].stimulus;
+  emitSignal(num,'play',sections[num].stimulus);
+}
+
 function toggleSimulation(num,id) {
   console.log('Toggling simulation: ' + num);
   if (runningSections.indexOf(sections[num])>-1) {
     remove(runningSections,sections[num]);
     sections[num].active = false;
-    emitPlaying(num);
-    return;
+  } else {
+    runningSections.push(sections[num]);
+    sections[num].active = true;
   }
-  runningSections.push(sections[num]);
-  sections[num].active = true;
-  emitPlaying(num);
+  emitSignal(num,'play',sections[num].active);
 }
 
-function emitPlaying(num) {
+function emitSignal(num,signal,value) {
   for (var i=0;i<sections[num].students.length;i++) {
-    io.to(sections[num].students[i]).emit('play',sections[num].active);
+    io.to(sections[num].students[i]).emit(signal,value);
   }
   for (var i=0;i<sections[num].TAs.length;i++) {
-    io.to(sections[num].TAs[i]).emit('play',sections[num].active);
+    io.to(sections[num].TAs[i]).emit(signal,value);
   }
 }
 

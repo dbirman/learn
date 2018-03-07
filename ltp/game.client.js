@@ -11,13 +11,21 @@ socket.on('login', function (success) {
 	}
 });
 
-socket.on('matrix', function(matrix) {updateMatrix(matrix);});
+// socket.on('matrix', function(matrix) {updateMatrix(matrix);});
 
-socket.on('graph', function(graph) {updateGraph(graph);});
+// socket.on('graph', function(graph) {updateGraph(graph);});
+
+socket.on('AIon', function(ai) {updateAI(ai);});
+socket.on('stimon', function(stim) {updateStim(stim);});
 
 socket.on('rates', function(rates) {updateRates(rates);});
 
-socket.on('weights', function(weights) {lweights = weights; updateWeights();});
+socket.on('weights', function(weights) {
+	lweights = weights;
+	updateWeights();
+	computeOrientationFunction();
+	drawOrientation();
+});
 
 socket.on('login_fail', function() {alert('Failed to login');})
 
@@ -108,6 +116,38 @@ function addPlay(active) {
 
 }
 
+function updateAI(ai) {
+	if (TA) {
+		if (ai) {
+			document.getElementById("aibutton").innerHTML("Turn off AI");
+		} else {
+			document.getElementById("aibutton").innerHTML("Turn on AI");
+		}
+	} else {
+
+	}
+}
+
+function updateStim(stim) {
+	if (TA) {
+		if (stim) {
+			document.getElementById("stimbutton").innerHTML("Turn off AI");
+		} else {
+			document.getElementById("aibutton").innerHTML("Turn on AI");
+		}
+	} else {
+
+	}
+}
+
+function drawOrientation() {
+	if (TA) {
+		drawOrientationTA();
+	} else {
+		drawOrientationStudent();
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -123,15 +163,26 @@ function addPlay(active) {
 function addTA(container) {
 	document.getElementById("ta_stuff").style.display="";
 	// add matrix
-	matContainer = new PIXI.Container();
-	matContainer.visible = false;
-	app.stage.addChild(matContainer);
+	// matContainer = new PIXI.Container();
+	// matContainer.visible = false;
+	// app.stage.addChild(matContainer);
 
-	// add graph
-	graphContainer = new PIXI.Container();
-	graphContainer.visible = false;
-	app.stage.addChild(graphContainer);
+	// // add graph
+	// graphContainer = new PIXI.Container();
+	// graphContainer.visible = false;
+	// app.stage.addChild(graphContainer);
 	
+	// add Orientation functions
+	var orientContainer = new PIXI.Container();
+	app.stage.addChild(orientContainer);
+}
+
+var orients;
+
+function drawOrientationTA() {
+	if (TA) {
+
+	}
 }
 
 function taPlay() {
@@ -146,8 +197,19 @@ function taReset() {
 	}
 }
 
-var matContainer,
-		matStructure = {};
+function taAI() {
+	if (TA) {
+		socket.emit('toggle_ai');
+	}
+}
+
+function taHideStimulus() {
+	if (TA) {
+		socket.emit('toggle_stim');
+	}
+}
+// var matContainer,
+// 		matStructure = {};
 
 // function fakeMatrix() {
 // 	matStructure.matrix = [];
@@ -157,131 +219,131 @@ var matContainer,
 // 	drawMatrix();
 // }
 
-function updateMatrix(matrix) {
-	matStructure.matrix = matrix;
-	drawMatrix();
-	if (!graphInit) {initGraph();}
-	drawGraph();
-}
+// function updateMatrix(matrix) {
+// 	matStructure.matrix = matrix;
+// 	drawMatrix();
+// 	if (!graphInit) {initGraph();}
+// 	drawGraph();
+// }
 
-function drawMatrix() {
-	if (matStructure.g!=undefined) {matStructure.g.destroy();}
-	var g = new PIXI.Graphics();
-	var m = matStructure.matrix,
-		sz = 20;
-	for (var i=0;i<m.length;i++) {
-		for (var j=0;j<m[i].length;j++) {
-			var val = m[i][j];
-			var color = (val + 0.25)/0.5;
-			if (val>0) {
-				g.beginFill(PIXI.utils.rgb2hex([0,val,0]),1);
-			} else {
-				g.beginFill(PIXI.utils.rgb2hex([val,0,0]),1);
-			}
-			g.drawRect(j*sz,i*sz,sz-1,sz-1);
-		}
-	}
-	matContainer.addChild(g);
-	matStructure.g = g;
-}
+// function drawMatrix() {
+// 	if (matStructure.g!=undefined) {matStructure.g.destroy();}
+// 	var g = new PIXI.Graphics();
+// 	var m = matStructure.matrix,
+// 		sz = 20;
+// 	for (var i=0;i<m.length;i++) {
+// 		for (var j=0;j<m[i].length;j++) {
+// 			var val = m[i][j];
+// 			var color = (val + 0.25)/0.5;
+// 			if (val>0) {
+// 				g.beginFill(PIXI.utils.rgb2hex([0,val,0]),1);
+// 			} else {
+// 				g.beginFill(PIXI.utils.rgb2hex([val,0,0]),1);
+// 			}
+// 			g.drawRect(j*sz,i*sz,sz-1,sz-1);
+// 		}
+// 	}
+// 	matContainer.addChild(g);
+// 	matStructure.g = g;
+// }
 
-function toggleMatrix() {
-	matContainer.visible = !matContainer.visible;
-	if (matContainer.visible) {
-		getMatrix();
-	}
-}
+// function toggleMatrix() {
+// 	matContainer.visible = !matContainer.visible;
+// 	if (matContainer.visible) {
+// 		getMatrix();
+// 	}
+// }
 
-var tickMatrix;
+// var tickMatrix;
 
-function getMatrix() {
-	if (tickMatrix!=undefined) {
-		return;
-	}
-	setTimeout(getMatrix,2000);
-	socket.emit('matrixRequest');
-}
+// function getMatrix() {
+// 	if (tickMatrix!=undefined) {
+// 		return;
+// 	}
+// 	setTimeout(getMatrix,2000);
+// 	socket.emit('matrixRequest');
+// }
 
-var graphContainer,
-		graphStructure = {},
-		graphInit = false;
+// var graphContainer,
+// 		graphStructure = {},
+// 		graphInit = false;
 
 
-function initGraph() {
-	graphInit = true;
+// function initGraph() {
+// 	graphInit = true;
 
-	// Build the graph and connections
-	var cpos = [700,300],
-		rad = 15,
-		bigrad = 200;
-	var m = matStructure.matrix,
-		xs = [],
-		ys = [];
-	graphStructure.students = [];
+// 	// Build the graph and connections
+// 	var cpos = [700,300],
+// 		rad = 15,
+// 		bigrad = 200;
+// 	var m = matStructure.matrix,
+// 		xs = [],
+// 		ys = [];
+// 	graphStructure.students = [];
 
-	for (var i=0;i<m.length;i++) {
-		var x = cpos[0] + bigrad*Math.cos(Math.PI*2*i/m.length),
-			y = cpos[1] + bigrad*Math.sin(Math.PI*2*i/m.length);
-		xs.push(x);
-		ys.push(y);
-	}
+// 	for (var i=0;i<m.length;i++) {
+// 		var x = cpos[0] + bigrad*Math.cos(Math.PI*2*i/m.length),
+// 			y = cpos[1] + bigrad*Math.sin(Math.PI*2*i/m.length);
+// 		xs.push(x);
+// 		ys.push(y);
+// 	}
 
-	graphStructure.xs = xs;
-	graphStructure.ys = ys;
-	graphStructure.rad = rad;
-	graphStructure.bigrad = bigrad;
-	graphStructure.cpos = cpos;
+// 	graphStructure.xs = xs;
+// 	graphStructure.ys = ys;
+// 	graphStructure.rad = rad;
+// 	graphStructure.bigrad = bigrad;
+// 	graphStructure.cpos = cpos;
 
-	for (var i=0;i<m.length;i++) {
-		var snode = new PIXI.Graphics();
+// 	for (var i=0;i<m.length;i++) {
+// 		var snode = new PIXI.Graphics();
 
-		snode.lineStyle(0,0,0);
-		snode.beginFill(0xFFFFFF,1);
-		snode.drawCircle(xs[i],ys[i],rad);
-		snode.alpha = 0.5;
-		console.log(snode.alpha);
-		graphContainer.addChild(snode);
-		graphStructure.students.push(snode);
+// 		snode.lineStyle(0,0,0);
+// 		snode.beginFill(0xFFFFFF,1);
+// 		snode.drawCircle(xs[i],ys[i],rad);
+// 		snode.alpha = 0.5;
+// 		console.log(snode.alpha);
+// 		graphContainer.addChild(snode);
+// 		graphStructure.students.push(snode);
 
-	}
-}
+// 	}
+// }
 
-function drawGraph() {
-	if (graphStructure.g!=undefined) {graphStructure.g.destroy();}
-	// Build the graph and connections
-	var cpos = graphStructure.cpos,
-		rad = graphStructure.rad,
-		bigrad = graphStructure.bigrad,
-		m = matStructure.matrix,
-		xs = graphStructure.xs,
-		ys = graphStructure.ys;
+// function drawGraph() {
+// 	if (graphStructure.g!=undefined) {graphStructure.g.destroy();}
+// 	// Build the graph and connections
+// 	var cpos = graphStructure.cpos,
+// 		rad = graphStructure.rad,
+// 		bigrad = graphStructure.bigrad,
+// 		m = matStructure.matrix,
+// 		xs = graphStructure.xs,
+// 		ys = graphStructure.ys;
 
-	for (var i=0;i<m.length;i++) {
-		var sg = new PIXI.Graphics();
+// 	for (var i=0;i<m.length;i++) {
+// 		var sg = new PIXI.Graphics();
 
-		// draw weight lines
-		var w = m[i];
-		for (var j=0;j<w.length;j++) {
-			if (i!=j) {
-				var cw = w[j];
-				cw = Math.pow((cw+0.25)*2,2);
+// 		// draw weight lines
+// 		var w = m[i];
+// 		for (var j=0;j<w.length;j++) {
+// 			if (i!=j) {
+// 				var cw = w[j];
+// 				cw = Math.pow((cw+0.25)*2,2);
 
-				sg.lineStyle(cw*5,PIXI.utils.rgb2hex([cw,cw,cw]),cw);
-				sg.moveTo(xs[i],ys[i]);
-				sg.lineTo(xs[j],ys[j]);
-			}
-		}
-		graphContainer.addChild(sg);
-		graphStructure.g = sg;
-	}
-}
+// 				sg.lineStyle(cw*5,PIXI.utils.rgb2hex([cw,cw,cw]),cw);
+// 				sg.moveTo(xs[i],ys[i]);
+// 				sg.lineTo(xs[j],ys[j]);
+// 			}
+// 		}
+// 		graphContainer.addChild(sg);
+// 		graphStructure.g = sg;
+// 	}
+// }
 
-function toggleGraph() {
-	graphContainer.visible = !graphContainer.visible;
-	if (graphContainer.visible) {
-		getMatrix();
-	}
-}
+// function toggleGraph() {
+// 	graphContainer.visible = !graphContainer.visible;
+// 	if (graphContainer.visible) {
+// 		getMatrix();
+// 	}
+// }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -294,6 +356,11 @@ function toggleGraph() {
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
+
+function drawOrientationStudent() {
+
+}
+
 
 var nrn;
 
@@ -314,7 +381,7 @@ function addSynapses(container) {
 	var lpos = [450,ORIGIN_HEIGHT/2], // approx left side of the neuron
 	irad = 400, // radius to bring synapses in from
 	inr = 0.4,
-	num = 20,
+	num = 16,
 	pr = 0.6,
 	mr = 0.5;
 
@@ -359,7 +426,7 @@ function addSynapses(container) {
 
 		container.addChild(syn.g);
 
-		if (i<=16) {
+		// if (i<=16) {
 			syn.plus = PIXI.Sprite.fromImage('images/plus-01.png');
 			syn.plus.anchor.set(0.5,0.5);
 			syn.plus.scale.set(0.75);
@@ -375,7 +442,7 @@ function addSynapses(container) {
 			syn.minus.interactive = true;
 			syn.minus.on('pointerdown', syn.negCall);
 			container.addChild(syn.minus);
-		}
+		// }
 
 		synapses.push(syn);
 	}
@@ -440,12 +507,12 @@ function fire() {
 	}
 	// 
 	if (TA) {
-		for (var i=0;i<rates.length;i++) {
-			if (Math.random()<(rates[i]/10)) {
-				graphStructure.students[i].alpha = graphStructure.students[i].alpha*2;
-				setTimeout(new Function('graphStructure.students['+i+'].alpha = graphStructure.students['+i+'].alpha/2;'),150);
-			}
-		}
+		// for (var i=0;i<rates.length;i++) {
+		// 	if (Math.random()<(rates[i]/10)) {
+		// 		graphStructure.students[i].alpha = graphStructure.students[i].alpha*2;
+		// 		setTimeout(new Function('graphStructure.students['+i+'].alpha = graphStructure.students['+i+'].alpha/2;'),150);
+		// 	}
+		// }
 	} else {
 		for (var i=0;i<rates.length;i++) {
 			if (Math.random()<(rates[i]/10)) {
@@ -462,6 +529,16 @@ function fire() {
 }
 
 fire();
+
+// Multiply the weight matrix by the canonical orientation map 
+// to compute 
+function computeOrientationFunction() {
+	if (TA) {
+
+	} else {
+
+	}
+}
 
 
 //// helpers
