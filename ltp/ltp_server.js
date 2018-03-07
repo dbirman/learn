@@ -36,6 +36,9 @@ function initSection(num) {
   newSection.tick = undefined; // tracks the 1 second tick when the simulation is on
 
   sections[num] = newSection;
+
+  // set up orientation map
+  preComputeOrientations(sections[num]);
 }
 
 io.on('connection', function(socket){
@@ -251,8 +254,45 @@ function initSimulation() {
   return sim
 }
 
+function preComputeOrientations(section) {
+  console.log('Pre-computing orientations');
+  // For this section, pre-compute the orientation map by using the point->line projection:
+  // For a point [x,y] the distance to a line centered at the origin is:
+  // dist = (cos(theta)x-sin(theta)x)/sqrt(cos(theta)^2+sin(theta)^2)
+
+  // Orientations will index the different orientations we calculate for
+  // LGN_FR will contain the computed firing rate for each of the LGN neurons, based on their X/Y distance
+  // We'll compute an exponential firing rate: (10/dist)-1 bounded at 10 and 0.
+  var max_fr = 10;
+
+  var orient = {};
+  orient.orientations = [];
+  orient.lgn_fr = [];
+
+  var lgn_pos = section.simulation.lgn_pos;
+
+  for (var theta=0;theta<Math.PI;theta+=Math.PI/36) {
+    orient.lgn_fr.push([]);
+    for (var li=0;li<section.simulation.nLGN;li++) {
+      var pos = lgn_pos[li],
+        ct = Math.cos(theta),
+        st = Math.sin(theta);
+      var dist = (ct*pos[0]-st*pos[1])/Math.sqrt(Math.pow(ct,2)+Math.pow(st,2));
+      var fr = Math.max(0,Math.min(10,(max_fr / dist ) - 1));
+      orient.lgn_fr[orient.lgn_fr.length-1].push(fr);
+    }
+    orient.orientations.push()
+  }
+
+  console.log(orient);
+
+  // save
+  section.orientation = orient;
+}
+
 function resetSimulation() {
   sections[sectionNum].simulation = initSimulation();
+  preComputeOrientations(sections[sectionNum]);
 }
 
 function toggleAI(num,id) {
@@ -299,6 +339,7 @@ function tick() {
     _tick(runningSections[i]);
     sendFiringRates(runningSections[i]);
     sendWeights(runningSections[i]);
+    sendOrientation(runnSections[i]);
   }
 
 }
@@ -307,25 +348,6 @@ var v1_lgn_ratio = 0.25;
 
 function _tick(section) {
   var sim = section.simulation;
-
-  // Show an orientation and use it to determine LGN, then V1 firing rates.
-  var whichOr = (sim.counter % 360);
-  var wedgeRange = [(whichOr-5)%360, (whichOr+5)%360];
-  var lgn_fr = Array.from(Array(sim.nLGN), () => 0);
-  for (var i = 0; i < sim.nLGN; i ++){
-    lgn_angle = Math.atan2(sim.lgn_pos[i][1],sim.lgn_pos[i][0]) + Math.PI; // convert cartesian to polar (0 to 2pi)
-    lgn_angle = (lgn_angle) * (180 / Math.PI); // convert radians to degrees
-
-    if ( (lgn_angle - whichOr)%360 <= 5){
-      lgn_fr[i] = 10-((lgn_angle - whichOr)%360)*2;
-    }
-    else if ( Math.abs(lgn_angle-whichOr)%360 <= 5) {
-      lgn_fr[i] =  10 - (Math.abs(lgn_angle-whichOr)%360)*2;
-    }
-    else if ( (whichOr - lgn_angle)%360 <=5){
-      lgn_fr[i] = 10 - (whichOr - lgn_angle)%360;
-    }
-  }
 
   // Set each v1 neuron's firing rate according to the sum of its inputs * weights
   var v1_fr = new Array(sim.nV1);
