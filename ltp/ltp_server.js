@@ -158,7 +158,7 @@ function updateSynapse(syn,sectionNum,id) {
 function initSimulation() {
   // Set number of v1 and lgn neurons
   var nV1 = 18;
-  var nLGN = 18;
+  var nLGN = 16;
 
   // all idx
   var all_idx = Array.from({length: nV1}, () => []);
@@ -179,29 +179,34 @@ function initSimulation() {
 
   // init v1 firing rates to 0
   var v1_fr = Array.from({length: nV1}, () => 0);
-  // init 18x18 v1<-->lgn weight matrix
-  var initWeights = [-0.4, 0.7, 0.7];
+  // init 18x16 v1<-->lgn weight matrix
   var lgn_wm = new Array(nV1);
   for (var i = 0; i < nV1; i++) {
-    lgn_wm[i] = zeros(nLGN);
-    var vals = initWeights.slice(0).shuffle();
-    for (var j=-1;j<2;j++) {
-      lgn_wm[i][i+j] = vals[j+1] + Math.random()*0.1-0.05;
+    lgn_wm[i] = new Array(nLGN);
+    lgn_wm[i] = Array.from({length: nLGN}, () => 0);;
+    for (var j=0;j< nLGN;j++) {
+      lgn_wm[i][j] = Math.random()*2 - 1; // random from -1 to 1;
     }
+  }
+
+  //assign each lgn neuron an (x,y) position
+  var lgn_pos = new Array(nLGN);
+  for ( var i = 0; i < nLGN; i ++){
+    lgn_pos[i] = [Math.random()*10 - 5, Math.random()*10 - 5];
   }
 
   // init 18x18 v1<-->lgn mask that determines if 2 neurons are connected.
-  var lgn_mask = new Array(nV1);
-  for (var i = 0; i < nV1; i++) {
-    lgn_mask[i] = new Array(nLGN);
-    lgn_mask[i] = Array.from(Array(nLGN), () => 0); // 0 if not connected
-    var inJ = Math.floor(i / 3);
-    for (var j = i; j < i + 3; j++) {
-      lgn_mask[i][j % lgn_mask[i].length] = 1; // 1 if they are
-      all_idx[i].push(j);
-    }
-  }
-
+  // var lgn_mask = new Array(nV1);
+  // for (var i = 0; i < nV1; i++) {
+  //   lgn_mask[i] = new Array(nLGN);
+  //   lgn_mask[i] = Array.from(Array(nLGN), () => 0); // 0 if not connected
+  //   var inJ = Math.floor(i / 3);
+  //   for (var j = i; j < i + 3; j++) {
+  //     lgn_mask[i][j % lgn_mask[i].length] = 1; // 1 if they are
+  //     all_idx[i].push(j);
+  //   }
+  // }
+ 
   var sim = {};
   // return a dictionary called sim
   sim.counter = 0;
@@ -210,7 +215,8 @@ function initSimulation() {
   sim.v1_wm = v1_wm;
   sim.v1_fr = v1_fr;
   sim.lgn_wm = lgn_wm;
-  sim.lgn_mask = lgn_mask;
+  sim.lgn_pos = lgn_pos;
+  //sim.lgn_mask = lgn_mask;
   sim.all_idx = all_idx;
 
   // Initialize Firing Rates to 0
@@ -271,14 +277,23 @@ function _tick(section) {
   var sim = section.simulation;
 
   // Show an orientation and use it to determine LGN, then V1 firing rates.
-  var whichOr = Math.floor(sim.counter % sim.nLGN);
+  var whichOr = (sim.counter % 360);
+  var wedgeRange = [(whichOr-5)%360, (whichOr+5)%360];
   var lgn_fr = Array.from(Array(sim.nLGN), () => 0);
-  lgn_fr[whichOr] = 5;
-  lgn_fr[(whichOr+1)%sim.nLGN] = 2;
-  lgn_fr[(whichOr-1)%sim.nLGN] = 2;
-  lgn_fr[(whichOr+2)%sim.nLGN] = 1;
-  lgn_fr[(whichOr-2)%sim.nLGN] = 1;
+  for (var i = 0; i < sim.nLGN; i ++){
+    lgn_angle = Math.atan2(sim.lgn_pos[i][1],sim.lgn_pos[i][0]) + Math.PI; // convert cartesian to polar (0 to 2pi)
+    lgn_angle = (lgn_angle) * (180 / Math.PI); // convert radians to degrees
 
+    if ( (lgn_angle - whichOr)%360 <= 5){
+      lgn_fr[i] = 10-((lgn_angle - whichOr)%360)*2;
+    }
+    else if ( Math.abs(lgn_angle-whichOr)%360 <= 5) {
+      lgn_fr[i] =  10 - (Math.abs(lgn_angle-whichOr)%360)*2;
+    }
+    else if ( (whichOr - lgn_angle)%360 <=5){
+      lgn_fr[i] = 10 - (whichOr - lgn_angle)%360;
+    }
+  }
 
   // Set each v1 neuron's firing rate according to the sum of its inputs * weights
   var v1_fr = new Array(sim.nV1);
@@ -300,7 +315,7 @@ function _tick(section) {
   for (var i = 0; i < sim.nV1; i++) {
     var w_v1 = sim.v1_wm[i];
     var w_lgn = sim.lgn_wm[i];
-    var mask_lgn = sim.lgn_mask[i];
+    //var mask_lgn = sim.lgn_mask[i];
 
     all_fr[i] = [];
     all_wm[i] = [];
@@ -316,16 +331,14 @@ function _tick(section) {
     }
 
 
-    // then add LGN firing rates (use the mask to block out)
+    // then add LGN firing rates
     for (var j = 0; j < sim.nLGN; j++){
-      thisFR += w_lgn[j]*mask_lgn[j]*lgn_fr[j];
-      if ( mask_lgn[j] == 1) {
-        all_fr[i].push(lgn_fr[j]);
-        all_wm[i].push(w_lgn[j]);
-      }
+      thisFR += w_lgn[j]*lgn_fr[j];
+      all_fr[i].push(lgn_fr[j]);
+      all_wm[i].push(w_lgn[j]);
     }
 
-    thisFR = Math.min(10,Math.max(0,thisFR));
+    thisFR = Math.min(10,Math.max(0,thisFR)); // max out at 10
     v1_fr[i] = thisFR;
   }
 
