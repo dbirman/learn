@@ -62,7 +62,7 @@ io.on('connection', function(socket){
         socket.on('toggle_ai', function() {toggleAI(socket.sectionNum,socket.id);});
         socket.on('toggle_stim', function() {toggleStimulus(socket.sectionNum,socket.id);});
 
-        socket.on('matrixRequest', function() {io.to(socket.id).emit('matrix',sections[socket.sectionNum].simulation.v1_wm);});
+        socket.on('matrixRequest', function() {io.to(socket.id).emit('matrix',sections[socket.sectionNum].simulation.lgn_wm);});
       }
     }
   });

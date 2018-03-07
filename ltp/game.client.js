@@ -11,7 +11,7 @@ socket.on('login', function (success) {
 	}
 });
 
-// socket.on('matrix', function(matrix) {updateMatrix(matrix);});
+socket.on('matrix', function(matrix) {updateMatrix(matrix);});
 
 // socket.on('graph', function(graph) {updateGraph(graph);});
 
@@ -163,11 +163,11 @@ function drawOrientation() {
 function addTA(container) {
 	document.getElementById("ta_stuff").style.display="";
 	// add matrix
-	// matContainer = new PIXI.Container();
-	// matContainer.visible = false;
-	// app.stage.addChild(matContainer);
+	matContainer = new PIXI.Container();
+	matContainer.visible = false;
+	app.stage.addChild(matContainer);
 
-	// // add graph
+	// add graph
 	// graphContainer = new PIXI.Container();
 	// graphContainer.visible = false;
 	// app.stage.addChild(graphContainer);
@@ -208,8 +208,8 @@ function taHideStimulus() {
 		socket.emit('toggle_stim');
 	}
 }
-// var matContainer,
-// 		matStructure = {};
+var matContainer,
+	matStructure = {};
 
 // function fakeMatrix() {
 // 	matStructure.matrix = [];
@@ -219,50 +219,50 @@ function taHideStimulus() {
 // 	drawMatrix();
 // }
 
-// function updateMatrix(matrix) {
-// 	matStructure.matrix = matrix;
-// 	drawMatrix();
-// 	if (!graphInit) {initGraph();}
-// 	drawGraph();
-// }
+function updateMatrix(matrix) {
+	matStructure.matrix = matrix;
+	drawMatrix();
+	// if (!graphInit) {initGraph();}
+	// drawGraph();
+}
 
-// function drawMatrix() {
-// 	if (matStructure.g!=undefined) {matStructure.g.destroy();}
-// 	var g = new PIXI.Graphics();
-// 	var m = matStructure.matrix,
-// 		sz = 20;
-// 	for (var i=0;i<m.length;i++) {
-// 		for (var j=0;j<m[i].length;j++) {
-// 			var val = m[i][j];
-// 			var color = (val + 0.25)/0.5;
-// 			if (val>0) {
-// 				g.beginFill(PIXI.utils.rgb2hex([0,val,0]),1);
-// 			} else {
-// 				g.beginFill(PIXI.utils.rgb2hex([val,0,0]),1);
-// 			}
-// 			g.drawRect(j*sz,i*sz,sz-1,sz-1);
-// 		}
-// 	}
-// 	matContainer.addChild(g);
-// 	matStructure.g = g;
-// }
+function drawMatrix() {
+	if (matStructure.g!=undefined) {matStructure.g.destroy();}
+	var g = new PIXI.Graphics();
+	var m = matStructure.matrix,
+		sz = 20;
+	for (var i=0;i<m.length;i++) {
+		for (var j=0;j<m[i].length;j++) {
+			var val = m[i][j];
+			var color = (val + 0.25)/0.5;
+			if (val>0) {
+				g.beginFill(PIXI.utils.rgb2hex([0,val,0]),1);
+			} else {
+				g.beginFill(PIXI.utils.rgb2hex([val,0,0]),1);
+			}
+			g.drawRect(j*sz,i*sz,sz-1,sz-1);
+		}
+	}
+	matContainer.addChild(g);
+	matStructure.g = g;
+}
 
-// function toggleMatrix() {
-// 	matContainer.visible = !matContainer.visible;
-// 	if (matContainer.visible) {
-// 		getMatrix();
-// 	}
-// }
+function toggleMatrix() {
+	matContainer.visible = !matContainer.visible;
+	if (matContainer.visible) {
+		getMatrix();
+	}
+}
 
-// var tickMatrix;
+var tickMatrix;
 
-// function getMatrix() {
-// 	if (tickMatrix!=undefined) {
-// 		return;
-// 	}
-// 	setTimeout(getMatrix,2000);
-// 	socket.emit('matrixRequest');
-// }
+function getMatrix() {
+	if (tickMatrix!=undefined) {
+		return;
+	}
+	setTimeout(getMatrix,2000);
+	socket.emit('matrixRequest');
+}
 
 // var graphContainer,
 // 		graphStructure = {},
