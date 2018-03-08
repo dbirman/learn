@@ -22,17 +22,17 @@ app.get( '/*' , function( req, res ) {
 
   var sections = {};
 
-function initSection(num) {
-  var newSection = {};
-  newSection.TAs = [];
-  newSection.students = zeros(18);
-  newSection.studentCount = 0;
-  newSection.studentPos = 0;
-  newSection.alpha = 0.025;
-  newSection.simulation = initSimulation();
-  newSection.sectionNum = num;
-  newSection.AI = false;
-  newSection.stimulus = true;
+  function initSection(num) {
+    var newSection = {};
+    newSection.TAs = [];
+    newSection.students = zeros(18);
+    newSection.studentCount = 0;
+    newSection.studentPos = 0;
+    newSection.alpha = 0.01;
+    newSection.simulation = initSimulation();
+    newSection.sectionNum = num;
+    newSection.AI = false;
+    newSection.stimulus = true;
   newSection.tick = undefined; // tracks the 1 second tick when the simulation is on
 
   sections[num] = newSection;
@@ -55,7 +55,7 @@ io.on('connection', function(socket){
 
       socket.on('synapse', function(syn) {updateSynapse(syn,socket.sectionNum,socket.id);});
     } else {
-      if (data.password==' ') {
+      if (data.password=='dearakshayneveragain') {
         addTA(data.sectionNum,socket.id);
         io.to(socket.id).emit('login',true);
         io.to(socket.id).emit('play',sections[socket.sectionNum].active);
@@ -281,8 +281,8 @@ function preComputeOrientations(section) {
     orient.lgn_fr.push([]);
     for (var li=0;li<section.simulation.nLGN;li++) {
       var pos = lgn_pos[li],
-        ct = Math.cos(theta),
-        st = Math.sin(theta);
+      ct = Math.cos(theta),
+      st = Math.sin(theta);
       var dist = Math.abs((ct*pos[0]-st*pos[1])/Math.sqrt(Math.pow(ct,2)+Math.pow(st,2)));
       var fr = Math.max(0,Math.min(10,(max_fr / (dist*4) ) - 1));
       orient.lgn_fr[orient.lgn_fr.length-1].push(fr);
@@ -353,7 +353,7 @@ function tick() {
   }
 }
 
-var v1_lgn_ratio = 0.25;
+var v1_lgn_ratio = 0.5;
 
 function _tick(section) {
   console.log('Ticking for section number: ' + section.sectionNum);
@@ -403,8 +403,9 @@ function _tick(section) {
       all_fr[i].push(lgn_fr[j]);
       all_wm[i].push(w_lgn[j]);
 
-    thisFR = Math.min(10,Math.max(0,thisFR)); // max out at 10
-    v1_fr[i] = thisFR;
+      thisFR = Math.min(10,Math.max(0,thisFR)); // max out at 10
+      v1_fr[i] = thisFR;
+    }
   }
 
   if (section.AI) {
@@ -422,7 +423,7 @@ function _tick(section) {
         // Check if I'm firing
         var this_isFiring = sim.v1_fr[i] > 0.25;
 
-        for (var j = 0; j < n_upd; j++){
+        for (var j = 0; j < n_upd; j++) {
           var randSyn = Math.floor(Math.random() * (sim.nLGN));
 
           var syn = {};
@@ -437,7 +438,6 @@ function _tick(section) {
             syn.positive = false;
             updateSynapse(syn, section.sectionNum, i);
             neg++;
-          }
           }
         }
       }
@@ -484,7 +484,7 @@ function sendWeights(section) {
  * @param {Number} length the length of the array to make
  * @returns {Array} the zero array
  */
- function zeros(length) {
+function zeros(length) {
   var tempArray = new Array(length);
   for (var i=0;i<tempArray.length;i++) {
     tempArray[i] = 0;
@@ -493,13 +493,13 @@ function sendWeights(section) {
 }
 
 Array.prototype.shuffle = function() {
-    var result = [];
-    while( this.length ) {
-        var index = Math.floor( this.length * Math.random() );
-        result.push( this[ index ] );
-        this.splice(index, 1);
-    }
-    return result;
+  var result = [];
+  while( this.length ) {
+    var index = Math.floor( this.length * Math.random() );
+    result.push( this[ index ] );
+    this.splice(index, 1);
+  }
+  return result;
 };
 
 tick();

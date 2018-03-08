@@ -155,9 +155,10 @@ function updateStim(stim) {
 		}
 	} else {
 		if (theta==undefined) {
-			setTimeout(function() {theta.viewport.visible=stim;},1000);
+			setTimeout(function() {theta.viewport.visible=stim;studentTuning.visible=stim;},1000);
 		} else {
 			theta.viewport.visible=stim;
+			studentTuning.visible = stim;
 		}
 	}
 }
@@ -520,10 +521,15 @@ function getMatrix() {
 
 var tuningg,
 	tuningaxes,
-	tuningAxesDrawn = false;
+	tuningAxesDrawn = false,
+	studentTuning;
 
 function drawOrientationStudent() {
-	console.log('here');
+	if (studentTuning==undefined) {
+		studentTuning = new PIXI.Container();
+		app.stage.addChild(studentTuning);
+	}
+
 	var pos = [750,700];
 	if (tuningg!=undefined) {tuningg.destroy();}
 
@@ -535,7 +541,7 @@ function drawOrientationStudent() {
 		tuningg.lineTo(pos[0]+ti*300/tuning.length,Math.min(pos[1],pos[1]-tuning[ti]*100/5));
 	}
 
-	app.stage.addChild(tuningg);
+	studentTuning.addChild(tuningg);
 
 	if (!tuningAxesDrawn) {
 		tuningaxes = new PIXI.Graphics();
@@ -552,7 +558,7 @@ function drawOrientationStudent() {
 		xaxis.y = pos[1]+5;
 		// xaxis.x = 650; xaxis.y = ORIGIN_HEIGHT/2;
 		// xaxis.alpha = 0.5;
-		app.stage.addChild(xaxis);
+		studentTuning.addChild(xaxis);
 		// Draw 8 little mini lines
 		// for (var xpos=0;xpos<8;xpos++) {
 		// 	xmini = pos[0]+xpos*300/7;
@@ -563,7 +569,7 @@ function drawOrientationStudent() {
 		tuningaxes.moveTo(pos[0],pos[1]);
 		tuningaxes.lineTo(pos[0],pos[1]-100);
 
-		app.stage.addChild(tuningaxes);
+		studentTuning.addChild(tuningaxes);
 
 		var style = new PIXI.TextStyle({
 			fill: 0xFFFFFF,
@@ -572,19 +578,19 @@ function drawOrientationStudent() {
 		t1.anchor.set(0.5,0);
 		t1.x = pos[0]+150;
 		t1.y = pos[1]+30;
-		app.stage.addChild(t1);
+		studentTuning.addChild(t1);
 		t2 = new PIXI.Text('Firing',style);
 		t2.x = pos[0]-40;
 		t2.y = pos[1]-50;
 		t2.anchor.set(0.5,0.5);
-		app.stage.addChild(t2);
+		studentTuning.addChild(t2);
 
 		t3 = new PIXI.Text('rate',style);
 		t3.x = pos[0]-40;
 		t3.y = pos[1]-30;
 		t3.anchor.set(0.5,0.5);
 
-		app.stage.addChild(t3);
+		studentTuning.addChild(t3);
 
 		tuningAxesDrawn=true;
 	}
