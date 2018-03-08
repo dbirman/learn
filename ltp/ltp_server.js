@@ -211,7 +211,7 @@ function initSimulation() {
     lgn_wm[i] = new Array(nLGN);
     lgn_wm[i] = Array.from({length: nLGN}, () => 0);;
     for (var j=0;j< nLGN;j++) {
-      lgn_wm[i][j] = Math.random()*2 - 1; // random from -1 to 1;
+      lgn_wm[i][j] = Math.random()*0.35 - .1; // random from -1 to 1;
     }
   }
 
@@ -411,14 +411,15 @@ function _tick(section) {
     // Update the AI's
     var pos = 0, neg = 0;
     var n_upd = 10;
-    if (section.students==undefined) {
-      nStuds = 0;
-    } else {
-      nStuds = section.students.length;
-    }
+    // if (section.students==undefined) {
+    //   nStuds = 0;
+    // } else {
+    //   nStuds = section.students.length;
+    // }
 
-    if ( nStuds < sim.nV1 ) {
-      for (var i = nStuds; i < sim.nV1; i++) {
+    // if ( nStuds < sim.nV1 ) {
+    for (var i = 0; i < section.students.length; i++) {
+      if (section.students[i]==0) {
         // Check if I'm firing
         var this_isFiring = sim.v1_fr[i] > 0.25;
 
@@ -442,7 +443,8 @@ function _tick(section) {
           }
         }
       }
-    }     
+    }
+    // }     
 
     console.log('Positive updates: ' + pos + ' negative updates: ' + neg);
   }

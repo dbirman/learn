@@ -542,7 +542,7 @@ lweights = [];
 
 function updateWeights() {
 	// Change the colors of the synapse graphics to reflect the new weights
-	for (var i=0;i<=16;i++) {
+	for (var i=0;i<16;i++) {
 		var syn = synapses[i];
 		syn.g.alpha = Math.max(0.05,Math.abs(lweights[i])*2);
 		const graphicsData = syn.g.graphicsData;
@@ -553,17 +553,17 @@ function updateWeights() {
 		syn.g.dirty++;
 		syn.g.clearDirty++;
 	}
-	for (var i=17;i<synapses.length;i++) {
-		var syn = synapses[i];
-		syn.g.alpha = Math.max(0.05,Math.abs(lweights[i])*(0.5/0.9));
-		const graphicsData = syn.g.graphicsData;
-		var color = lweights[i]>0 ? 0x00FF00 : 0xFF0000;
-		for (var gi=0;gi<graphicsData.length;gi++) {
-			graphicsData[gi].lineColor = color;
-		}
-		syn.g.dirty++;
-		syn.g.clearDirty++;
-	}
+	// for (var i=17;i<synapses.length;i++) {
+	// 	var syn = synapses[i];
+	// 	syn.g.alpha = Math.max(0.05,Math.abs(lweights[i])*(0.5/0.9));
+	// 	const graphicsData = syn.g.graphicsData;
+	// 	var color = lweights[i]>0 ? 0x00FF00 : 0xFF0000;
+	// 	for (var gi=0;gi<graphicsData.length;gi++) {
+	// 		graphicsData[gi].lineColor = color;
+	// 	}
+	// 	syn.g.dirty++;
+	// 	syn.g.clearDirty++;
+	// }
 }
 
 var lactive = false;
