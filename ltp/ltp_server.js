@@ -20,19 +20,19 @@ app.get( '/*' , function( req, res ) {
 
   */
 
-  var sections = {};
+var sections = {};
 
-  function initSection(num) {
-    var newSection = {};
-    newSection.TAs = [];
-    newSection.students = zeros(18);
-    newSection.studentCount = 0;
-    newSection.studentPos = 0;
-    newSection.alpha = 0.01;
-    newSection.simulation = initSimulation();
-    newSection.sectionNum = num;
-    newSection.AI = false;
-    newSection.stimulus = true;
+function initSection(num) {
+  var newSection = {};
+  newSection.TAs = [];
+  newSection.students = zeros(18);
+  newSection.studentCount = 0;
+  newSection.studentPos = 0;
+  newSection.alpha = 0.01;
+  newSection.simulation = initSimulation();
+  newSection.sectionNum = num;
+  newSection.AI = false;
+  newSection.stimulus = true;
   newSection.tick = undefined; // tracks the 1 second tick when the simulation is on
 
   sections[num] = newSection;
@@ -55,7 +55,7 @@ io.on('connection', function(socket){
 
       socket.on('synapse', function(syn) {updateSynapse(syn,socket.sectionNum,socket.id);});
     } else {
-      if (data.password=='dearakshayneveragain') {
+      if (data.password==' ') {
         addTA(data.sectionNum,socket.id);
         io.to(socket.id).emit('login',true);
         io.to(socket.id).emit('play',sections[socket.sectionNum].active);
@@ -82,11 +82,28 @@ io.on('connection', function(socket){
         }
       }
       remove(sections[socket.sectionNum].TAs,socket.id);
+      checkEmptySection(socket.sectionNum);
     } catch (err) {
       console.log(err);
     }
   }); 
 });
+
+function checkEmptySection(num) {
+  if (sections[num].TAs.length==0) {
+    for (var i=0;i<sections[num].students.length;i++) {
+      if (sections[num].students[i]!=0) {
+        return;
+      }
+    }
+  }
+  delete sections[num];
+  // try {
+  //   remove(runningSections,sections[num]);
+  // } catch (err) {
+  //   console.log(err);
+  // }
+}
 
 function addStudent(sectionNum,id) {
   checkInitSection(sectionNum);
@@ -122,7 +139,7 @@ function addTA(sectionNum,id) {
 function sendInitSignals(sectionNum,id) {
   io.to(id).emit('lgn_fr',sections[sectionNum].simulation.orient);
   io.to(id).emit('AIon',sections[sectionNum].simulation.AI);
-  io.to(id).emit('stimon',sections[sectionNum].simulation.stimulus);
+  io.to(id).emit('stimon',sections[sectionNum].stimulus);
 }
 
 function checkInitSection(num) {
@@ -450,7 +467,11 @@ function _tick(section) {
   sim.v1_fr = v1_fr;
   sim.all_fr = all_fr;
   sim.all_wm = all_wm;
-  sim.cOrient = (sim.cOrient+1) % sim.orient.orientations.length;
+  if (section.AI || (!section.stimulus)) {
+    sim.cOrient = Math.floor(Math.random() * sim.orient.orientations.length);
+  } else {
+    sim.cOrient = (sim.cOrient+1) % sim.orient.orientations.length;
+  }
   sim.cTheta = sim.orient.orientations[sim.cOrient];
 }
 

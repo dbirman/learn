@@ -147,6 +147,7 @@ function updateAI(ai) {
 }
 
 function updateStim(stim) {
+	console.log('Stimulus visible: ' +  stim);
 	if (TA) {
 		if (stim) {
 			document.getElementById("stimbutton").innerHTML = "Hide stimulus";
@@ -276,7 +277,7 @@ var tatung,
 
 function drawOrientationTA() {
 	if (TA) {
-		var pos = [650,0];
+		var pos = [650,40];
 		if (tatung!=undefined) {tatung.destroy();}
 
 		tatung = new PIXI.Graphics();
@@ -293,7 +294,7 @@ function drawOrientationTA() {
 		app.stage.addChild(tatung);
 
 		if (!taTuningAxesDrawn) {
-			pos[1] = pos[1]+40*18;
+			pos[1] = pos[1]+40*17;
 			tuningaxes = new PIXI.Graphics();
 			// X axis
 			tuningaxes.lineStyle(2,0xFFFFFF,1);
