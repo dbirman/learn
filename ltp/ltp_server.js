@@ -174,16 +174,6 @@ function updateSynapse(syn,sectionNum,id) {
   if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.25) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.25;}
   if(sections[sectionNum].simulation.lgn_wm[midx][ridx]<-0.1) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=-0.1;}
 
-  // if (ridx < 18) { // v1 connections
-  //   sections[sectionNum].simulation.v1_wm[midx][ridx] += update;
-  //   if(sections[sectionNum].simulation.v1_wm[midx][ridx]>0.25) {sections[sectionNum].simulation.v1_wm[midx][ridx]=0.25;}
-  //   if(sections[sectionNum].simulation.v1_wm[midx][ridx]<-0.1) {sections[sectionNum].simulation.v1_wm[midx][ridx]=-0.1;}
-  // } else {
-  //    sections[sectionNum].simulation.lgn_wm[midx][ridx] += update;
-  //    if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.9;}
-  //    if(sections[sectionNum].simulation.lgn_wm[midx][ridx]<-0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=-0.9;}
-  //  }
-
 }
 
 function initSimulation() {
@@ -299,7 +289,7 @@ function preComputeOrientations(section) {
 function resetSimulation(sectionNum) {
   sections[sectionNum].simulation = initSimulation();
   preComputeOrientations(sections[sectionNum]);
-  emitSignal(num,'lgn_fr',sections[num].simulation.orient.lgn_fr);
+  emitSignal(sectionNum,'lgn_fr',sections[sectionNum].simulation.orient.lgn_fr);
 }
 
 function toggleAI(num,id) {
@@ -400,7 +390,6 @@ function _tick(section) {
       thisFR += w_lgn[j]*lgn_fr[j];
       all_fr[i].push(lgn_fr[j]);
       all_wm[i].push(w_lgn[j]);
-    }
 
     thisFR = Math.min(10,Math.max(0,thisFR)); // max out at 10
     v1_fr[i] = thisFR;
@@ -422,22 +411,21 @@ function _tick(section) {
         var this_isFiring = sim.v1_fr[i] > 0.25;
 
         for (var j = 0; j < n_upd; j++){
-          var randSyn = Math.floor(Math.random() * (sim.nV1+2));
+          var randSyn = Math.floor(Math.random() * (sim.nLGN));
 
           var syn = {};
           syn.num = randSyn;
-          ridx = sim.all_idx[i][randSyn]
-          if (randSyn <= 16){
-            that_isFiring = sim.v1_fr[ridx] > 0.25;
-            if (that_isFiring && this_isFiring) { // if both neurons are firing
-              syn.positive = true;
-              updateSynapse(syn, section.sectionNum, i);
-              pos++;
-            } else if ((this_isFiring || that_isFiring) ) { // one neuron is firing and other is not
-              syn.positive = false;
-              updateSynapse(syn, section.sectionNum, i);
-              neg++;
-            }
+          that_isFiring = lgn_fr[randSyn] > 0.25;
+          
+          if (that_isFiring && this_isFiring) { // if both neurons are firing
+            syn.positive = true;
+            updateSynapse(syn, section.sectionNum, i);
+            pos++;
+          } else if ((this_isFiring || that_isFiring) ) { // one neuron is firing and other is not
+            syn.positive = false;
+            updateSynapse(syn, section.sectionNum, i);
+            neg++;
+          }
           }
         }
       }
