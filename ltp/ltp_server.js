@@ -37,7 +37,7 @@ function initSection(num) {
 
   sections[num] = newSection;
 
-  // set up orientation map
+  // set up orientation map and send to users
   preComputeOrientations(sections[num]);
 }
 
@@ -104,11 +104,13 @@ function addStudent(sectionNum,id) {
       break;
     }
   }
+  io.to(id).emit('lgn_fr',sections[sectionNum].simulation.orient);
 }
 
 function addTA(sectionNum,id) {
   checkInitSection(sectionNum);
   sections[sectionNum].TAs.push(id);
+  io.to(id).emit('lgn_fr',sections[sectionNum].simulation.orient);
 }
 
 function checkInitSection(num) {
@@ -233,7 +235,8 @@ function initSimulation() {
  
   var sim = {};
   // return a dictionary called sim
-  sim.counter = 0;
+  sim.cOrient = 0;
+  sim.cTheta = 0;
   sim.nV1 = nV1;
   sim.nLGN = nLGN;
   sim.v1_wm = v1_wm;
@@ -277,22 +280,25 @@ function preComputeOrientations(section) {
       var pos = lgn_pos[li],
         ct = Math.cos(theta),
         st = Math.sin(theta);
-      var dist = (ct*pos[0]-st*pos[1])/Math.sqrt(Math.pow(ct,2)+Math.pow(st,2));
-      var fr = Math.max(0,Math.min(10,(max_fr / dist ) - 1));
+      var dist = Math.abs((ct*pos[0]-st*pos[1])/Math.sqrt(Math.pow(ct,2)+Math.pow(st,2)));
+      var fr = Math.max(0,Math.min(10,(max_fr / (dist*3) ) - 1));
       orient.lgn_fr[orient.lgn_fr.length-1].push(fr);
     }
-    orient.orientations.push()
+    orient.orientations.push(theta);
   }
 
-  console.log(orient);
+  orient.lgn_pos = lgn_pos;
 
   // save
-  section.orientation = orient;
+  section.simulation.orient = orient;
+
+  return section;
 }
 
 function resetSimulation() {
   sections[sectionNum].simulation = initSimulation();
   preComputeOrientations(sections[sectionNum]);
+  emitSignal(num,'lgn_fr',sections[num].simulation.orient.lgn_fr);
 }
 
 function toggleAI(num,id) {
@@ -320,6 +326,7 @@ function toggleSimulation(num,id) {
 }
 
 function emitSignal(num,signal,value) {
+  console.log('Emitting signal: ' + signal + ' to section #' + num);
   for (var i=0;i<sections[num].students.length;i++) {
     io.to(sections[num].students[i]).emit(signal,value);
   }
@@ -339,20 +346,23 @@ function tick() {
     _tick(runningSections[i]);
     sendFiringRates(runningSections[i]);
     sendWeights(runningSections[i]);
-    sendOrientation(runnSections[i]);
+    emitSignal(runningSections[i].sectionNum,'orient',runningSections[i].simulation.cOrient);
   }
-
 }
 
 var v1_lgn_ratio = 0.25;
 
 function _tick(section) {
+  console.log('Ticking for section number: ' + section.sectionNum);
   var sim = section.simulation;
 
   // Set each v1 neuron's firing rate according to the sum of its inputs * weights
   var v1_fr = new Array(sim.nV1);
   var all_fr = new Array(sim.nV1);
   var all_wm = new Array(sim.nV1);
+
+  // Pull the LGN firing rate based on the counter
+  var lgn_fr = sim.orient.lgn_fr[sim.cOrient];
 
   // Output the average V1 weights
   // for (var i =0; i< sim.nV1;i++) {
@@ -380,7 +390,7 @@ function _tick(section) {
       if (j!=i) {
         thisFR += v1_lgn_ratio * w_v1[j] * sim.v1_fr[j];
         all_fr[i].push(sim.v1_fr[j]);
-        all_wm[i].push(w_v1[j]);
+        // all_wm[i].push(w_v1[j]);
       }
     }
 
@@ -397,8 +407,9 @@ function _tick(section) {
   }
 
   if (section.AI) {
+    console.log('here');
     // Update the AI's
-    var pos =0, neg =0;
+    var pos = 0, neg = 0;
     var n_upd = 10;
     if (section.students==undefined) {
       nStuds = 0;
@@ -435,22 +446,24 @@ function _tick(section) {
 
     console.log('Positive updates: ' + pos + ' negative updates: ' + neg);
   }
+
   sim.v1_fr = v1_fr;
   sim.all_fr = all_fr;
   sim.all_wm = all_wm;
-  sim.counter+=0.5;
+  sim.cOrient = (sim.cOrient+1) % sim.orient.orientations.length;
+  sim.cTheta = sim.orient.orientations[sim.cOrient];
 }
 
 function sendFiringRates(section) {
   for (var i=0;i<section.students.length;i++) {
     var rates = {};
-    rates.all = section.simulation.all_fr[i];
+    // rates.all = section.simulation.all_fr[i];
     rates.me = section.simulation.v1_fr[i];
     io.to(section.students[i]).emit('rates',rates);
   }
   for (var i=0;i<section.TAs.length;i++) {
     var rates = {};
-    rates.all = section.simulation.v1_fr;
+    rates.v1 = section.simulation.v1_fr;
     io.to(section.TAs[i]).emit('rates',rates);
   }
 }

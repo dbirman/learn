@@ -14,7 +14,8 @@ socket.on('login', function (success) {
 socket.on('matrix', function(matrix) {updateMatrix(matrix);});
 
 // socket.on('graph', function(graph) {updateGraph(graph);});
-
+socket.on('lgn_fr', function(lgn_fr) {setLGN_FR(lgn_fr);})
+socket.on('orient', function(theta) {updateTheta(theta);});
 socket.on('AIon', function(ai) {updateAI(ai);});
 socket.on('stimon', function(stim) {updateStim(stim);});
 
@@ -90,6 +91,7 @@ function launchPixi() {
 		addNeuron(viewContainer); 
 		addSynapses(viewContainer);
 	}
+	initTheta();
 	addPlay(lactive);
 }
 
@@ -146,6 +148,72 @@ function drawOrientation() {
 	} else {
 		drawOrientationStudent();
 	}
+}
+
+var theta;
+
+function initTheta() {
+	theta = {};
+	if (TA) {
+		theta.pos = [400,200];
+	} else {
+		theta.pos = [0,0];
+	}
+
+	if (theta.gLGN!=undefined) {theta.gLGN.destroy();}
+	theta.lgn = [];
+	// draw the LGN neurons (the firing rate code will make them fire)
+	theta.gLGN = new PIXI.Container();
+	theta.gLGN.x = theta.pos[0] + 100; theta.gLGN.y = theta.pos[1] + 100;
+	for (var i=0;i<nLGN;i++) {
+		// range is -5 to 5, so use that compute position in the 200 matrix (*20 basically)
+		g = new PIXI.Graphics();
+		g.beginFill(0xFFFFFF,0.5);
+		g.drawCircle(lgnpos[i][0]*20,lgnpos[i][1]*20,5);
+
+		theta.gLGN.addChild(g);
+		theta.lgn.push(g);
+	}
+}
+
+function updateTheta(cOrient) {
+	clgn_fr = lgn_fr[cOrient];
+	if (thetaContainer!=undefined) {thetaContainer.destroy();}
+	thetaContainer = new PIXI.Container();
+	app.stage.addChild(thetaContainer);
+
+	var nTheta = orientations[cOrient]
+
+	if (theta.g!=undefined) {theta.g.destroy();}
+
+	// draw a black box
+	theta.g = new PIXI.Graphics();
+	theta.g.beginFill(0x000000,1);
+	theta.g.drawRect(theta.pos[0],theta.pos[1],200,200);
+	thetaContainer.addChild(theta.g);
+
+	if (theta.gBar!=undefined) {theta.gBar.destroy();}
+	// draw an oriented bar
+	theta.gBar = new PIXI.Graphics();
+	theta.gBar.x = theta.pos[0] + 100; theta.gBar.y = theta.pos[1] + 100;
+	theta.gBar.beginFill(0xFFFFFF,0.25);
+	theta.gBar.drawRect(-100,-10,200,20);
+	theta.gBar.pivot = new PIXI.Point(0,0);
+	theta.gBar.rotation = -nTheta+Math.PI/2;
+	thetaContainer.addChild(theta.gBar);
+
+	// draw all of the actual nodes
+	thetaContainer.addChild(theta.gLGN);
+
+}
+
+var lgn_fr, nLGN, lgnpos, clgn_fr, orientations, thetaContainer;
+
+function setLGN_FR(orient) {
+	orientations = orient.orientations;
+	nLGN = orient.lgn_pos.length;
+	lgnpos = orient.lgn_pos;
+	lgn_fr = orient.lgn_fr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -466,7 +534,7 @@ var rates = [], // firing rates for the 11 synapses + neuron (0->11 indexes)
 	nrn_rate =0 ;
 
 function updateRates(nRates) {
-	rates = nRates.all;
+	// rates = nRates.all;
 	nrn_rate = nRates.me;
 }
 
@@ -507,15 +575,17 @@ function fire() {
 	}
 	// 
 	if (TA) {
-		// for (var i=0;i<rates.length;i++) {
-		// 	if (Math.random()<(rates[i]/10)) {
-		// 		graphStructure.students[i].alpha = graphStructure.students[i].alpha*2;
-		// 		setTimeout(new Function('graphStructure.students['+i+'].alpha = graphStructure.students['+i+'].alpha/2;'),150);
-		// 	}
-		// }
+		if (clgn_fr!=undefined) {
+			for (var i=0;i<clgn_fr.length;i++) {
+				if (Math.random()<(clgn_fr[i]/10)) {
+					theta.lgn[i].alpha = theta.lgn[i].alpha*2;
+					setTimeout(new Function('theta.lgn['+i+'].alpha = theta.lgn['+i+'].alpha/2;'),150);
+				}
+			}
+		}
 	} else {
-		for (var i=0;i<rates.length;i++) {
-			if (Math.random()<(rates[i]/10)) {
+		for (var i=0;i<lgn_fr.length;i++) {
+			if (Math.random()<(lgn_fr[i]/10)) {
 				synapses[i].g.alpha = synapses[i].g.alpha*2;
 				setTimeout(new Function('synapses['+i+'].g.alpha = synapses['+i+'].g.alpha/2;'),150);
 			}
