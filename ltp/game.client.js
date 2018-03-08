@@ -573,21 +573,26 @@ function fire() {
 	if (!lactive) {
 		return;
 	}
-	// 
+	// show lgn firing on the stimulus screen if stimulus is enabled
+	//[TODO]
+	if (clgn_fr!=undefined) {
+		for (var i=0;i<clgn_fr.length;i++) {
+			if (Math.random()<(clgn_fr[i]/10)) {
+				theta.lgn[i].alpha = theta.lgn[i].alpha*2;
+				setTimeout(new Function('theta.lgn['+i+'].alpha = theta.lgn['+i+'].alpha/2;'),150);
+			}
+		}
+	}
+
 	if (TA) {
+		// no differences
+	} else {
 		if (clgn_fr!=undefined) {
 			for (var i=0;i<clgn_fr.length;i++) {
 				if (Math.random()<(clgn_fr[i]/10)) {
-					theta.lgn[i].alpha = theta.lgn[i].alpha*2;
-					setTimeout(new Function('theta.lgn['+i+'].alpha = theta.lgn['+i+'].alpha/2;'),150);
+					synapses[i].g.alpha = synapses[i].g.alpha*2;
+					setTimeout(new Function('synapses['+i+'].g.alpha = synapses['+i+'].g.alpha/2;'),150);
 				}
-			}
-		}
-	} else {
-		for (var i=0;i<lgn_fr.length;i++) {
-			if (Math.random()<(lgn_fr[i]/10)) {
-				synapses[i].g.alpha = synapses[i].g.alpha*2;
-				setTimeout(new Function('synapses['+i+'].g.alpha = synapses['+i+'].g.alpha/2;'),150);
 			}
 		}
 		if (Math.random()<(nrn_rate/10)) {
