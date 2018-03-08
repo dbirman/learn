@@ -23,7 +23,9 @@ socket.on('rates', function(rates) {updateRates(rates);});
 
 socket.on('weights', function(weights) {
 	lweights = weights;
-	updateWeights();
+	if (!TA) {
+		updateWeights();
+	}
 	computeOrientationFunction();
 	drawOrientation();
 });
@@ -73,7 +75,7 @@ var rendererOptions = {
 	autoResize: true,
 }
 
-var ORIGIN_WIDTH = 1000, ORIGIN_HEIGHT = 800;
+var ORIGIN_WIDTH = 1200, ORIGIN_HEIGHT = 800;
 const app = new PIXI.Application(ORIGIN_WIDTH,ORIGIN_HEIGHT, rendererOptions);
 var graphics = [];
 
@@ -425,8 +427,76 @@ function getMatrix() {
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
-function drawOrientationStudent() {
+var tuningg,
+	tuningaxes,
+	tuningAxesDrawn = false;
 
+function drawOrientationStudent() {
+	console.log('here');
+	var pos = [750,700];
+	if (tuningg!=undefined) {tuningg.destroy();}
+
+	tuningg = new PIXI.Graphics();
+
+	tuningg.lineStyle(1,0xFFFFFF,1);
+	tuningg.moveTo(pos[0],pos[1]);
+	for (var ti=0;ti<tuning.length;ti++) {
+		tuningg.lineTo(pos[0]+ti*300/tuning.length,Math.min(pos[1],pos[1]-tuning[ti]*100/5));
+	}
+
+	app.stage.addChild(tuningg);
+
+	if (!tuningAxesDrawn) {
+		tuningaxes = new PIXI.Graphics();
+		// X axis
+		tuningaxes.lineStyle(2,0xFFFFFF,1);
+		tuningaxes.moveTo(pos[0],pos[1]);
+		tuningaxes.lineTo(pos[0]+300,pos[1]);
+
+
+		xaxis = PIXI.Sprite.fromImage('images/orientxaxis.png');
+		xaxis.anchor.set(0,0);
+		xaxis.scale.set(1);
+		xaxis.x = pos[0];
+		xaxis.y = pos[1]+5;
+		// xaxis.x = 650; xaxis.y = ORIGIN_HEIGHT/2;
+		// xaxis.alpha = 0.5;
+		app.stage.addChild(xaxis);
+		// Draw 8 little mini lines
+		// for (var xpos=0;xpos<8;xpos++) {
+		// 	xmini = pos[0]+xpos*300/7;
+		// 	ymini = pos[1]+10;
+		// }
+
+		// Y axis
+		tuningaxes.moveTo(pos[0],pos[1]);
+		tuningaxes.lineTo(pos[0],pos[1]-100);
+
+		app.stage.addChild(tuningaxes);
+
+		var style = new PIXI.TextStyle({
+			fill: 0xFFFFFF,
+		});
+		t1 = new PIXI.Text('Orientation',style);
+		t1.anchor.set(0.5,0);
+		t1.x = pos[0]+150;
+		t1.y = pos[1]+30;
+		app.stage.addChild(t1);
+		t2 = new PIXI.Text('Firing',style);
+		t2.x = pos[0]-40;
+		t2.y = pos[1]-50;
+		t2.anchor.set(0.5,0.5);
+		app.stage.addChild(t2);
+
+		t3 = new PIXI.Text('rate',style);
+		t3.x = pos[0]-40;
+		t3.y = pos[1]-30;
+		t3.anchor.set(0.5,0.5);
+
+		app.stage.addChild(t3);
+
+		tuningAxesDrawn=true;
+	}
 }
 
 
@@ -436,7 +506,7 @@ function addNeuron(container) {
 	nrn = PIXI.Sprite.fromImage('images/nrn.png');
 	nrn.anchor.set(0.5,0.5);
 	nrn.scale.set(0.4);
-	nrn.x = 600; nrn.y = ORIGIN_HEIGHT/2;
+	nrn.x = 650; nrn.y = ORIGIN_HEIGHT/2;
 	nrn.alpha = 0.5;
 	container.addChild(nrn);
 }
@@ -446,7 +516,7 @@ var synapses = [];
 function addSynapses(container) {
 	// Adds the eleven incoming synapses that can be up/down weighted
 
-	var lpos = [450,ORIGIN_HEIGHT/2], // approx left side of the neuron
+	var lpos = [500,ORIGIN_HEIGHT/2], // approx left side of the neuron
 	irad = 400, // radius to bring synapses in from
 	inr = 0.4,
 	num = 16,
@@ -580,21 +650,15 @@ function fire() {
 			if (Math.random()<(clgn_fr[i]/10)) {
 				theta.lgn[i].alpha = theta.lgn[i].alpha*2;
 				setTimeout(new Function('theta.lgn['+i+'].alpha = theta.lgn['+i+'].alpha/2;'),150);
-			}
-		}
-	}
-
-	if (TA) {
-		// no differences
-	} else {
-		if (clgn_fr!=undefined) {
-			for (var i=0;i<clgn_fr.length;i++) {
-				if (Math.random()<(clgn_fr[i]/10)) {
+				if (!TA) {
 					synapses[i].g.alpha = synapses[i].g.alpha*2;
 					setTimeout(new Function('synapses['+i+'].g.alpha = synapses['+i+'].g.alpha/2;'),150);
 				}
 			}
 		}
+	}
+
+	if (!TA) {
 		if (Math.random()<(nrn_rate/10)) {
 			nrn.alpha = 1;
 			setTimeout(function() {nrn.alpha = 0.5;},150);
@@ -605,13 +669,29 @@ function fire() {
 
 fire();
 
+
+var tuning;
 // Multiply the weight matrix by the canonical orientation map 
 // to compute 
 function computeOrientationFunction() {
+	tuning = [];
+	// clgn_fr is the current lgn firing rates (16 array)
+	// lweights is the current weights for each student, or just the current student
+	// simply multiply these 
 	if (TA) {
+		for (var stud=0;stud<lweights.length;stud++) {
+			cweights = lweights[stud];
 
+			var stuning = [];
+			for (var li=0;li<lgn_fr.length;li++) {
+				stuning.push(dot(lgn_fr[li],cweights));
+			}
+			tuning.push(stuning);
+		}
 	} else {
-
+		for (var li=0;li<lgn_fr.length;li++) {
+			tuning.push(dot(lgn_fr[li],lweights));
+		}
 	}
 }
 
@@ -651,4 +731,13 @@ function sum(array) {
 		csum+= array[ai];
 	}
 	return csum;
+}
+
+function dot(a1,a2) {
+	if (a1.length!=a2.length) {console.log('Dot product error'); return -1;}
+	var c=0;
+	for (var ai=0;ai<a1.length;ai++) {
+		c+=a1[ai]*a2[ai];
+	}
+	return c;
 }

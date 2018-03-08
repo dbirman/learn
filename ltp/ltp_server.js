@@ -157,27 +157,32 @@ function setSim(num,sim) {
 
 function updateSynapse(syn,sectionNum,id) {
   var idx = syn.num,
-  pos = syn.positive;
+  pos = syn.positive,
+  ridx = idx;
 
   if(typeof(id)=='string'){
     var midx = sections[sectionNum].students.indexOf(id);
   } else {
     var midx = id;
   }
-  var ridx = sections[sectionNum].simulation.all_idx[midx][idx];
+  // var ridx = sections[sectionNum].simulation.all_idx[midx][idx];
 
   var update = sections[sectionNum].alpha * (pos ? 1 : -1);
 
   // update the synaptic connection
-  if (ridx < 18) { // v1 connections
-    sections[sectionNum].simulation.v1_wm[midx][ridx] += update;
-    if(sections[sectionNum].simulation.v1_wm[midx][ridx]>0.25) {sections[sectionNum].simulation.v1_wm[midx][ridx]=0.25;}
-    if(sections[sectionNum].simulation.v1_wm[midx][ridx]<-0.1) {sections[sectionNum].simulation.v1_wm[midx][ridx]=-0.1;}
-  } else {
-     sections[sectionNum].simulation.lgn_wm[midx][ridx] += update;
-     if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.9;}
-     if(sections[sectionNum].simulation.lgn_wm[midx][ridx]<-0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=-0.9;}
-   }
+  sections[sectionNum].simulation.lgn_wm[midx][ridx] += update;
+  if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.25) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.25;}
+  if(sections[sectionNum].simulation.lgn_wm[midx][ridx]<-0.1) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=-0.1;}
+
+  // if (ridx < 18) { // v1 connections
+  //   sections[sectionNum].simulation.v1_wm[midx][ridx] += update;
+  //   if(sections[sectionNum].simulation.v1_wm[midx][ridx]>0.25) {sections[sectionNum].simulation.v1_wm[midx][ridx]=0.25;}
+  //   if(sections[sectionNum].simulation.v1_wm[midx][ridx]<-0.1) {sections[sectionNum].simulation.v1_wm[midx][ridx]=-0.1;}
+  // } else {
+  //    sections[sectionNum].simulation.lgn_wm[midx][ridx] += update;
+  //    if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.9;}
+  //    if(sections[sectionNum].simulation.lgn_wm[midx][ridx]<-0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=-0.9;}
+  //  }
 
 }
 
@@ -224,6 +229,9 @@ function initSimulation() {
   var lgn_pos = new Array(nLGN);
   for ( var i = 0; i < nLGN; i ++){
     lgn_pos[i] = [Math.random()*10 - 5, Math.random()*10 - 5];
+    while (Math.hypot(lgn_pos[i][0],lgn_pos[i][1])<2) {
+      lgn_pos[i] = [Math.random()*10 - 5, Math.random()*10 - 5];
+    }
   }
 
   var sim = {};
@@ -274,7 +282,7 @@ function preComputeOrientations(section) {
         ct = Math.cos(theta),
         st = Math.sin(theta);
       var dist = Math.abs((ct*pos[0]-st*pos[1])/Math.sqrt(Math.pow(ct,2)+Math.pow(st,2)));
-      var fr = Math.max(0,Math.min(10,(max_fr / (dist*3) ) - 1));
+      var fr = Math.max(0,Math.min(10,(max_fr / (dist*4) ) - 1));
       orient.lgn_fr[orient.lgn_fr.length-1].push(fr);
     }
     orient.orientations.push(theta);
@@ -288,7 +296,7 @@ function preComputeOrientations(section) {
   return section;
 }
 
-function resetSimulation({
+function resetSimulation(sectionNum) {
   sections[sectionNum].simulation = initSimulation();
   preComputeOrientations(sections[sectionNum]);
   emitSignal(num,'lgn_fr',sections[num].simulation.orient.lgn_fr);
@@ -464,6 +472,10 @@ function sendWeights(section) {
   for (var i=0;i<section.students.length;i++) {
     var weights = section.simulation.all_wm[i];
     io.to(section.students[i]).emit('weights',weights);
+  }
+  for (var i=0;i<section.TAs.length;i++) {
+    var weights = section.simulation.all_wm;
+    io.to(section.TAs[i]).emit('weights',weights);
   }
 }
 
