@@ -90,14 +90,19 @@ io.on('connection', function(socket){
 });
 
 function checkEmptySection(num) {
-  if (sections[num].TAs.length==0) {
-    for (var i=0;i<sections[num].students.length;i++) {
-      if (sections[num].students[i]!=0) {
-        return;
-      }
+  if (sections[num].TAs.length>0) {
+    return;
+  }
+  for (var i=0;i<sections[num].students.length;i++) {
+    if (sections[num].students[i]!=0) {
+      return;
     }
   }
-  delete sections[num];
+  if (runningSections.indexOf(sections[num])>-1) {
+    remove(runningSections,sections[num]);
+    sections[num].active = false;
+  }
+  // delete sections[num];
   // try {
   //   remove(runningSections,sections[num]);
   // } catch (err) {
@@ -318,7 +323,9 @@ function preComputeOrientations(section) {
 function resetSimulation(sectionNum) {
   sections[sectionNum].simulation = initSimulation();
   preComputeOrientations(sections[sectionNum]);
-  emitSignal(sectionNum,'lgn_fr',sections[sectionNum].simulation.orient.lgn_fr);
+  emitSignal(sectionNum,'lgn_fr',sections[sectionNum].simulation.orient);
+  emitSignal(sectionNum,'AIon',sections[sectionNum].simulation.AI);
+  emitSignal(sectionNum,'stimon',sections[sectionNum].stimulus);
 }
 
 function toggleAI(num,id) {
