@@ -104,13 +104,25 @@ function addStudent(sectionNum,id) {
       break;
     }
   }
-  io.to(id).emit('lgn_fr',sections[sectionNum].simulation.orient);
+  sendInitSignals(sectionNum,id);
+}
+
+function toggleStimulus(num,id) {
+  console.log('Toggling stimulus: ' + num);
+  sections[num].stimulus = !sections[num].stimulus;
+  emitSignal(num,'stimon',sections[num].stimulus);
 }
 
 function addTA(sectionNum,id) {
   checkInitSection(sectionNum);
   sections[sectionNum].TAs.push(id);
+  sendInitSignals(sectionNum,id);
+}
+
+function sendInitSignals(sectionNum,id) {
   io.to(id).emit('lgn_fr',sections[sectionNum].simulation.orient);
+  io.to(id).emit('AIon',sections[sectionNum].simulation.AI);
+  io.to(id).emit('stimon',sections[sectionNum].simulation.stimulus);
 }
 
 function checkInitSection(num) {
@@ -295,13 +307,13 @@ function resetSimulation(sectionNum) {
 function toggleAI(num,id) {
   console.log('Toggling AI: ' + num);
   sections[num].AI = !sections[num].AI;
-  emitSignal(num,'play',sections[num].AI);
+  emitSignal(num,'AIon',sections[num].AI);
 }
 
 function toggleStimulus(num,id) {
   console.log('Toggling stimulus: ' + num);
   sections[num].stimulus = !sections[num].stimulus;
-  emitSignal(num,'play',sections[num].stimulus);
+  emitSignal(num,'stimon',sections[num].stimulus);
 }
 
 function toggleSimulation(num,id) {
