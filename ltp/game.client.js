@@ -32,7 +32,7 @@ socket.on('weights', function(weights) {
 
 socket.on('login_fail', function() {alert('Failed to login');})
 
-socket.on('play', function(active) {console.log(active); lactive = active; addPlay(lactive); });
+socket.on('play', function(active) {lactive = active; addPlay(lactive); });
 
 function login(student,section,password) {
 	var data = {};
@@ -121,6 +121,7 @@ function addPlay(active) {
 }
 
 function updateAI(ai) {
+	noAI = !ai;
 	if (TA) {
 		if (ai) {
 			document.getElementById("aibutton").innerHTML = "Turn off AI";
@@ -128,7 +129,20 @@ function updateAI(ai) {
 			document.getElementById("aibutton").innerHTML = "Turn on AI";
 		}
 	} else {
-
+		// this disables weight updates from the students when the AI turns on
+		if (synapses!=undefined) {
+			for (var si=0;si<synapses.length;si++) {
+				synapses[si].plus.visible = noAI;
+				synapses[si].minus.visible = noAI;
+			}
+		} else {
+			setTimeout(function() {
+				for (var si=0;si<synapses.length;si++) {
+					synapses[si].plus.visible = noAI;
+					synapses[si].minus.visible = noAI;
+				}
+			},1000);
+		}
 	}
 }
 
@@ -137,10 +151,14 @@ function updateStim(stim) {
 		if (stim) {
 			document.getElementById("stimbutton").innerHTML = "Hide stimulus";
 		} else {
-			document.getElementById("aibutton").innerHTML("Show stimulus");
+			document.getElementById("stimbutton").innerHTML = "Show stimulus";
 		}
 	} else {
-
+		if (theta==undefined) {
+			setTimeout(function() {theta.viewport.visible=stim;},1000);
+		} else {
+			theta.viewport.visible=stim;
+		}
 	}
 }
 
@@ -164,6 +182,8 @@ function initTheta() {
 
 	if (theta.gLGN!=undefined) {theta.gLGN.destroy();}
 	theta.lgn = [];
+	theta.viewport = new PIXI.Container();
+	app.stage.addChild(theta.viewport);
 	// draw the LGN neurons (the firing rate code will make them fire)
 	theta.gLGN = new PIXI.Container();
 	theta.gLGN.x = theta.pos[0] + 100; theta.gLGN.y = theta.pos[1] + 100;
@@ -181,8 +201,8 @@ function initTheta() {
 function updateTheta(cOrient) {
 	clgn_fr = lgn_fr[cOrient];
 	if (thetaContainer!=undefined) {thetaContainer.destroy();}
-	thetaContainer = new PIXI.Container();
-	app.stage.addChild(thetaContainer);
+	var thetaContainer = new PIXI.Container();
+	theta.viewport.addChild(thetaContainer);
 
 	var nTheta = orientations[cOrient]
 
@@ -657,8 +677,10 @@ function addSynapses(container) {
 	}
 }
 
+var noAI = true;
+
 function synapseCallback(num,positive) {
-	if (lactive) {
+	if (lactive && noAI) {
 		console.log('You tried to make synapse #' + num + ' more positive ' + positive);
 		var syn = {};
 		syn.num = num;
