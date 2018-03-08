@@ -249,9 +249,80 @@ function addTA(container) {
 
 var orients;
 
+var tatung,
+	tatunaxes,
+	taTuningAxesDrawn = false;
+
 function drawOrientationTA() {
 	if (TA) {
+		var pos = [650,0];
+		if (tatung!=undefined) {tatung.destroy();}
 
+		tatung = new PIXI.Graphics();
+
+		for (var stud=0;stud<tuning.length;stud++) {
+			var ltuning = tuning[stud];
+			tatung.lineStyle(1,0xFFFFFF,1);
+			tatung.moveTo(pos[0],Math.min(stud*40+pos[1],stud*40+pos[1]-ltuning[0]*40/5));
+			for (var ti=0;ti<ltuning.length;ti++) {
+				tatung.lineTo(pos[0]+ti*300/ltuning.length,Math.min(stud*40+pos[1],stud*40+pos[1]-ltuning[ti]*40/5));
+			}
+		}
+
+		app.stage.addChild(tatung);
+
+		if (!taTuningAxesDrawn) {
+			pos[1] = pos[1]+40*18;
+			tuningaxes = new PIXI.Graphics();
+			// X axis
+			tuningaxes.lineStyle(2,0xFFFFFF,1);
+			tuningaxes.moveTo(pos[0],pos[1]);
+			tuningaxes.lineTo(pos[0]+300,pos[1]);
+
+
+			xaxis = PIXI.Sprite.fromImage('images/orientxaxis.png');
+			xaxis.anchor.set(0,0);
+			xaxis.scale.set(1);
+			xaxis.x = pos[0];
+			xaxis.y = pos[1]+5;
+			// xaxis.x = 650; xaxis.y = ORIGIN_HEIGHT/2;
+			// xaxis.alpha = 0.5;
+			app.stage.addChild(xaxis);
+			// Draw 8 little mini lines
+			// for (var xpos=0;xpos<8;xpos++) {
+			// 	xmini = pos[0]+xpos*300/7;
+			// 	ymini = pos[1]+10;
+			// }
+
+			// Y axis
+			tuningaxes.moveTo(pos[0],pos[1]);
+			tuningaxes.lineTo(pos[0],pos[1]-100);
+
+			app.stage.addChild(tuningaxes);
+
+			var style = new PIXI.TextStyle({
+				fill: 0xFFFFFF,
+			});
+			t1 = new PIXI.Text('Orientation',style);
+			t1.anchor.set(0.5,0);
+			t1.x = pos[0]+150;
+			t1.y = pos[1]+30;
+			app.stage.addChild(t1);
+			t2 = new PIXI.Text('Firing',style);
+			t2.x = pos[0]-40;
+			t2.y = pos[1]-50;
+			t2.anchor.set(0.5,0.5);
+			app.stage.addChild(t2);
+
+			t3 = new PIXI.Text('rate',style);
+			t3.x = pos[0]-40;
+			t3.y = pos[1]-30;
+			t3.anchor.set(0.5,0.5);
+
+			app.stage.addChild(t3);
+
+			taTuningAxesDrawn=true;
+		}
 	}
 }
 
