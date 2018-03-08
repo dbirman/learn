@@ -25,7 +25,7 @@ app.get( '/*' , function( req, res ) {
 function initSection(num) {
   var newSection = {};
   newSection.TAs = [];
-  newSection.students = zeros(19);
+  newSection.students = zeros(18);
   newSection.studentCount = 0;
   newSection.studentPos = 0;
   newSection.alpha = 0.025;
@@ -168,15 +168,16 @@ function updateSynapse(syn,sectionNum,id) {
 
   var update = sections[sectionNum].alpha * (pos ? 1 : -1);
 
-  if (idx<=16) {
+  // update the synaptic connection
+  if (ridx < 18) { // v1 connections
     sections[sectionNum].simulation.v1_wm[midx][ridx] += update;
     if(sections[sectionNum].simulation.v1_wm[midx][ridx]>0.25) {sections[sectionNum].simulation.v1_wm[midx][ridx]=0.25;}
     if(sections[sectionNum].simulation.v1_wm[midx][ridx]<-0.1) {sections[sectionNum].simulation.v1_wm[midx][ridx]=-0.1;}
-  }// } else {
-  //   sections[sectionNum].simulation.lgn_wm[midx][ridx] += update;
-  //   if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.9;}
-  //   if(sections[sectionNum].simulation.lgn_wm[midx][ridx]<-0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=-0.9;}
-  // }
+  } else {
+     sections[sectionNum].simulation.lgn_wm[midx][ridx] += update;
+     if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.9;}
+     if(sections[sectionNum].simulation.lgn_wm[midx][ridx]<-0.9) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=-0.9;}
+   }
 
 }
 
@@ -201,6 +202,10 @@ function initSimulation() {
         all_idx[i].push(j);
       }
     }
+
+    for (var j = 0; j < nLGN; j++) {
+      all_idx[i].push(j);
+    }
   }
 
   // init v1 firing rates to 0
@@ -221,18 +226,6 @@ function initSimulation() {
     lgn_pos[i] = [Math.random()*10 - 5, Math.random()*10 - 5];
   }
 
-  // init 18x18 v1<-->lgn mask that determines if 2 neurons are connected.
-  // var lgn_mask = new Array(nV1);
-  // for (var i = 0; i < nV1; i++) {
-  //   lgn_mask[i] = new Array(nLGN);
-  //   lgn_mask[i] = Array.from(Array(nLGN), () => 0); // 0 if not connected
-  //   var inJ = Math.floor(i / 3);
-  //   for (var j = i; j < i + 3; j++) {
-  //     lgn_mask[i][j % lgn_mask[i].length] = 1; // 1 if they are
-  //     all_idx[i].push(j);
-  //   }
-  // }
- 
   var sim = {};
   // return a dictionary called sim
   sim.cOrient = 0;
@@ -248,7 +241,7 @@ function initSimulation() {
 
   // Initialize Firing Rates to 0
   var all_fr = new Array(sim.nV1);
-  var nConns = sim.nV1-1+3;
+  var nConns = sim.nV1 + sim.nLGN - 1;
   for (var i = 0; i < nV1; i++){
     all_fr = Array.from({length: nConns}, () => 0);
   }
@@ -295,7 +288,7 @@ function preComputeOrientations(section) {
   return section;
 }
 
-function resetSimulation() {
+function resetSimulation({
   sections[sectionNum].simulation = initSimulation();
   preComputeOrientations(sections[sectionNum]);
   emitSignal(num,'lgn_fr',sections[num].simulation.orient.lgn_fr);
@@ -379,7 +372,6 @@ function _tick(section) {
   for (var i = 0; i < sim.nV1; i++) {
     var w_v1 = sim.v1_wm[i];
     var w_lgn = sim.lgn_wm[i];
-    //var mask_lgn = sim.lgn_mask[i];
 
     all_fr[i] = [];
     all_wm[i] = [];
@@ -407,7 +399,6 @@ function _tick(section) {
   }
 
   if (section.AI) {
-    console.log('here');
     // Update the AI's
     var pos = 0, neg = 0;
     var n_upd = 10;
@@ -417,7 +408,6 @@ function _tick(section) {
     //   nStuds = section.students.length;
     // }
 
-    // if ( nStuds < sim.nV1 ) {
     for (var i = 0; i < section.students.length; i++) {
       if (section.students[i]==0) {
         // Check if I'm firing
@@ -444,11 +434,11 @@ function _tick(section) {
         }
       }
     }
-    // }     
 
     console.log('Positive updates: ' + pos + ' negative updates: ' + neg);
   }
 
+  // Update firing rates
   sim.v1_fr = v1_fr;
   sim.all_fr = all_fr;
   sim.all_wm = all_wm;
