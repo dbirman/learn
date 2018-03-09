@@ -692,7 +692,7 @@ function synapseCallback(num,positive) {
 		var syn = {};
 		syn.num = num;
 		syn.positive = positive;
-		lweights[num] += 0.025 * (positive ? 1 : -1);
+		lweights[num] += 0.01 * (positive ? 1 : -1);
 		updateWeights();
 		socket.emit('synapse',syn);
 	}
