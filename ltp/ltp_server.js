@@ -10,7 +10,7 @@ app.get( '/*' , function( req, res ) {
     // give them what they want
     res.sendfile("./" + file);
   }); 
-
+  
 /*
 
   HEBBIAN LEARNING SIMULATION SERVER
@@ -205,7 +205,7 @@ function updateSynapse(syn,sectionNum,id) {
 
   // update the synaptic connection
   sections[sectionNum].simulation.lgn_wm[midx][ridx] += update;
-  if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.25) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.25;}
+  if(sections[sectionNum].simulation.lgn_wm[midx][ridx]>0.3) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=0.3;}
   if(sections[sectionNum].simulation.lgn_wm[midx][ridx]<-0.1) {sections[sectionNum].simulation.lgn_wm[midx][ridx]=-0.1;}
 
 }
@@ -223,7 +223,7 @@ function initSimulation() {
   for (var i = 0; i < nV1; i++) {
     v1_wm[i] = zeros(nV1); // [TODO] for now just init to zero
     // v1_wm[i] = new Array(nV1);
-    // v1_wm[i] = Array.from({length: nV1}, () => (Math.random()*.1 - .1));
+    v1_wm[i] = Array.from({length: nV1}, () => (Math.random()*.1 - .1));
     v1_wm[i][i]=0;
 
     for (var j = 0; j < nV1; j++){
@@ -245,7 +245,7 @@ function initSimulation() {
     lgn_wm[i] = new Array(nLGN);
     lgn_wm[i] = Array.from({length: nLGN}, () => 0);;
     for (var j=0;j< nLGN;j++) {
-      lgn_wm[i][j] = Math.random()*0.35 - .1; // random from -1 to 1;
+      lgn_wm[i][j] = Math.random()*0.4 - .1; // random from -1 to 1;
     }
   }
 
@@ -355,7 +355,7 @@ function toggleSimulation(num,id) {
 function emitSignal(num,signal,value) {
   console.log('Emitting signal: ' + signal + ' to section #' + num);
   for (var i=0;i<sections[num].students.length;i++) {
-    io.to(sections[num].students[i]).emit(signal,value);
+    if (sections[num].students[i]!=0) {io.to(sections[num].students[i]).emit(signal,value);}
   }
   for (var i=0;i<sections[num].TAs.length;i++) {
     io.to(sections[num].TAs[i]).emit(signal,value);
@@ -443,7 +443,7 @@ function _tick(section) {
     // }
 
     for (var i = 0; i < section.students.length; i++) {
-      if (section.students[i]==0) {
+      // if (section.students[i]==0) {
         // Check if I'm firing
         var this_isFiring = sim.v1_fr[i] > 0.25;
 
@@ -458,13 +458,13 @@ function _tick(section) {
             syn.positive = true;
             updateSynapse(syn, section.sectionNum, i);
             pos++;
-          } else if ((this_isFiring || that_isFiring) ) { // one neuron is firing and other is not
+          } else if ((this_isFiring || that_isFiring) && (Math.random()<0.5) ) { // one neuron is firing and other is not
             syn.positive = false;
             updateSynapse(syn, section.sectionNum, i);
             neg++;
           }
         }
-      }
+      // }
     }
 
     console.log('Positive updates: ' + pos + ' negative updates: ' + neg);
@@ -484,10 +484,12 @@ function _tick(section) {
 
 function sendFiringRates(section) {
   for (var i=0;i<section.students.length;i++) {
-    var rates = {};
-    // rates.all = section.simulation.all_fr[i];
-    rates.me = section.simulation.v1_fr[i];
-    io.to(section.students[i]).emit('rates',rates);
+    if (section.students[i]!=0) {
+      var rates = {};
+      // rates.all = section.simulation.all_fr[i];
+      rates.me = section.simulation.v1_fr[i];
+      io.to(section.students[i]).emit('rates',rates);
+    }
   }
   for (var i=0;i<section.TAs.length;i++) {
     var rates = {};
@@ -498,12 +500,12 @@ function sendFiringRates(section) {
 
 function sendWeights(section) {
   for (var i=0;i<section.students.length;i++) {
-    var weights = section.simulation.all_wm[i];
-    io.to(section.students[i]).emit('weights',weights);
+    if (section.students[i]!=0) {
+      io.to(section.students[i]).emit('weights',section.simulation.all_wm[i]);
+    }
   }
   for (var i=0;i<section.TAs.length;i++) {
-    var weights = section.simulation.all_wm;
-    io.to(section.TAs[i]).emit('weights',weights);
+    io.to(section.TAs[i]).emit('weights',section.simulation.all_wm);
   }
 }
 
