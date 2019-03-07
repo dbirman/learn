@@ -244,8 +244,12 @@ function initSimulation() {
   for (var i = 0; i < nV1; i++) {
     lgn_wm[i] = new Array(nLGN);
     lgn_wm[i] = Array.from({length: nLGN}, () => 0);;
-    for (var j=0;j< nLGN;j++) {
-      lgn_wm[i][j] = Math.random()*0.5 - .25; // random from -.25 to 0.25;
+    var sum = 0;
+    while (sum < 0.1)  { // Make sure the sum of the lgn weights to each neuron exceeds 0.1
+      for (var j=0; j<nLGN; j++) {
+        lgn_wm[i][j] = Math.random()*0.5 - .25; // random from -.25 to 0.25;
+        sum = sum + lgn_wm[i][j];
+      }
     }
   }
 

@@ -13,11 +13,12 @@ socket.on('login', function (success) {
 
 socket.on('matrix', function(matrix) {updateMatrix(matrix);});
 
+var stimVisible = false;
 // socket.on('graph', function(graph) {updateGraph(graph);});
 socket.on('lgn_fr', function(lgn_fr) {setLGN_FR(lgn_fr);})
 socket.on('orient', function(theta) {updateTheta(theta);});
 socket.on('AIon', function(ai) {updateAI(ai);});
-socket.on('stimon', function(stim) {updateStim(stim);});
+socket.on('stimon', function(stim) {if (stim) {stimVisible = true;} else {stimVisible = false;} updateStim(stim);});
 
 socket.on('rates', function(rates) {updateRates(rates);});
 
@@ -156,20 +157,25 @@ function cycleVisibleSynapses(){
   var nGroups = 3; // Divide the synapses into this many groups.
   var cycleIdx = cycleNum % nGroups; 
 
-  if (synapses != undefined && lactive) {
+  if (synapses != undefined && lactive && ! stimVisible) {
     var nSynsPerGroup = Math.ceil(synapses.length / nGroups);
     for( var si = 0; si < synapses.length; si++){
       if (si >= cycleIdx*nSynsPerGroup && si < (cycleIdx+1)*nSynsPerGroup){
-        synapses[si].plus.visible = 1;
-        synapses[si].minus.visible = 1;
-        synapses[si].g.visible = 1;
+        synapses[si].plus.alpha = 1;
+        synapses[si].minus.alpha = 1;
+        //synapses[si].g.alpha = 1;
       } else{
-        synapses[si].plus.visible = 0;
-        synapses[si].minus.visible = 0;
-        synapses[si].g.visible = 0;
+        synapses[si].plus.alpha = 0.05;
+        synapses[si].minus.alpha = 0.05;
+        //synapses[si].g.alpha = 0.05;
       }
     }
     cycleNum = cycleNum+1;
+  } else{
+    for (var si = 0; si < synapses.length; si++) {
+      synapses[si].plus.alpha = 1;
+      synapses[si].minus.alpha = 1;
+    }
   }
 }
 
