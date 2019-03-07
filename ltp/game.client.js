@@ -155,12 +155,14 @@ setInterval(cycleVisibleSynapses, 10000); // This function will be called once e
 
 function cycleVisibleSynapses(){
   var nGroups = 3; // Divide the synapses into this many groups.
+  var groupBounds = [0,5,10,16];
   var cycleIdx = cycleNum % nGroups; 
 
   if (synapses != undefined && lactive && ! stimVisible) {
     var nSynsPerGroup = Math.ceil(synapses.length / nGroups);
     for( var si = 0; si < synapses.length; si++){
-      if (si >= cycleIdx*nSynsPerGroup && si < (cycleIdx+1)*nSynsPerGroup){
+      //if (si >= cycleIdx*nSynsPerGroup && si < (cycleIdx+1)*nSynsPerGroup){
+      if (si >= groupBounds[cycleIdx] && si <  groupBounds[cycleIdx+1]){
         synapses[si].plus.alpha = 1;
         synapses[si].minus.alpha = 1;
         //synapses[si].g.alpha = 1;
