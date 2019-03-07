@@ -146,6 +146,33 @@ function updateAI(ai) {
 	}
 }
 
+// Code for cycling through which synapses are visible
+if (cycleNum == null){
+  var cycleNum = 0; // Keep track of which group of synapses to show.
+}
+setInterval(cycleVisibleSynapses, 10000); // This function will be called once every 10 seconds.
+
+function cycleVisibleSynapses(){
+  var nGroups = 3; // Divide the synapses into this many groups.
+  var cycleIdx = cycleNum % nGroups; 
+
+  if (synapses != undefined && lactive) {
+    var nSynsPerGroup = Math.ceil(synapses.length / nGroups);
+    for( var si = 0; si < synapses.length; si++){
+      if (si >= cycleIdx*nSynsPerGroup && si < (cycleIdx+1)*nSynsPerGroup){
+        synapses[si].plus.visible = 1;
+        synapses[si].minus.visible = 1;
+        synapses[si].g.visible = 1;
+      } else{
+        synapses[si].plus.visible = 0;
+        synapses[si].minus.visible = 0;
+        synapses[si].g.visible = 0;
+      }
+    }
+    cycleNum = cycleNum+1;
+  }
+}
+
 function updateStim(stim) {
 	console.log('Stimulus visible: ' +  stim);
 	if (TA) {

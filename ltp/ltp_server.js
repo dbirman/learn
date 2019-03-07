@@ -245,14 +245,16 @@ function initSimulation() {
     lgn_wm[i] = new Array(nLGN);
     lgn_wm[i] = Array.from({length: nLGN}, () => 0);;
     for (var j=0;j< nLGN;j++) {
-      lgn_wm[i][j] = Math.random()*0.4 - .1; // random from -1 to 1;
+      lgn_wm[i][j] = Math.random()*0.5 - .25; // random from -.25 to 0.25;
     }
   }
 
   //assign each lgn neuron an (x,y) position
   var lgn_pos = new Array(nLGN);
   for ( var i = 0; i < nLGN; i ++){
-    lgn_pos[i] = [Math.random()*10 - 5, Math.random()*10 - 5];
+    //lgn_pos[i] = [Math.random()*10 - 5, Math.random()*10 - 5];
+    // Instead of arranging totally randomly, place in a grid and add random jitter to ensure a more even distribution.
+    lgn_pos[i] = [-4 + 2.5*(i%4) + 2*Math.random()-1, -4 + 2.5*Math.floor(i/4) + 2*Math.random()-1];
     while (Math.hypot(lgn_pos[i][0],lgn_pos[i][1])<2) {
       lgn_pos[i] = [Math.random()*10 - 5, Math.random()*10 - 5];
     }
@@ -306,7 +308,7 @@ function preComputeOrientations(section) {
       ct = Math.cos(theta),
       st = Math.sin(theta);
       var dist = Math.abs((ct*pos[0]-st*pos[1])/Math.sqrt(Math.pow(ct,2)+Math.pow(st,2)));
-      var fr = Math.max(0,Math.min(10,(max_fr / (dist*4) ) - 1));
+      var fr = Math.max(0,Math.min(10,(max_fr / (dist*5) ) - 1));
       orient.lgn_fr[orient.lgn_fr.length-1].push(fr);
     }
     orient.orientations.push(theta);
