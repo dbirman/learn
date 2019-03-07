@@ -28,7 +28,7 @@ function initSection(num) {
   newSection.students = zeros(18);
   newSection.studentCount = 0;
   newSection.studentPos = 0;
-  newSection.alpha = 0.01;
+  newSection.alpha = 0.025;
   newSection.simulation = initSimulation();
   newSection.sectionNum = num;
   newSection.AI = false;
