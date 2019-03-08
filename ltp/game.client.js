@@ -151,7 +151,7 @@ function updateAI(ai) {
 if (cycleNum == null){
   var cycleNum = 0; // Keep track of which group of synapses to show.
 }
-setInterval(cycleVisibleSynapses, 10000); // This function will be called once every 10 seconds.
+// setInterval(cycleVisibleSynapses, 10000); // This function will be called once every 10 seconds.
 
 function cycleVisibleSynapses(){
   var nGroups = 3; // Divide the synapses into this many groups.
