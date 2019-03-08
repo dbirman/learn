@@ -371,6 +371,8 @@ function emitSignal(num,signal,value) {
 var tickID,
 runningSections = [];
 
+let skip = 0;
+
 function tick() {
   console.log('tick');
   tickID = setTimeout(tick,1000);
@@ -481,7 +483,12 @@ function _tick(section) {
   sim.all_fr = all_fr;
   sim.all_wm = all_wm;
   if (section.AI || (!section.stimulus)) {
-    sim.cOrient = Math.floor(Math.random() * sim.orient.orientations.length);
+    if (skip>=3) {
+      sim.cOrient = Math.floor(Math.random() * sim.orient.orientations.length);
+      skip = 0;
+    } else {
+      skip++;
+    }
   } else {
     sim.cOrient = (sim.cOrient+1) % sim.orient.orientations.length;
   }
